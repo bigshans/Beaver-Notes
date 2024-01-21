@@ -95,7 +95,9 @@
           type="checkbox"
           @change="toggleSpellcheck"
         />
-        <span class="inline-block ml-2 align-middle"> Toggle spell check </span>
+        <span class="inline-block ml-2 align-middle">
+          {{ translations.settings.spellcheck || '-' }}
+        </span>
       </label>
     </section>
     <section>
@@ -104,14 +106,7 @@
         <div class="bg-input transition w-6/12 rounded-lg p-4">
           <div class="text-center mb-8 dark:text-gray-300 text-gray-600">
             <span
-              class="
-                p-5
-                rounded-full
-                bg-black
-                dark:bg-white dark:bg-opacity-5
-                bg-opacity-5
-                inline-block
-              "
+              class="p-5 rounded-full bg-black dark:bg-white dark:bg-opacity-5 bg-opacity-5 inline-block"
             >
               <v-remixicon size="36" name="riFileUploadLine" />
             </span>
@@ -137,14 +132,7 @@
         <div class="bg-input transition w-6/12 rounded-lg p-4 flex flex-col">
           <div class="text-center mb-6 dark:text-gray-300 text-gray-600">
             <span
-              class="
-                p-5
-                rounded-full
-                bg-black
-                dark:bg-white dark:bg-opacity-5
-                bg-opacity-5
-                inline-block
-              "
+              class="p-5 rounded-full bg-black dark:bg-white dark:bg-opacity-5 bg-opacity-5 inline-block"
             >
               <v-remixicon size="36" name="riFileDownloadLine" />
             </span>
@@ -439,6 +427,7 @@ export default {
         exportmessage: 'settings.exportmessage',
         invaliddata: 'settings.invaliddata',
         syncreminder: 'settings.syncreminder',
+        spellcheck: 'settings.spellcheck',
       },
     });
 
