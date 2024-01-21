@@ -171,6 +171,6 @@
   },
   "commandprompt": {
     "placeholder": "Cerca un file o digita '>' per vedere i comandi",
-    "unititlednote": "Nota senza titolo"
+    "untitlednote": "Nota senza titolo"
   }
 }

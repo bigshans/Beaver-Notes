@@ -172,6 +172,6 @@
   },
   "commandprompt": {
     "placeholder": "Datei suchen oder '>' eingeben, um Befehle zu suchen",
-    "unititlednote": "Unbenannte Notiz"
+    "untitlednote": "Unbenannte Notiz"
   }
 }
