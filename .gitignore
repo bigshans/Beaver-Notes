@@ -61,4 +61,4 @@ types/env.d.ts
 
 packages/main/dist/index.cjs
 packages/preload/dist/index.cjs
-packages/renderer/dist/index.cjs
+packages/renderer/dist/*
