@@ -32,7 +32,7 @@ const createWindow = async () => {
       contextIsolation: env.MODE !== 'test',
       enableRemoteModule: env.MODE === 'test',
       nodeIntegration: true,
-      spellcheck: false,
+      spellcheck: true,
     },
   });
 
@@ -100,6 +100,10 @@ ipcMain.answerRenderer('app:info', () => ({
   name: app.getName(),
   version: app.getVersion(),
 }));
+
+ipcMain.answerRenderer('app:spellcheck', (isEnabled) => {
+    mainWindow.webContents.session.setSpellCheckerEnabled(isEnabled);
+});
 
 ipcMain.answerRenderer('dialog:open', (props) => dialog.showOpenDialog(props));
 ipcMain.answerRenderer('dialog:message', (props) => dialog.showMessageBox(props));
