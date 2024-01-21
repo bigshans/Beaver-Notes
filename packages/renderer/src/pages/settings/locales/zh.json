@@ -173,6 +173,6 @@
   },
   "commandprompt": {
     "placeholder": "搜索文件或者键入 '>' 进行命令搜索",
-    "untitlednote": "无标题笔记"
+    "unititlednote": "无标题笔记"
   }
 }
