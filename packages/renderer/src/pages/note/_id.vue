@@ -22,7 +22,7 @@
       </span>
     </button>
     <template v-if="editor">
-      <note-menu v-bind="{ editor }" class="mb-6" />
+      <note-menu v-bind="{ editor, id }" class="mb-6" />
       <note-search
         v-if="showSearch"
         v-bind="{ editor }"
@@ -71,7 +71,8 @@ export default {
     const editor = shallowRef(null);
     const showSearch = shallowRef(false);
 
-    const note = computed(() => noteStore.getById(route.params.id));
+    const id = computed(() => route.params.id);
+    const note = computed(() => noteStore.getById(id.value));
 
     const updateNote = debounce((data) => {
       Object.assign(data, { updatedAt: Date.now() });
@@ -166,6 +167,7 @@ export default {
     };
 
     return {
+      id,
       note,
       translations,
       store,
