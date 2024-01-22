@@ -6,8 +6,8 @@
   font-variant-ligatures: normal;
 }
 .ProseMirror {
-    font-size: 1.125rem;
-    line-height: 1.25;
+    font-size: 1.065rem;
+    line-height: 1.5;
 }
 .ProseMirror a {
   @apply text-primary dark:text-amber-400 !important;
