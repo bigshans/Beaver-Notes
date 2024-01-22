@@ -111,6 +111,7 @@ img.ProseMirror-selectednode {
 
       display: flex;
       align-items: flex-start;
+      padding-left: 0 !important;
     }
   }
   .find {
