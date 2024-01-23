@@ -62,6 +62,9 @@ img.ProseMirror-selectednode {
           top: 0.45em !important;
       }
   }
+  li ul {
+      margin-top: 0 !important;
+  }
   ul[data-type="taskList"] {
     list-style: none;
     padding: 0;
