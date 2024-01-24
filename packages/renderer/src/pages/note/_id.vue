@@ -8,14 +8,7 @@
     >
       <v-remixicon
         name="riArrowDownLine"
-        class="
-          mr-2
-          -ml-1
-          group-hover:-translate-x-1
-          transform
-          transition
-          rotate-90
-        "
+        class="mr-2 -ml-1 group-hover:-translate-x-1 transform transition rotate-90"
       />
       <span>
         {{ translations._idvue.Previousnote || '-' }}
@@ -29,12 +22,16 @@
         @keyup.esc="closeSearch"
       />
     </template>
-    <input
+    <div
+      contenteditable="true"
       :value="note.title"
-      class="text-4xl block font-bold bg-transparent w-full mb-6"
+      class="text-4xl outline-none block font-bold bg-transparent w-full mb-6"
       :placeholder="translations._idvue.untitlednote || '-'"
-      @input="updateNote({ title: $event.target.value })"
-    />
+      @input="updateNote({ title: $event.target.innerText })"
+    >
+      {{ note.title }}
+    </div>
+
     <note-editor
       :id="$route.params.id"
       :key="$route.params.id"

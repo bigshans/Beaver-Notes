@@ -105,6 +105,10 @@ ipcMain.answerRenderer('app:spellcheck', (isEnabled) => {
     mainWindow.webContents.session.setSpellCheckerEnabled(isEnabled);
 });
 
+ipcMain.answerRenderer('app:set-zoom', (newZoomLevel) => {
+  mainWindow.webContents.zoomFactor = newZoomLevel;
+});
+
 ipcMain.answerRenderer('dialog:open', (props) => dialog.showOpenDialog(props));
 ipcMain.answerRenderer('dialog:message', (props) => dialog.showMessageBox(props));
 ipcMain.answerRenderer('dialog:save', (props) => dialog.showSaveDialog(props));
