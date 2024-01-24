@@ -109,6 +109,8 @@ ipcMain.answerRenderer('app:set-zoom', (newZoomLevel) => {
   mainWindow.webContents.zoomFactor = newZoomLevel;
 });
 
+ipcMain.answerRenderer('app:get-zoom', () => mainWindow.webContents.zoomFactor);
+
 ipcMain.answerRenderer('dialog:open', (props) => dialog.showOpenDialog(props));
 ipcMain.answerRenderer('dialog:message', (props) => dialog.showMessageBox(props));
 ipcMain.answerRenderer('dialog:save', (props) => dialog.showSaveDialog(props));
