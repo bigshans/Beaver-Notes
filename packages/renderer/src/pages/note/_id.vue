@@ -39,7 +39,10 @@
       :key="$route.params.id"
       :model-value="note.content"
       :cursor-position="note.lastCursorPosition"
-      @update="updateNote({ content: $event })"
+      @update="
+        autoScroll();
+        updateNote({ content: $event });
+      "
       @init="editor = $event"
     />
   </div>
@@ -81,27 +84,44 @@ export default {
     const id = computed(() => route.params.id);
     const note = computed(() => noteStore.getById(id.value));
 
-    const updateNote = debounce((data) => {
-      if (noteEditor.value) {
-        const lastChild =
-          noteEditor.value.$el.querySelector('.ProseMirror').lastChild;
-        const selection = window.getSelection();
-        if (lastChild.contains(selection.anchorNode)) {
-          const range = selection.getRangeAt(0);
-          const rect = range.getBoundingClientRect();
-
-          const lineHeight = rect.height;
-
-          const offset = Math.abs(
-            rect.bottom - lastChild.getBoundingClientRect().bottom
-          );
-          if (lineHeight === 0) {
-            lastChild.scrollIntoView();
-          } else if (offset < lineHeight) {
-            lastChild.scrollIntoView();
-          }
-        }
+    const autoScroll = () => {
+      if (!noteEditor.value) {
+        return;
       }
+      const lastChild =
+        noteEditor.value.$el.querySelector('.ProseMirror').lastChild;
+      // does scrollbar appear
+      if (
+        !(
+          document.body.scrollHeight >
+          (window.innerHeight || document.documentElement.clientHeight)
+        )
+      ) {
+        return;
+      }
+      const selection = window.getSelection();
+      // the anchorNode must be the child of the last child or is the last child.
+      if (!lastChild.contains(selection.anchorNode)) {
+        return;
+      }
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+
+      const lineHeight = rect.height;
+
+      const offset = Math.abs(
+        rect.bottom - lastChild.getBoundingClientRect().bottom
+      );
+      if (lineHeight === 0) {
+        // empty line
+        lastChild.scrollIntoView();
+      } else if (offset < lineHeight) {
+        // the offset of last line will not exceed the line height
+        lastChild.scrollIntoView();
+      }
+    };
+
+    const updateNote = debounce((data) => {
       Object.assign(data, { updatedAt: Date.now() });
 
       noteStore.update(note.value.id, data);
@@ -210,6 +230,7 @@ export default {
       updateNote,
       closeSearch,
       disallowedEnter,
+      autoScroll,
     };
   },
 };
