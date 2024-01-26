@@ -8,14 +8,7 @@
     >
       <v-remixicon
         name="riArrowDownLine"
-        class="
-          mr-2
-          -ml-1
-          group-hover:-translate-x-1
-          transform
-          transition
-          rotate-90
-        "
+        class="mr-2 -ml-1 group-hover:-translate-x-1 transform transition rotate-90"
       />
       <span>
         {{ translations._idvue.Previousnote || '-' }}
@@ -32,17 +25,7 @@
     <div
       contenteditable="true"
       :value="note.title"
-      class="
-        text-4xl
-        outline-none
-        block
-        font-bold
-        bg-transparent
-        w-full
-        mb-6
-        cursor-text
-        title-placeholder
-      "
+      class="text-4xl outline-none block font-bold bg-transparent w-full mb-6 cursor-text title-placeholder"
       :placeholder="translations._idvue.untitlednote || '-'"
       @input="updateNote({ title: $event.target.innerText })"
       @keydown="disallowedEnter"
@@ -52,6 +35,7 @@
 
     <note-editor
       :id="$route.params.id"
+      ref="noteEditor"
       :key="$route.params.id"
       :model-value="note.content"
       :cursor-position="note.lastCursorPosition"
@@ -61,7 +45,14 @@
   </div>
 </template>
 <script>
-import { shallowRef, computed, watch, onMounted, shallowReactive } from 'vue';
+import {
+  ref,
+  shallowRef,
+  computed,
+  watch,
+  onMounted,
+  shallowReactive,
+} from 'vue';
 import { useRouter, onBeforeRouteLeave, useRoute } from 'vue-router';
 import { useNoteStore } from '@/store/note';
 import { useLabelStore } from '@/store/label';
@@ -84,12 +75,33 @@ export default {
     const labelStore = useLabelStore();
 
     const editor = shallowRef(null);
+    const noteEditor = ref();
     const showSearch = shallowRef(false);
 
     const id = computed(() => route.params.id);
     const note = computed(() => noteStore.getById(id.value));
 
     const updateNote = debounce((data) => {
+      if (noteEditor.value) {
+        const lastChild =
+          noteEditor.value.$el.querySelector('.ProseMirror').lastChild;
+        const selection = window.getSelection();
+        if (lastChild.contains(selection.anchorNode)) {
+          const range = selection.getRangeAt(0);
+          const rect = range.getBoundingClientRect();
+
+          const lineHeight = rect.height;
+
+          const offset = Math.abs(
+            rect.bottom - lastChild.getBoundingClientRect().bottom
+          );
+          if (lineHeight === 0) {
+            lastChild.scrollIntoView();
+          } else if (offset < lineHeight) {
+            lastChild.scrollIntoView();
+          }
+        }
+      }
       Object.assign(data, { updatedAt: Date.now() });
 
       noteStore.update(note.value.id, data);
@@ -189,6 +201,7 @@ export default {
 
     return {
       id,
+      noteEditor,
       note,
       translations,
       store,
