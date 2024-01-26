@@ -44,6 +44,7 @@
         updateNote({ content: $event });
       "
       @init="editor = $event"
+      @keyup.down="autoScroll"
     />
   </div>
 </template>
@@ -84,7 +85,7 @@ export default {
     const id = computed(() => route.params.id);
     const note = computed(() => noteStore.getById(id.value));
 
-    const autoScroll = () => {
+    const autoScroll = debounce(() => {
       if (!noteEditor.value) {
         return;
       }
@@ -122,7 +123,7 @@ export default {
         // the offset of last line will not exceed the line height
         lastChild.scrollIntoView();
       }
-    };
+    }, 50);
 
     const updateNote = debounce((data) => {
       Object.assign(data, { updatedAt: Date.now() });
