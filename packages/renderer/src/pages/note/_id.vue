@@ -106,12 +106,15 @@ export default {
       }
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
+      const lastRect = lastChild.getBoundingClientRect();
 
       const lineHeight = rect.height;
 
-      const offset = Math.abs(
-        rect.bottom - lastChild.getBoundingClientRect().bottom
-      );
+      const offset = Math.abs(rect.bottom - lastRect.bottom);
+      // editor must fill the viewport
+      if (lastRect.top + lastRect.height <= window.innerHeight) {
+        return;
+      }
       if (lineHeight === 0) {
         // empty line
         lastChild.scrollIntoView();
