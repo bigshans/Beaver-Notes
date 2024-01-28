@@ -140,6 +140,10 @@ img.ProseMirror-selectednode {
   }
 }
 
+.prose li {
+    margin: 0 !important;
+}
+
 /* Basic editor styles */
 .tiptap {
   > * + * {
