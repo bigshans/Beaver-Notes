@@ -84,15 +84,16 @@ img.ProseMirror-selectednode {
       input[type='checkbox'] {
         appearance: none;
         -webkit-appearance: none;
-        width: 20px;
-        height: 20px;
+        width: 15px;
+        height: 15px;
         border-radius: 50%;
         border: 2px solid #ccc;
         outline: none;
         cursor: pointer;
         transition: border-color 0.3s;
         vertical-align: middle;
-      }      
+        margin-top: -0.1em;
+      }
 
       input[type="checkbox"]:checked {
         border-color: #FBBF24;
