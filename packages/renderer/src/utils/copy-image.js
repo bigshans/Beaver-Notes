@@ -14,8 +14,15 @@ async function readFile(file) {
     fileReader.onload = (event) => {
       /* @type {ArrayBuffer} */
       const result = event.target.result;
-      const view = new Uint32Array(result);
-      resolve(view);
+
+      // Pad the byte length to be a multiple of 4
+      const paddedLength = Math.ceil(result.byteLength / 4) * 4;
+      const paddedBuffer = new ArrayBuffer(paddedLength);
+      const paddedView = new Uint8Array(paddedBuffer);
+      paddedView.set(new Uint8Array(result));
+
+      const uint32View = new Uint32Array(paddedBuffer);
+      resolve(uint32View);
     };
     fileReader.onerror = (event) => {
       reject(event);

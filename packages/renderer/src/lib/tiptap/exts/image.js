@@ -15,6 +15,7 @@ async function insertImages(files, callback) {
       continue;
     }
     const noteId = store.activeNoteId;
+    const name = file.name; // Assuming you want to use the file name
     if (file.path) {
       const { fileName } = await copyImage(file.path, noteId);
 
@@ -34,7 +35,10 @@ export default Image.extend({
       props: {
         handleDOMEvents: {
           paste: async (view, event) => {
-            insertImages(event.clipboardData.files, (src, alt) => {
+            const files = (
+              event.clipboardData || event.originalEvent.clipboardData
+            ).files;
+            insertImages(files, (src, alt) => {
               if (this.editor.isActive('image')) {
                 this.editor.commands.setTextSelection(
                   view.state.tr.curSelection.to + 1
@@ -48,6 +52,7 @@ export default Image.extend({
             });
           },
         },
+
         handleDrop: (view, event) => {
           insertImages(event.dataTransfer.files, (src, alt) => {
             const { schema } = view.state;
