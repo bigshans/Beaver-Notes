@@ -95,7 +95,7 @@ export default {
     const isCommand = computed(() => state.query.startsWith('>'));
     const queryTerm = computed(() => {
       const searchQuery = state.query.toLocaleLowerCase();
-      return (isCommand.value ? searchQuery.substr(1) : searchQuery).trim();
+      return (isCommand.value ? searchQuery.substring(1) : searchQuery).trim();
     });
 
     const items = computed(() => {
