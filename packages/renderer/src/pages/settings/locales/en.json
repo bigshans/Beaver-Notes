@@ -66,7 +66,17 @@
     "strikethrough": "Strikethrough",
     "highlight": "Highlight",
     "inlinecode": "Inline code",
-    "delete": "Delete current note"
+    "delete": "Delete current note",
+    "tableOptions": "Table options",
+    "tableInsert": "Insert table",
+    "addRowAbove": "Add row above",
+    "addRowBelow": "Add row below",
+    "addColumnLeft": "Add column left",
+    "addColumnRight": "Add column right",
+    "deleteRow": "Delete row",
+    "deleteColumn": "Delete column",
+    "toggleHeader": "Toggle header cell",
+    "deleteTable": "Delete table"
   },
   "card": {
     "unarchived": "Unarchived",
