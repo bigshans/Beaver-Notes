@@ -62,6 +62,8 @@ export const extensions = [
       };
     },
   }).configure({
+    protocols: ['http', 'https'],
+    validate: (href) => /^https?:\/\//.test(href),
     openOnClick: false,
     HTMLAttributes: {
       target: '_blank',
