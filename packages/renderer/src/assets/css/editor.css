@@ -115,6 +115,8 @@ li[data-checked="true"] {
         line-height: 20px;
         text-align: center;
         color: #fbbf24;
+        margin-top: -0.25rem;
+        margin-left: -0.05rem;
       }
 
       display: flex;
