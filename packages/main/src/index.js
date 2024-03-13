@@ -12,8 +12,6 @@ if (!isSingleInstance) {
   process.exit(0);
 }
 
-app.disableHardwareAcceleration();
-
 /**
  * Workaround for TypeScript bug
  * @see https://github.com/microsoft/TypeScript/issues/41468#issuecomment-727543400
@@ -25,7 +23,7 @@ let mainWindow = null;
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
     show: false,
-    width: 980,
+    width: 950,
     height: 600,
     webPreferences: {
       preload: join(__dirname, '../../preload/dist/index.cjs'),

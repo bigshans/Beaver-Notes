@@ -7,14 +7,16 @@
       @paste="handlePaste"
     />
     <note-bubble-menu v-if="editor" v-bind="{ editor }" />
+    <note-bubble-menu-table v-if="editor" v-bind="{ editor, isTyping }" />
   </div>
 </template>
 
 <script>
-import { onMounted } from 'vue';
+import { onMounted, watch, ref } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import { useRouter } from 'vue-router';
 import { extensions } from '@/lib/tiptap';
+import NoteBubbleMenuTable from './NoteBubbleMenuTable.vue';
 import NoteBubbleMenu from './NoteBubbleMenu.vue';
 import '@/assets/css/one-dark.css';
 import '@/assets/css/one-light.css';
@@ -23,6 +25,7 @@ export default {
   components: {
     EditorContent,
     NoteBubbleMenu,
+    NoteBubbleMenuTable,
   },
   props: {
     modelValue: {
@@ -97,9 +100,28 @@ export default {
       });
     });
 
+    const isTyping = ref(false);
+    let typingTimeout;
+
+    watch(
+      () => editor.value && editor.value.getHTML(),
+      (newValue, oldValue) => {
+        if (newValue !== oldValue) {
+          clearTimeout(typingTimeout);
+
+          isTyping.value = true;
+
+          typingTimeout = setTimeout(() => {
+            isTyping.value = false;
+          }, 1000);
+        }
+      }
+    );
+
     return {
       editor,
       handlePaste,
+      isTyping,
     };
   },
 };
