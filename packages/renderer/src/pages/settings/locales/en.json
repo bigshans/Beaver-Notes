@@ -204,7 +204,12 @@
     "toggleexport": "Toggle export",
     "toggleimport": "Toggle import",
     "toggledarktheme": "Toggle dark theme",
-    "Archive": "Archive"
+    "Archive": "Archive",
+    "notification": "Notification",
+    "exportSuccess": "Export successful!",
+    "importSuccess": "Import successful!",
+    "exportFail": "Export failed!",
+    "importFail": "Import failed!"
   },
   "commandprompt": {
     "placeholder": "Search file or type '>' to search commands",
