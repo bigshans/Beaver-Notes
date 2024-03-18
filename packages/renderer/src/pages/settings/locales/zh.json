@@ -204,7 +204,12 @@
     "toggleexport": "导出",
     "toggleimport": "导入",
     "toggledarktheme": "启用/禁用深色主题",
-    "Archive": "归档"
+    "Archive": "归档",
+    "notification": "通知",
+    "exportSuccess": "导出成功！",
+    "importSuccess": "导入成功！",
+    "exportFail": "导出失败！",
+    "importFail": "导入失败！"
   },
   "commandprompt": {
     "placeholder": "搜索文件或者键入 '>' 进行命令搜索",

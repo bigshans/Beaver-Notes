@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, protocol, nativeTheme, shell } from 'electron';
+import { app, BrowserWindow, dialog, protocol, nativeTheme, Notification, shell } from 'electron';
 import { ipcMain } from 'electron-better-ipc';
 import { join, normalize } from 'path';
 import { URL } from 'url';
@@ -98,6 +98,10 @@ ipcMain.answerRenderer('app:info', () => ({
   name: app.getName(),
   version: app.getVersion(),
 }));
+
+ipcMain.answerRenderer('app:notification', ({ title, body }) => {
+  new Notification({ title, body }).show();
+});
 
 ipcMain.answerRenderer('app:spellcheck', (isEnabled) => {
     mainWindow.webContents.session.setSpellCheckerEnabled(isEnabled);

@@ -96,7 +96,7 @@ import dayjs from '@/lib/dayjs';
 
 export default {
   setup() {
-    const { ipcRenderer, path } = window.electron;
+    const { ipcRenderer, path, notification } = window.electron;
     const theme = useTheme();
     const router = useRouter();
     const dialog = useDialog();
@@ -201,7 +201,15 @@ export default {
 
         state.withPassword = false;
         state.password = '';
+        notification({
+          title: translations.sidebar.notification,
+          body: translations.sidebar.exportSuccess,
+        });
       } catch (error) {
+        notification({
+          title: translations.sidebar.notification,
+          body: translations.sidebar.exportFail,
+        });
         console.error(error);
       }
     }
@@ -317,7 +325,15 @@ export default {
             return;
           }
         }
+        notification({
+          title: translations.sidebar.notification,
+          body: translations.sidebar.importSuccess,
+        });
       } catch (error) {
+        notification({
+          title: translations.sidebar.notification,
+          body: translations.sidebar.importFail,
+        });
         console.error('Error while importing data:', error);
       }
     }
@@ -339,6 +355,11 @@ export default {
         toggledarktheme: 'sidebar.toggledarktheme',
         Notes: 'sidebar.Notes',
         Archive: 'sidebar.Archive',
+        notification: 'sidebar.notification',
+        exportSuccess: 'sidebar.exportSuccess',
+        importSuccess: 'sidebar.importSuccess',
+        exportFail: 'sidebar.exportFail',
+        importFail: 'sidebar.importFail',
       },
       settings: {
         title: 'settings.title',
