@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <ui-modal :model-value="state.show" content-class="max-w-sm" persist>
     <template #header>
@@ -14,6 +15,15 @@
       :label="state.options.label"
       class="w-full mt-4"
     ></ui-input>
+    <label
+      v-if="state.options.showSkipWarn"
+      class="flex items-center space-x-2"
+    >
+      <input v-model="disableDialog" type="checkbox" class="form-checkbox" />
+      <span class="inline-block align-middle">
+        {{ translations.index.hide || '-' }}</span
+      >
+    </label>
     <div class="mt-8 flex space-x-2">
       <ui-button class="w-6/12" @click="fireCallback('onCancel')">
         {{ state.options.cancelText }}
@@ -29,8 +39,9 @@
   </ui-modal>
 </template>
 <script>
-import { reactive, watch } from 'vue';
+import { onMounted, ref, reactive, shallowReactive, watch } from 'vue';
 import emitter from 'tiny-emitter/instance';
+import { useTranslate } from '../../composable/translation';
 
 const defaultOptions = {
   html: false,
@@ -43,6 +54,8 @@ const defaultOptions = {
   cancelText: 'Cancel',
   onConfirm: null,
   onCancel: null,
+  showSkipWarn: false,
+  onSkip: null,
 };
 
 export default {
@@ -53,6 +66,16 @@ export default {
       input: '',
       options: defaultOptions,
     });
+    const translations = shallowReactive({
+      index: {
+        hide: 'index.hide',
+      },
+    });
+    const disableDialog = ref(false);
+
+    onMounted(async () => {
+      await useTranslate({ translations });
+    });
 
     emitter.on('show-dialog', (type, options) => {
       state.type = type;
@@ -60,6 +83,7 @@ export default {
         ...defaultOptions,
         ...options,
       };
+      console.log(state);
 
       state.show = true;
     });
@@ -73,6 +97,11 @@ export default {
         const cbReturn = callback(param);
 
         if (typeof cbReturn === 'boolean') hide = cbReturn;
+      }
+
+      if (disableDialog.value) {
+        console.log(state.options.onSkip);
+        state.options.onSkip && state.options.onSkip();
       }
 
       if (hide) {
@@ -103,6 +132,8 @@ export default {
     return {
       state,
       fireCallback,
+      translations,
+      disableDialog,
     };
   },
 };
