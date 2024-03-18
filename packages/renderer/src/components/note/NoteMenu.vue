@@ -349,14 +349,22 @@ export default {
     }
 
     function deleteNode() {
+      const del = async () => {
+        await noteStore.delete(props.id);
+        router.push('/');
+      };
+      console.log(store.getNoWarnFor.useInnerDelete);
+      if (!store.getNoWarnFor.useInnerDelete) {
+        del();
+        return;
+      }
       dialog.confirm({
         title: translations.card.confirmPrompt,
         okText: translations.card.confirm,
         cancelText: translations.card.Cancel,
-        onConfirm: async () => {
-          await noteStore.delete(props.id);
-          router.push('/');
-        },
+        onConfirm: del,
+        showSkipWarn: true,
+        onSkip: () => store.setNoWarnFor({ useInnerDelete: false }),
       });
     }
 
@@ -411,6 +419,9 @@ export default {
         deleteColumn: 'menu.deleteColumn',
         toggleHeader: 'menu.toggleHeader',
         deleteTable: 'menu.deleteTable',
+      },
+      index: {
+        hint: 'index.hint',
       },
     });
 
