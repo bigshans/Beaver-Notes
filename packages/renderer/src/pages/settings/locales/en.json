@@ -51,6 +51,8 @@
     "heading": "Heading",
     "image": "Image",
     "imgurl": "Image url",
+    "video": "Video",
+    "vidUrl": "Video url",
     "Link": "Link",
     "File": "File",
     "Print": "Print",
@@ -192,7 +194,11 @@
     "wrongCurrentPassword": "Wrong password, please try again",
     "passwordResetError": "Something went wrong while resetting your password",
     "passwordResetSuccess": "The password has been reset successfully",
-    "menuBarVisibility": "Hidden Menu Bar"
+    "menuBarVisibility": "Hidden Menu Bar",
+    "interfaceDirection": "Interface Direction",
+    "LTR": "LTR",
+    "RTL": "RTL",
+    "autosync": "Auto sync"
   },
   "_idvue": {
     "Previousnote": "Previous notes",

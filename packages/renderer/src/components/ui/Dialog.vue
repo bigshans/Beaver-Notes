@@ -15,17 +15,8 @@
       :label="state.options.label"
       class="w-full mt-4"
     ></ui-input>
-    <label
-      v-if="state.options.showSkipWarn"
-      class="flex items-center space-x-2"
-    >
-      <input v-model="disableDialog" type="checkbox" class="form-checkbox" />
-      <span class="inline-block align-middle">
-        {{ translations.index.hide || '-' }}</span
-      >
-    </label>
-    <div class="mt-8 flex space-x-2">
-      <ui-button class="w-6/12" @click="fireCallback('onCancel')">
+    <div class="mt-8 flex space-x-2 rtl:space-x-0">
+      <ui-button class="w-6/12 rtl:ml-2" @click="fireCallback('onCancel')">
         {{ state.options.cancelText }}
       </ui-button>
       <ui-button

@@ -19,6 +19,7 @@ import LinkNote from './exts/link-note';
 import FileEmbed from './exts/file-embed';
 import Text from '@tiptap/extension-text';
 import Search from './exts/search';
+import Iframe from './exts/iframe.ts';
 import {
   blueCallout,
   yellowCallout,
@@ -36,6 +37,7 @@ import TableRow from '@tiptap/extension-table-row';
 import enTranslations from '../../pages/settings/locales/en.json';
 import itTranslations from '../../pages/settings/locales/it.json';
 import deTranslations from '../../pages/settings/locales/de.json';
+import esTranslations from '../../pages/settings/locales/es.json';
 import zhTranslations from '../../pages/settings/locales/zh.json';
 import nlTranslations from '../../pages/settings/locales/nl.json';
 
@@ -55,6 +57,8 @@ if (selectedLanguage === 'it') {
   translations = zhTranslations;
 } else if (selectedLanguage === 'nl') {
   translations = nlTranslations;
+} else if (selectedLanguage === 'es') {
+  translations = esTranslations;
 }
 
 export const extensions = [
@@ -114,6 +118,7 @@ export const extensions = [
       title: 'Ctrl+Click to open URL',
     },
   }),
+  Iframe,
 ];
 
 export default function ({ extensions: optsExts, ...opts }) {
