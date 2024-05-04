@@ -9,7 +9,7 @@ import {
   Notification,
 } from 'electron';
 import windowStateKeeper from 'electron-window-state';
-import * as storage from 'electron-browser-storage';
+import * as browserStorage from 'electron-browser-storage';
 import { ipcMain } from 'electron-better-ipc';
 import path, { join, normalize } from 'path';
 import { URL } from 'url';
@@ -30,8 +30,9 @@ import zhTranslations from '../../renderer/src/pages/settings/locales/zh.json';
 import nlTranslations from '../../renderer/src/pages/settings/locales/nl.json';
 import esTranslations from '../../renderer/src/pages/settings/locales/es.json';
 
+const { localStorage } = browserStorage;
+
 const isMac = process.platform === 'darwin';
-const { localStorage } = storage;
 
 const isSingleInstance = app.requestSingleInstanceLock();
 
@@ -39,6 +40,12 @@ if (!isSingleInstance) {
   app.quit();
   process.exit(0);
 }
+
+if (process.env.PORTABLE_EXECUTABLE_DIR)
+  app.setPath(
+    'userData',
+    path.join(process.env.PORTABLE_EXECUTABLE_DIR, 'data'),
+  );
 
 /**
  * Workaround for TypeScript bug
@@ -131,10 +138,12 @@ app
 
       callback({ path: normalize(imgPath) });
     });
-
-    await ensureDir(join(app.getPath('userData'), 'notes-assets'));
+    await Promise.all([
+      ensureDir(join(app.getPath('userData'), 'notes-assets')),
+      ensureDir(join(app.getPath('userData'), 'file-assets')),
+    ]);
     createWindow();
-    initializeMenu();
+    initializeMenu();    
   })
   .catch((e) => console.error('Failed create window:', e));
 
@@ -246,15 +255,15 @@ function initializeMenu() {
   if (selectedLanguage === 'de') {
     translations = deTranslations;
   }
-  
+
   if (selectedLanguage === 'zh') {
     translations = zhTranslations;
   }
-  
+
   if (selectedLanguage === 'nl') {
     translations = nlTranslations;
   }
-  
+
   if (selectedLanguage === 'es') {
     translations = esTranslations;
   }
