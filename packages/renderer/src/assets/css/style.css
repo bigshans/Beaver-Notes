@@ -21,6 +21,11 @@ select {
   }
 }
 
+#app {
+  overflow: hidden;
+  height: 100vh;
+}
+
 option {
   @apply dark:bg-gray-700 dark:text-[color:var(--selected-dark-text)];
 }

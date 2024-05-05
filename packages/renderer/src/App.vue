@@ -5,7 +5,11 @@
     v-if="store.inFocusMode"
     class="fixed top-0 left-0 w-full h-full border-8 pointer-events-none z-50"
   ></div>
-  <main v-if="retrieved" :class="{ 'pl-16': !store.inFocusMode }">
+  <main
+    v-if="retrieved"
+    :class="{ 'mr-16 ml-4 lg:ml-16': !store.inFocusMode }"
+    class="overflow-auto h-full"
+  >
     <router-view />
   </main>
   <ui-dialog />
