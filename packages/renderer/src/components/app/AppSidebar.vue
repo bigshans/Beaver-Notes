@@ -22,20 +22,20 @@
     >
       <v-remixicon name="riEditLine" />
     </button>
-    <router-link
+    <button
       v-for="nav in navs"
       :key="nav.name"
       v-tooltip:right="
         `${nav.name} (${nav.shortcut.replace('mod', keyBinding)})`
       "
-      :to="nav.path"
       :class="{
         'text-primary dark:text-secondary': $route.fullPath === nav.path,
       }"
       class="transition dark:hover:text-[color:var(--selected-dark-text)] hover:text-gray-800 p-2 mb-4"
+      @click="handleNavigation(nav)"
     >
       <v-remixicon :name="nav.icon" />
-    </router-link>
+    </button>
     <!-- Navbar bottom icons -->
     <div class="flex-grow"></div>
     <button
@@ -89,6 +89,7 @@ import { useDialog } from '@/composable/dialog';
 import { AES } from 'crypto-es/lib/aes';
 import { Utf8 } from 'crypto-es/lib/core';
 import dayjs from '@/lib/dayjs';
+import { onClose } from '../../composable/onClose';
 
 export default {
   setup() {
@@ -126,12 +127,22 @@ export default {
         path: '/',
         icon: 'riBookletLine',
         shortcut: 'mod+shift+n',
+        action: () => {
+          // Add your pre-action logic here
+          console.log('Pre-action logic for Notes navigation');
+          router.push('/');
+        },
       },
       {
         name: translations.sidebar.Archive,
         path: '/?archived=true',
         icon: 'riArchiveDrawerLine',
         shortcut: 'mod+shift+a',
+        action: () => {
+          // Add your pre-action logic here
+          console.log('Pre-action logic for Archive navigation');
+          router.push('/?archived=true');
+        },
       },
     ]);
 
@@ -347,12 +358,17 @@ export default {
 
     function scheduleAutoSync() {
       if (autoSync === 'true') {
-        // Run import immediately
         importAndExportData();
-        // Schedule subsequent imports and exports at intervals
         setInterval(importAndExportData, autoSyncInterval);
       }
     }
+
+    const handleNavigation = async (nav) => {
+      if (autoSync === 'true') {
+        await syncexportData(); // Wait for syncexportData() to complete if autoSync is true
+      }
+      router.push(nav.path);
+    };
 
     function importAndExportData() {
       syncimportData()
@@ -390,16 +406,22 @@ export default {
 
         state.withPassword = false;
         state.password = '';
-        notification({
-          title: translations.sidebar.notification,
-          body: translations.sidebar.exportSuccess,
-        });
       } catch (error) {
         notification({
           title: translations.sidebar.notification,
           body: translations.sidebar.exportFail,
         });
         console.error(error);
+      }
+    }
+
+    onClose(exportAndQuit);
+
+    async function exportAndQuit() {
+      const autoSync = localStorage.getItem('autoSync');
+
+      if (autoSync === 'true') {
+        await syncexportData();
       }
     }
 
@@ -485,10 +507,6 @@ export default {
             return;
           }
         }
-        notification({
-          title: translations.sidebar.notification,
-          body: translations.sidebar.importSuccess,
-        });
       } catch (error) {
         notification({
           title: translations.sidebar.notification,
@@ -565,6 +583,7 @@ export default {
       noteStore,
       openLastEdited,
       keyBinding,
+      handleNavigation,
       exportData,
       importData,
     };

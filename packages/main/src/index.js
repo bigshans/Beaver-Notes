@@ -29,6 +29,7 @@ import deTranslations from '../../renderer/src/pages/settings/locales/de.json';
 import zhTranslations from '../../renderer/src/pages/settings/locales/zh.json';
 import nlTranslations from '../../renderer/src/pages/settings/locales/nl.json';
 import esTranslations from '../../renderer/src/pages/settings/locales/es.json';
+import ukTranslations from '../../renderer/src/pages/settings/locales/uk.json';
 
 const { localStorage } = browserStorage;
 
@@ -89,6 +90,16 @@ const createWindow = async () => {
     }
   });
 
+  let canClosed = false;
+  mainWindow.on('close', (e) => {
+    if (canClosed) {
+      return;
+    }
+    e.preventDefault();
+    windowCloseHandler(mainWindow);
+    canClosed = true;
+ });
+
   mainWindow?.webContents.setWindowOpenHandler(function (details) {
     const url = details.url;
     if (url.startsWith('note://')) return;
@@ -113,6 +124,16 @@ const createWindow = async () => {
 app.on('NSApplicationDelegate.applicationSupportsSecureRestorableState', () => {
   return true;
 });
+
+async function windowCloseHandler(win) {
+  try {
+    await ipcMain.callRenderer(win, 'win:close');
+  } catch (error) {
+    console.error('Error handling window close:', error);
+  } finally {
+    app.quit();
+  }
+}
 
 app.on('second-instance', () => {
   if (mainWindow) {
@@ -143,7 +164,7 @@ app
       ensureDir(join(app.getPath('userData'), 'file-assets')),
     ]);
     createWindow();
-    initializeMenu();    
+    initializeMenu();
   })
   .catch((e) => console.error('Failed create window:', e));
 
@@ -266,6 +287,10 @@ function initializeMenu() {
 
   if (selectedLanguage === 'es') {
     translations = esTranslations;
+  }
+
+  if (selectedLanguage === 'uk') {
+    translations = ukTranslations;
   }
 
   // Function to set the application menu
