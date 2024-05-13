@@ -49,7 +49,7 @@ option {
   border-radius: 8px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #c2e0f5;
+  @apply bg-[#9ed6f4] dark:bg-[#2c6685];
 }
 ::-webkit-scrollbar-track {
   background: transparent;
