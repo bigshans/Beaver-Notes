@@ -41,7 +41,7 @@ option {
 }
 
 ::-webkit-scrollbar {
-  width: 7px;
+  width: 10px;
   height: 9px;
 }
 ::-webkit-scrollbar-thumb {
