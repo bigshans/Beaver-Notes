@@ -23,6 +23,7 @@
     "pretest": "cross-env MODE=test npm run build",
     "test": "node tests/app.spec.js",
     "watch": "node scripts/watch.js",
+    "dev": "node scripts/watch.js",
     "lint": "eslint . --ext js,ts,vue",
     "postinstall": "electron-builder install-app-deps",
     "tran-util": "node scripts/translationUtil.js"
