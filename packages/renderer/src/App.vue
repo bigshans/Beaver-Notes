@@ -7,7 +7,7 @@
   ></div>
   <main
     v-if="retrieved"
-    :class="{ 'mr-16 ml-4 lg:ml-16': !store.inFocusMode }"
+    :class="{ 'pl-16': !store.inFocusMode }"
     class="overflow-auto h-full"
   >
     <router-view />
