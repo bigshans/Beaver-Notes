@@ -1,5 +1,6 @@
 :root {
   --selected-font: 'Arimo', sans-serif;
+  --selected-font-code: 'JetBrainsMono', monospace;
   --selected-dark-text: white;
   @apply dark:text-[color:var(--selected-dark-text)];
 }
@@ -69,3 +70,6 @@ option {
   text-overflow: ellipsis;
 }
 
+.no-security-text input {
+    -webkit-text-security: none !important;
+}

@@ -36,90 +36,90 @@
     </section>
     <section>
       <p class="mb-2">{{ translations.settings.utilities || '-' }}</p>
-      <div class="space-y-1">
-        <!-- advanced settings -->
-        <div class="flex items-center space-x-2">
-          <label class="relative inline-flex cursor-pointer items-center">
-            <input
-              id="switch"
-              v-model="advancedSettings"
-              type="checkbox"
-              class="peer sr-only"
-              @change="toggleAdvancedSettings"
-            />
-            <label for="switch" class="hidden"></label>
-            <div
-              class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-amber-400 peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
-            ></div>
-            <span class="inline-block ltr:ml-2 rtl:mr-2 align-middle">
-              {{ translations.settings.advancedSettings || '-' }}
-            </span>
-          </label>
-        </div>
-        <!-- App Reminder -->
-        <div class="flex items-center space-x-2">
-          <label class="relative inline-flex cursor-pointer items-center">
-            <input
-              id="switch"
-              v-model="disableAppReminder"
-              type="checkbox"
-              class="peer sr-only"
-              @change="updateDisableAppReminder"
-            />
-            <label for="switch" class="hidden"></label>
-            <div
-              class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-amber-400 peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
-            ></div>
-            <span class="inline-block ltr:ml-2 rtl:mr-2 align-middle">
-              {{ translations.settings.syncreminder || '-' }}
-            </span>
-          </label>
-        </div>
-        <!-- Spellcheck -->
-        <div class="flex items-center space-x-2">
-          <label class="relative inline-flex cursor-pointer items-center">
-            <input
-              id="switch"
-              v-model="spellcheckEnabled"
-              type="checkbox"
-              class="peer sr-only"
-              @change="toggleSpellcheck"
-            />
-            <label for="switch" class="hidden"></label>
-            <div
-              class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-amber-400 peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
-            ></div>
-            <span class="inline-block ltr:ml-2 rtl:mr-2 align-middle">
-              {{ translations.settings.spellcheck || '-' }}
-            </span>
-          </label>
-        </div>
-        <!-- Auto Sync -->
-        <div class="flex items-center space-x-2">
-          <label class="relative inline-flex cursor-pointer items-center">
-            <input
-              id="switch"
-              v-model="autoSync"
-              type="checkbox"
-              class="peer sr-only"
-              @change="updateAutoSync"
-            />
-            <label for="switch" class="hidden"></label>
-            <div
-              class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-amber-400 peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
-            ></div>
-            <span class="inline-block ltr:ml-2 rtl:mr-2 align-middle">
-              {{ translations.settings.autosync || '-' }}
-            </span>
-          </label>
+      <div className="bg-[#F2F2F2] dark:bg-[#2D2D2D] px-2 rounded-xl">
+        <div class="space-y-1">
+          <!-- advanced settings -->
+          <div class="flex items-center border-b-2 py-2 justify-between">
+            <div>
+              <span class="block text-lg align-left">
+                {{ translations.settings.advancedSettings || '-' }}
+              </span>
+            </div>
+            <label class="relative inline-flex cursor-pointer items-center">
+              <input
+                id="switch"
+                v-model="advancedSettings"
+                type="checkbox"
+                class="peer sr-only"
+                @change="toggleAdvancedSettings"
+              />
+              <div
+                class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-amber-400 peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+              ></div>
+            </label>
+          </div>
+          <!-- App Reminder -->
+          <div class="flex items-center border-b-2 py-2 justify-between">
+            <div>
+              <span class="block text-lg align-left">
+                {{ translations.settings.syncreminder || '-' }}
+              </span>
+            </div>
+            <label class="relative inline-flex cursor-pointer items-center">
+              <input
+                id="switch"
+                v-model="disableAppReminder"
+                type="checkbox"
+                class="peer sr-only"
+                @change="updateDisableAppReminder"
+              />
+              <div
+                class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-amber-400 peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+              ></div>
+            </label>
+          </div>
+          <!-- Spellcheck -->
+          <div class="flex items-center border-b-2 py-2 justify-between">
+            <div>
+              <span class="block text-lg align-left">
+                {{ translations.settings.spellcheck || '-' }}
+              </span>
+            </div>
+            <label class="relative inline-flex cursor-pointer items-center">
+              <input
+                id="switch"
+                v-model="spellcheckEnabled"
+                type="checkbox"
+                class="peer sr-only"
+                @change="toggleSpellcheck"
+              />
+              <div
+                class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-amber-400 peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+              ></div>
+            </label>
+          </div>
+          <!-- Auto Sync -->
+          <div class="flex items-center py-2 justify-between">
+            <div>
+              <span class="block text-lg align-left">
+                {{ translations.settings.autosync || '-' }}
+              </span>
+            </div>
+            <label class="relative inline-flex cursor-pointer items-center">
+              <input
+                id="switch"
+                v-model="autoSync"
+                type="checkbox"
+                class="peer sr-only"
+                @change="updateAutoSync"
+              />
+              <div
+                class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-amber-400 peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+              ></div>
+            </label>
+          </div>
         </div>
       </div>
-    </section>
-    <section>
-      <p class="mb-2">{{ translations.settings.security || '-' }}</p>
-      <ui-button class="w-full" @click="resetPasswordDialog">{{
-        translations.settings.resetPassword
-      }}</ui-button>
     </section>
     <section>
       <p class="mb-2">{{ translations.settings.iedata || '-' }}</p>
@@ -180,7 +180,7 @@
 </template>
 
 <script>
-import { shallowReactive, onMounted } from 'vue';
+import { shallowReactive, onMounted, ref, watch } from 'vue';
 import { AES } from 'crypto-es/lib/aes';
 import { Utf8 } from 'crypto-es/lib/core';
 import { useTheme } from '@/composable/theme';
@@ -192,7 +192,10 @@ import darkImg from '@/assets/images/dark.png';
 import systemImg from '@/assets/images/system.png';
 import Mousetrap from '@/lib/mousetrap';
 import { usePasswordStore } from '@/store/passwd';
+import { formatTime } from '@/utils/time-format';
 import '../../assets/css/passwd.css';
+import { useAppStore } from '../../store/app';
+import { t } from '@/utils/translations';
 
 const deTranslations = import('../../pages/settings/locales/de.json');
 const enTranslations = import('../../pages/settings/locales/en.json');
@@ -584,6 +587,12 @@ export default {
         RTL: 'settings.RTL',
         autosync: 'settings.autosync',
         clearfont: 'settings.clearfont',
+        platform: 'settings.platform',
+        noAuthorizedApplicaitons: 'settings.noAuthorizedApplicaitons',
+        id: 'settings.id',
+        confirmDelete: 'settings.confirmDelete',
+        createdAt: 'settings.createdAt',
+        authorizedApplications: 'settings.authorizedApplications',
       },
     });
 
@@ -612,6 +621,39 @@ export default {
       shortcuts[combo]();
     });
 
+    const appStore = useAppStore();
+    appStore.updateFromStorage();
+    const authorizatedApps = ref(
+      appStore.authRecords.map((a) => a.status === 1)
+    );
+
+    watch(
+      () => appStore.authRecords,
+      (records) => {
+        authorizatedApps.value = records.map((a) => a.status === 1);
+      }
+    );
+
+    function deleteAuth(auth) {
+      dialog.confirm({
+        body: t(translations.settings.confirmDelete, {
+          name: auth.name,
+          id: auth.id,
+        }),
+        onConfirm: async () => {
+          appStore.authRecords = appStore.authRecords.filter(
+            (a) => a.id !== auth.id
+          );
+          await appStore.updateToStorage();
+        },
+      });
+    }
+
+    async function toggleAuth(auth, v) {
+      auth.status = v ? 1 : 0;
+      await appStore.updateToStorage();
+    }
+
     return {
       state,
       theme,
@@ -624,6 +666,12 @@ export default {
       changeDataDir,
       chooseDefaultPath,
       defaultPath,
+      appStore,
+      formatTime,
+      deleteAuth,
+      toggleAuth,
+      authorizatedApps,
+      t,
     };
   },
   data() {
