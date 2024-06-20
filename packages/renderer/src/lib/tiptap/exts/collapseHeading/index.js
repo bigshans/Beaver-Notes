@@ -47,6 +47,115 @@ export default Heading.extend({
       },
     };
   },
+  addCommands() {
+    const oldCommands = this.parent?.() ?? {};
+    function _findPos(editor, node) {
+      const allNodePos = editor.$nodes(node.type.name);
+      // don't use eq, beacause it will be matched wrong node.
+      return allNodePos.find((p) => p.node === node);
+    }
+    return {
+      ...oldCommands,
+      collapseHeading:
+        () =>
+        ({ editor, commands }) => {
+          const findPos = (node) => _findPos(editor, node);
+          // all nodes
+          const nodes = editor.view.state.doc.content.content;
+          const selection = editor.state.selection;
+          // current node
+          const node = selection.$from.parent;
+          if (!node.attrs.open) {
+            return false;
+          }
+          const level = node.attrs.level;
+          const rs = selection.from + node.nodeSize - 1;
+          const start = nodes.findIndex((n) => n === node);
+          if (start < 0) {
+            return false;
+          }
+          let end = nodes.length;
+          const lastNode = nodes[nodes.length - 1];
+          const lastPos = findPos(lastNode);
+          let re = lastPos.from + lastNode.content.size;
+          for (let i = start + 1, len = nodes.length; i < len; i++) {
+            const n = nodes[i];
+            if (n.type.name === 'heading' && n.attrs.level <= level) {
+              end = i;
+              const t = findPos(n);
+              re = t.from - 1;
+              break;
+            }
+          }
+          const collapsedContent = JSON.stringify(nodes.slice(start + 1, end));
+          const attrs = {
+            ...(node.attrs ?? {}),
+            collapsedContent,
+            open: false,
+          };
+          commands.setNode(this.name, attrs);
+          return (
+            collapsedContent !== '[]' &&
+            commands.deleteRange({ from: rs, to: re })
+          );
+        },
+      unCollapsedHeading:
+        () =>
+        ({ editor, commands }) => {
+          const findPos = (node) => _findPos(editor, node);
+          const nodes = editor.view.state.doc.content.content;
+          const selection = editor.state.selection;
+          // current node
+          const node = selection.$from.parent;
+          const collapsedContent = node.attrs.collapsedContent;
+          if (
+            node.attrs.open ||
+            collapsedContent == null ||
+            collapsedContent === ''
+          ) {
+            return false;
+          }
+          const start = nodes.findIndex((n) => n === node);
+          if (start < 0) {
+            return false;
+          }
+          const nodePos = findPos(nodes[start]);
+          try {
+            const cNodes = JSON.parse(collapsedContent);
+            const attrs = {
+              ...(node.attrs ?? {}),
+              collapsedContent: '',
+              open: true,
+            };
+            commands.setNode(this.name, attrs);
+            if (cNodes.length === 0) {
+              return false;
+            }
+            if (nodePos.node.content.size === 0) {
+              return commands.insertContentAt(nodePos.range, cNodes);
+            } else {
+              return commands.insertContentAt(
+                nodePos.from + nodePos.node.content.size,
+                cNodes
+              );
+            }
+          } catch (e) {
+            console.error(e);
+          }
+          return false;
+        },
+      toggleCollapse:
+        () =>
+        ({ editor, commands }) => {
+          const selection = editor.state.selection;
+          // current node
+          const node = selection.$from.parent;
+          return node.attrs.open
+            ? commands.collapseHeading()
+            : commands.unCollapsedHeading();
+        },
+    };
+  },
   addNodeView() {
     // reference: https://github.com/ueberdosis/tiptap/issues/3186
     return VueNodeViewRenderer(CollapseHeading, {
