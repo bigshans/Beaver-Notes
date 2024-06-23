@@ -1,18 +1,9 @@
 <template>
   <NodeViewWrapper>
     <div>
-      <VueMermaidRender
-        v-if="currentTheme === 'dark'"
+      <MermaidComponent
         :class="{ 'dark:text-purple-400 text-purple-500': selected }"
         :content="mermaidContent"
-        :config="config"
-        @click="openTextarea"
-      />
-      <VueMermaidRender
-        v-else
-        :class="{ 'dark:text-purple-400 text-purple-500': selected }"
-        :content="mermaidContent"
-        :config="config"
         @click="openTextarea"
       />
       <div v-if="showTextarea" class="bg-input transition rounded-lg p-2">
@@ -21,24 +12,28 @@
           :value="mermaidContent"
           type="textarea"
           placeholder="Enter Mermaid code here..."
-          class="bg-transparent w-full"
+          class="bg-transparent min-h-24 w-full"
           @input="updateContent($event)"
           @keydown.ctrl.enter="closeTextarea"
         ></textarea>
+        <div class="border-t-2 p-2">
+          <p style="margin: 0">
+            <strong>{{ translations._idvue.exit }}</strong>
+          </p>
+        </div>
       </div>
     </div>
   </NodeViewWrapper>
 </template>
 
 <script>
-import { ref, watch, onMounted, computed, nextTick } from 'vue';
-import { VueMermaidRender } from 'vue-mermaid-render';
+import { ref, watch, onMounted, shallowReactive } from 'vue';
 import { NodeViewWrapper, nodeViewProps } from '@tiptap/vue-3';
-import { useTheme } from '@/composable/theme';
+import MermaidComponent from '../../../../utils/mermaid-renderer.vue'; // Adjust the import path accordingly
 
 export default {
   components: {
-    VueMermaidRender,
+    MermaidComponent,
     NodeViewWrapper,
   },
   props: nodeViewProps,
@@ -46,36 +41,15 @@ export default {
     const mermaidContent = ref('');
     const inputRef = ref(null);
     const showTextarea = ref(false);
-    const { currentTheme } = useTheme();
-    const config = computed(() => ({
-      theme: currentTheme.value === 'dark' ? 'dark' : 'default',
-    }));
 
     function renderContent() {
       mermaidContent.value = props.node.attrs.content || '';
     }
 
-    let lastTextLength = mermaidContent.value.length;
-    let lastScrollHeight = 0;
-    const calc = (target) => {
-      const value = target.value;
-      const inputTextLength = value.length;
-      if (inputTextLength < lastTextLength) {
-        target.style.height = '';
-      }
-      const inputScrollHeight = target.scrollHeight;
-      if (lastScrollHeight < inputScrollHeight || !target.style.height) {
-        lastScrollHeight = inputScrollHeight;
-        target.style.height = `${inputScrollHeight + 2}px`;
-      }
-      lastTextLength = target.value.length;
-    };
     function updateContent(event) {
-      const target = event.target;
-      const { value } = target;
+      const { value } = event.target;
       props.updateAttributes({ content: value });
       mermaidContent.value = value;
-      calc(target);
     }
 
     function openTextarea() {
@@ -84,14 +58,6 @@ export default {
         inputRef.value.focus();
       }
     }
-
-    watch(showTextarea, (n) => {
-      if (n) {
-        nextTick(() => {
-          inputRef.value && calc(inputRef.value);
-        });
-      }
-    });
 
     function closeTextarea() {
       showTextarea.value = false;
@@ -109,15 +75,41 @@ export default {
       }
     );
 
+    const translations = shallowReactive({
+      sidebar: {
+        exit: '_idvue.exit',
+      },
+    });
+
+    onMounted(async () => {
+      // Load translations
+      const loadedTranslations = await loadTranslations();
+      if (loadedTranslations) {
+        Object.assign(translations, loadedTranslations);
+      }
+    });
+
+    const loadTranslations = async () => {
+      const selectedLanguage = localStorage.getItem('selectedLanguage') || 'en';
+      try {
+        const translationModule = await import(
+          `../../../../pages/settings/locales/${selectedLanguage}.json`
+        );
+        return translationModule.default;
+      } catch (error) {
+        console.error('Error loading translations:', error);
+        return null;
+      }
+    };
+
     return {
       updateContent,
       mermaidContent,
       inputRef,
       showTextarea,
+      translations,
       openTextarea,
       closeTextarea,
-      config,
-      currentTheme,
     };
   },
 };

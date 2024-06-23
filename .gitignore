@@ -7,6 +7,7 @@ types/env.d.ts
 *.log
 
 .env
+.env.private
 .eslintcache
 
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
@@ -63,3 +64,4 @@ packages/main/dist/index.cjs
 packages/preload/dist/index.cjs
 packages/renderer/dist/*
 .vim/
+*.development
