@@ -93,6 +93,14 @@
             {{ speed }}x
           </button>
         </div>
+        <div class="flex items-center ml-4 relative">
+          <button
+            class="text-black py-1 px-3 rounded dark:text-[color:var(--selected-dark-text)]"
+            @click="deleteAudioBlock"
+          >
+            <v-remixicon name="riDeleteBin6Line" />
+          </button>
+        </div>
       </div>
     </div>
   </NodeViewWrapper>
@@ -253,6 +261,10 @@ export default {
       return `${minutes}:${seconds}`;
     };
 
+    const deleteAudioBlock = () => {
+      props.deleteNode();
+    };
+
     return {
       fileName,
       audioSrc,
@@ -277,6 +289,7 @@ export default {
       playbackRates,
       toggleSpeedOptions,
       setPlaybackRate,
+      deleteAudioBlock,
     };
   },
 };
