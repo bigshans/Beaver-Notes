@@ -2,7 +2,7 @@ import { Editor } from '@tiptap/vue-3';
 import Video from './exts/video-block';
 import Document from '@tiptap/extension-document';
 import StarterKit from '@tiptap/starter-kit';
-import Highlight from '@tiptap/extension-highlight';
+import Highlight from './exts/highlight';
 import Typography from '@tiptap/extension-typography';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -12,7 +12,6 @@ import Placeholder from '@tiptap/extension-placeholder';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import LabelSuggestion from './exts/label-suggestion';
-import audioBlock from './exts/video-block';
 import MathInline from './exts/math-inline';
 import MathBlock from './exts/math-block';
 import MermaidBlock from './exts/mermaid-block';
@@ -51,6 +50,8 @@ import esTranslations from '../../pages/settings/locales/es.json';
 import zhTranslations from '../../pages/settings/locales/zh.json';
 import nlTranslations from '../../pages/settings/locales/nl.json';
 import ukTranslations from '../../pages/settings/locales/uk.json';
+import ruTranslations from '../../pages/settings/locales/ru.json';
+import frTranslations from '../../pages/settings/locales/fr.json';
 
 const directionPreference = localStorage.getItem('directionPreference');
 
@@ -60,28 +61,34 @@ const selectedLanguage = localStorage.getItem('selectedLanguage') || 'en';
 
 let translations = enTranslations;
 
-if (selectedLanguage === 'it') {
-  translations = itTranslations;
-} else if (selectedLanguage === 'de') {
+if (selectedLanguage === 'de') {
   translations = deTranslations;
-} else if (selectedLanguage === 'zh') {
-  translations = zhTranslations;
-} else if (selectedLanguage === 'nl') {
-  translations = nlTranslations;
+} else if (selectedLanguage === 'en') {
+  translations = enTranslations;
 } else if (selectedLanguage === 'es') {
   translations = esTranslations;
+} else if (selectedLanguage === 'fr') {
+  translations = frTranslations;
+} else if (selectedLanguage === 'it') {
+  translations = itTranslations;
+} else if (selectedLanguage === 'nl') {
+  translations = nlTranslations;
+} else if (selectedLanguage === 'ru') {
+  translations = ruTranslations;
 } else if (selectedLanguage === 'uk') {
   translations = ukTranslations;
+} else if (selectedLanguage === 'zh') {
+  translations = zhTranslations;
 }
-
 export const extensions = [
   StarterKit,
-  Highlight,
+  Highlight.configure({
+    multicolor: true,
+  }),
   Typography,
   Document.extend({
     content: 'block+ footnotes?',
   }),
-  audioBlock,
   LiteralTab,
   Underline,
   blueCallout,
