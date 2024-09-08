@@ -122,11 +122,13 @@
       </div>
     </section>
     <section>
-      <p class="mb-2">编辑器</p>
+      <p class="mb-2">{{ translations.settings.Editor || '-' }}</p>
       <div class="space-y-1">
         <div class="flex items-center py-2 justify-between">
           <div>
-            <span class="block text-lg align-left"> 可折叠标题 </span>
+            <span class="block text-lg align-left"
+              >{{ translations.settings.CollapsibleHeading || '-' }}
+            </span>
           </div>
           <label class="relative inline-flex cursor-pointer items-center">
             <input
@@ -242,6 +244,7 @@ const itTranslations = import('../../pages/settings/locales/it.json');
 const nlTranslations = import('../../pages/settings/locales/nl.json');
 const zhTranslations = import('../../pages/settings/locales/zh.json');
 const ukTranslations = import('../../pages/settings/locales/uk.json');
+const trTranslations = import('../../pages/settings/locales/tr.json');
 const ruTranslations = import('../../pages/settings/locales/ru.json');
 const frTranslations = import('../../pages/settings/locales/fr.json');
 
@@ -831,6 +834,7 @@ export default {
         { code: 'it', name: 'Italiano', translations: itTranslations },
         { code: 'nl', name: 'Nederlands', translations: nlTranslations },
         { code: 'ru', name: 'Русский', translations: ruTranslations },
+        { code: 'tr', name: 'Türkçe', translations: trTranslations },
         { code: 'uk', name: 'Українська', translations: ukTranslations },
         { code: 'zh', name: '简体中文', translations: zhTranslations },
       ],

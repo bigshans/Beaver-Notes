@@ -6,7 +6,9 @@ import Highlight from './exts/highlight';
 import Typography from '@tiptap/extension-typography';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
+import HardBreak from '@tiptap/extension-hard-break';
 import Code from '@tiptap/extension-code';
+import markdownEngine from './exts/markdown-engine';
 import Gapcursor from '@tiptap/extension-gapcursor';
 import Placeholder from '@tiptap/extension-placeholder';
 import TaskList from '@tiptap/extension-task-list';
@@ -23,6 +25,7 @@ import LinkNote from './exts/link-note';
 import FileEmbed from './exts/file-block';
 import Audio from './exts/audio-block';
 import Text from '@tiptap/extension-text';
+import drawingCanvas from './exts/drawing-block';
 import Search from './exts/search';
 import Iframe from './exts/embed-block/iframe';
 import CollapseHeading from './exts/collapse-heading';
@@ -107,6 +110,7 @@ const extensions = [
   Footnote,
   TaskList,
   Gapcursor,
+  HardBreak,
   Table.configure({
     resizable: true,
   }),
@@ -135,6 +139,8 @@ const extensions = [
   Image,
   Audio,
   Search,
+  drawingCanvas,
+  markdownEngine,
   Placeholder.configure({
     placeholder: translations.tiptap.placeholder,
   }),
