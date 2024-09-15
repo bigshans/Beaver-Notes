@@ -235,10 +235,6 @@ li[data-checked="true"] {
     }
   }
 }
-.tableWrapper {
-  padding: 1rem 0;
-  overflow-x: hidden;
-}
 
 .resize-cursor {
   cursor: ew-resize;
