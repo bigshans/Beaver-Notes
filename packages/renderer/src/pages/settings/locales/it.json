@@ -1,6 +1,9 @@
 {
   "_idvue": {
+    "MathPlaceholder": "Inserisci testo...",
+    "MermaidPlaceholder": "Inserisci qui il codice Mermaid...",
     "Previousnote": "Note precedenti",
+    "error": "Ops! C'è stato un problema nel renderizzare il diagramma. Controlla la sintassi.",
     "exit": "Premi Ctrl + Invio per chiudere",
     "untitlednote": "Nota senza titolo"
   },
@@ -80,7 +83,7 @@
   },
   "link": {
     "placeholder": "URL o digita @ per collegare un'altra nota",
-    "shortcut": "Premi Ctrl + Clic per aprire il collegamento",
+    "shortcut": "Premi Alt + Clic per aprire il collegamento",
     "untitlednote": "Nota senza titolo"
   },
   "menu": {
@@ -130,6 +133,12 @@
     "video": "Video",
     "videoUrl": "Url Video"
   },
+  "paper": {
+    "dotted": "Puntinato",
+    "grid": "Quadretti",
+    "plain": "Normale",
+    "ruled": "Righe"
+  },
   "search": {
     "clear": "Elimina",
     "find": "Trova",
@@ -150,6 +159,7 @@
     "Inputpassword": "Inserisci la password",
     "Invalidpassword": "Password non valida",
     "LTR": "Da sinistra a destra",
+    "OpenLastEdited": "Apri l'ultima nota modificata all'avvio",
     "Password": "Password",
     "RTL": "Da destra a sinistra",
     "Shortcuts": "Scorciatoie",
@@ -176,7 +186,9 @@
     "gvfswarn": "La sincronizzazione automatica tramite GVFS non è supportata. Utilizza la sincronizzazione manuale.",
     "id": "ID",
     "iedata": "Importa/Esporta dati",
+    "importFail": "Importazione fallita!",
     "importMarkdown": "Importa Markdown",
+    "importSuccess": "Importazione riuscita!",
     "importdata": "Importa dati",
     "importsuccess": "Dati importati con successo",
     "interfaceDirection": "Direzione interfaccia",
@@ -191,6 +203,7 @@
     "newpassword": "Inserisci nuova password",
     "next": "Avanti",
     "noAuthorizedApplicaitons": "Nessuna applicazione autorizzata",
+    "notification": "Notifica",
     "password": "Password",
     "passwordResetError": "Qualcosa è andato storto durante il reset della password",
     "passwordResetSuccess": "La password è stata resettata con successo",

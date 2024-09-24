@@ -1,6 +1,9 @@
 {
   "_idvue": {
+    "MathPlaceholder": "Texto aquí...",
+    "MermaidPlaceholder": "Introduzca el código Mermaid aquí...",
     "Previousnote": "Notas previas",
+    "error": "¡Ups! Hubo un problema al renderizar el diagrama. Por favor, revise la sintaxis.",
     "exit": "Pulsa Ctrl + Enter para cerrar",
     "untitlednote": "Sin título"
   },
@@ -80,7 +83,7 @@
   },
   "link": {
     "placeholder": "URL o escribe @ para vincular una nota",
-    "shortcut": "Presiona Ctrl + Clic para abrir el enlace",
+    "shortcut": "Presiona Alt + Clic para abrir el enlace",
     "untitlednote": "Sin título"
   },
   "menu": {
@@ -130,6 +133,12 @@
     "video": "Vídeo",
     "videoUrl": "URL del video"
   },
+  "paper": {
+    "dotted": "Punteado",
+    "grid": "Cuadriculado",
+    "plain": "Liso",
+    "ruled": "Rayado"
+  },
   "search": {
     "clear": "Limpiar",
     "find": "Encontrar",
@@ -150,6 +159,7 @@
     "Inputpassword": "Introduce la contraseña",
     "Invalidpassword": "Contraseña incorrecta",
     "LTR": "Izquierda a derecha",
+    "OpenLastEdited": "Abrir la última nota editada al iniciar",
     "Password": "Contraseña",
     "RTL": "Derecha a izquierda",
     "Shortcuts": "Atajos",
@@ -176,7 +186,9 @@
     "gvfswarn": "La sincronización automática a través de GVFS no es compatible. Por favor, utilice la sincronización manual en su lugar.",
     "id": "ID",
     "iedata": "Importar / Exportar datos",
+    "importFail": "Fallo al importar",
     "importMarkdown": "Importar Markdown",
+    "importSuccess": "Importación exitosa",
     "importdata": "Importar datos",
     "importsuccess": "Exportación de datos exitosa",
     "interfaceDirection": "Dirección de interfaz",
@@ -191,6 +203,7 @@
     "newpassword": "Introduce la nueva contraseña",
     "next": "Siguiente",
     "noAuthorizedApplicaitons": "No hay aplicaciones autorizadas",
+    "notification": "Notificación",
     "password": "Contraseña",
     "passwordResetError": "Algo salió mal al intentar restablecer tu contraseña",
     "passwordResetSuccess": "La contraseña fue restablecida exitosamente",

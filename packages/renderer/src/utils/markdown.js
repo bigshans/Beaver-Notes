@@ -460,6 +460,10 @@ const convertMarkdownToTiptap = async (markdown, id, directoryPath) => {
           return null;
         }
       }
+      case 'HR':
+        return {
+          type: 'horizontalRule',
+        };
       case 'SUP':
         return {
           type: 'text',
@@ -746,7 +750,8 @@ export const processDirectory = async (directoryPath) => {
           // Automatically add notes
           const labelArray = labels.value
             .split(',')
-            .map((label) => label.trim());
+            .map((label) => label.trim())
+            .filter((label) => label !== '');
           const newNote = {
             id,
             title: title || fileName.replace('.md', ''),
