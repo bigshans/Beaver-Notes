@@ -6,7 +6,7 @@ import { builtinModules } from 'module';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { loadAndSetEnv } from '../../scripts/loadAndSetEnv.mjs';
-import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+import { nodeModulesPolyfillPlugin } from 'esbuild-plugins-node-modules-polyfill';
 
 const PACKAGE_ROOT = __dirname;
 
@@ -31,16 +31,22 @@ export default defineConfig({
       stream: 'stream-browserify',
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler',
+      },
+    },
+  },
   plugins: [vue()],
   optimizeDeps: {
     exclude: ['mermaid/dist/*'],
     esbuildOptions: {
-      define: {
-        global: 'globalThis', // Provide a polyfill for `global`
-      },
       plugins: [
-        NodeGlobalsPolyfillPlugin({
-          buffer: true, // Enable Buffer polyfill
+        nodeModulesPolyfillPlugin({
+          globals: {
+            Buffer: true,
+          },
         }),
       ],
     },
