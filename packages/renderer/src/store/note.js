@@ -57,6 +57,9 @@ export const useNoteStore = defineStore('note', {
 
     convertNote(id) {
       const note = this.data[id];
+      if (!note) {
+        return;
+      }
       note.content.content = this.uncollapseHeading(note.content.content);
     },
 
