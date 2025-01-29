@@ -23,7 +23,6 @@ select {
 }
 
 #app {
-  overflow: hidden;
   height: 100vh;
 }
 
