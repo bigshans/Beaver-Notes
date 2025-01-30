@@ -34,17 +34,15 @@ export function storageTools() {
 }
 
 export function useLocalStorage(key, options) {
-  return useBrowserStorage(key, options, storageTools);
+  return useBrowserStorage(key, options, storageTools());
 }
 
-export function useBrowserStorage(key, options, IStorage) {
+export function useBrowserStorage(key, options, storage) {
   const {
     defaultValue: dValue,
     parse = (v) => JSON.parse(v),
     stringify = (v) => JSON.stringify(v),
   } = { ...options };
-
-  const storage = IStorage();
 
   const set = (value) => {
     if (value == null) {
