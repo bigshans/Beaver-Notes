@@ -7,8 +7,8 @@
     <home-note-filter
       v-model:query="state.query"
       v-model:label="state.activeLabel"
-      v-model:sort-by="state.sortBy"
-      v-model:sort-order="state.sortOrder"
+      v-model:sort-by="sortNotes.sortBy"
+      v-model:sort-order="sortNotes.sortOrder"
       v-bind="{
         labels: labelStore.data,
       }"
@@ -103,12 +103,13 @@ import { useTheme } from '@/composable/theme';
 import { useNoteStore } from '@/store/note';
 import { useLabelStore } from '@/store/label';
 import { useDialog } from '@/composable/dialog';
-import { sortArray, extractNoteText } from '@/utils/helper';
+import { extractNoteText } from '@/utils/helper';
 import HomeNoteCard from '@/components/home/HomeNoteCard.vue';
 import HomeNoteFilter from '@/components/home/HomeNoteFilter.vue';
 import KeyboardNavigation from '@/utils/keyboard-navigation';
 import Beaver from '@/assets/images/Beaver.png';
 import BeaverDark from '@/assets/images/Beaver-dark.png';
+import { storeToRefs } from 'pinia';
 
 let hasReminded = true;
 
@@ -142,24 +143,17 @@ export default {
     const noteStore = useNoteStore();
     const labelStore = useLabelStore();
     const dialog = useDialog();
+    const { sortedNotes, sortNotes } = storeToRefs(noteStore);
 
     const keyboardNavigation = shallowRef(null);
     const state = reactive({
-      notes: [],
       query: '',
       activeLabel: '',
-      sortBy: 'createdAt',
-      sortOrder: 'asc',
     });
 
-    const sortedNotes = computed(() =>
-      sortArray({
-        data: state.notes,
-        order: state.sortOrder,
-        key: state.sortBy,
-      })
+    const notes = computed(() =>
+      filterNotes(sortedNotes.value.map(extractNoteContent))
     );
-    const notes = computed(() => filterNotes(sortedNotes.value));
 
     function filterNotes(notes) {
       const filteredNotes = {
@@ -219,13 +213,6 @@ export default {
     }
 
     watch(
-      () => noteStore.data,
-      () => {
-        state.notes = noteStore.notes.map(extractNoteContent);
-      },
-      { immediate: true, deep: true }
-    );
-    watch(
       () => route.query.label,
       (label) => {
         if (label) {
@@ -233,15 +220,6 @@ export default {
         }
       },
       { immediate: true }
-    );
-    watch(
-      () => [state.sortBy, state.sortOrder],
-      ([sortBy, sortOrder]) => {
-        localStorage.setItem(
-          'sort-notes',
-          JSON.stringify({ sortBy, sortOrder })
-        );
-      }
     );
     watch(notes, () => {
       setTimeout(() => {
@@ -331,6 +309,7 @@ export default {
     };
 
     return {
+      sortNotes,
       notes,
       state,
       noteStore,

@@ -32,6 +32,12 @@
           <p class="text-overflow w-full flex flex-1 justify-between">
             <span>
               {{ item.title || translations.commandprompt.untitlednote }}
+              <template v-if="item.isBookmarked">
+                <v-remixicon
+                  name="riBookmarkLine"
+                  class="w-4 translate-y-[-1.5px]"
+                />
+              </template>
               <template v-if="item.isLocked">
                 <v-remixicon
                   name="riLockLine"
@@ -103,7 +109,7 @@ export default {
     });
 
     const items = computed(() => {
-      const filterItems = isCommand.value ? commands : noteStore.notes;
+      const filterItems = isCommand.value ? commands : noteStore.sortedNotes;
 
       return filterItems
         .map((item) => {

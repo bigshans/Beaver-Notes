@@ -1,3 +1,5 @@
+import { ref, watch } from 'vue';
+
 function invokeEvent(name, param) {
   const { ipcRenderer } = window.electron;
 
@@ -23,37 +25,50 @@ export function useStorage(name = 'data') {
   };
 }
 
+export function storageTools(key) {
+  return {
+    set: (value) => localStorage.setItem(key, value),
+    get: () => localStorage.getItem(key),
+    del: () => localStorage.removeItem(key),
+  };
+}
+
 export function useLocalStorage(key, options) {
-  const { defaultValue, parse, stringify } = options || {};
-  function get(key, defaultValue, parse) {
-    let value = localStorage.getItem(key);
-    if (defaultValue != null && value == null) {
-      value =
-        typeof defaultValue === 'function' ? defaultValue(value) : defaultValue;
-      set(key, value, stringify || ((v) => JSON.stringify(v)));
+  const {
+    defaultValue: dValue,
+    parse = (v) => JSON.parse(v),
+    stringify = (v) => JSON.stringify(v),
+  } = { ...options };
+
+  const storage = storageTools(key);
+
+  const set = (value) => {
+    if (value == null) {
+      storage.del();
+      return;
+    }
+    value = typeof value === 'object' ? stringify(value) : value;
+    storage.set(value);
+  };
+  const get = () => {
+    let value = storage.get();
+    if (dValue != null && value == null) {
+      value = typeof dValue === 'function' ? dValue(value) : dValue;
+      set(value);
     }
     if (typeof value !== 'string') {
       return value;
     }
     return parse(value);
-  }
-  function set(key, value, stringify) {
-    if (typeof value !== 'object') {
-      localStorage.setItem(key, value);
-      return;
-    }
-    if (value == null) {
-      localStorage.removeItem(key);
-      return;
-    }
-    localStorage.setItem(key, stringify(value));
-  }
+  };
+  const _ref = () => {
+    const value = ref(get());
+    watch(value, set, { deep: true });
+    return value;
+  };
   return {
-    get() {
-      return get(key, defaultValue, parse || ((v) => v));
-    },
-    set(value) {
-      return set(key, value, stringify || ((v) => JSON.stringify(v)));
-    },
+    get,
+    set,
+    ref: _ref,
   };
 }

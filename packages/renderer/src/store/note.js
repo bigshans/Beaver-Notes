@@ -2,19 +2,41 @@ import { nanoid } from 'nanoid';
 import { defineStore } from 'pinia';
 import { useAppStore } from './app';
 import { AES } from 'crypto-es/lib/aes.js';
-import { useStorage } from '../composable/storage.js';
+import { useLocalStorage, useStorage } from '../composable/storage.js';
 import { Utf8 } from 'crypto-es/lib/core.js';
+import { sortArray } from '@/utils/helper';
 
 const storage = useStorage();
 
 export const useNoteStore = defineStore('note', {
-  state: () => ({
-    data: {},
-    lockStatus: {},
-    isLocked: {},
-  }),
+  state: () => {
+    return {
+      data: {},
+      lockStatus: {},
+      isLocked: {},
+      sortNotes: useLocalStorage('sort-notes', {
+        defaultValue: {
+          sortBy: 'createdAt',
+          sortOrder: 'asc',
+        },
+      }).ref(),
+    };
+  },
   getters: {
     notes: (state) => Object.values(state.data).filter(({ id }) => id),
+    sortedNotes: (state) => {
+      const data = [...state.notes];
+      const { sortOrder: order, sortBy: key } = state.sortNotes;
+      const notes = sortArray({
+        data,
+        order,
+        key,
+      });
+      return [
+        ...notes.filter((n) => n.isBookmarked),
+        ...notes.filter((n) => !n.isBookmarked),
+      ];
+    },
     getById: (state) => (id) => state.data[id],
   },
   actions: {
