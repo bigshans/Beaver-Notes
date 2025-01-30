@@ -25,37 +25,38 @@ export function useStorage(name = 'data') {
   };
 }
 
-export function storageTools(key) {
+export function storageTools() {
   return {
-    set: (value) => localStorage.setItem(key, value),
-    get: () => localStorage.getItem(key),
-    del: () => localStorage.removeItem(key),
+    set: (key, value) => localStorage.setItem(key, value),
+    get: (key) => localStorage.getItem(key),
+    del: (key) => localStorage.removeItem(key),
   };
 }
 
 export function useLocalStorage(key, options) {
+  return useBrowserStorage(key, options, storageTools);
+}
+
+export function useBrowserStorage(key, options, IStorage) {
   const {
     defaultValue: dValue,
     parse = (v) => JSON.parse(v),
     stringify = (v) => JSON.stringify(v),
   } = { ...options };
 
-  const storage = storageTools(key);
+  const storage = IStorage();
 
   const set = (value) => {
     if (value == null) {
-      storage.del();
+      storage.del(key);
       return;
     }
     value = typeof value === 'object' ? stringify(value) : value;
-    storage.set(value);
+    storage.set(key, value);
   };
   const get = () => {
-    let value = storage.get();
-    if (dValue != null && value == null) {
-      value = typeof dValue === 'function' ? dValue(value) : dValue;
-      set(value);
-    }
+    let value =
+      storage.get(key) ?? typeof dValue === 'function' ? dValue(value) : dValue;
     if (typeof value !== 'string') {
       return value;
     }
@@ -63,7 +64,7 @@ export function useLocalStorage(key, options) {
   };
   const _ref = () => {
     const value = ref(get());
-    watch(value, set, { deep: true });
+    watch(value, set, { deep: true, immediate: true });
     return value;
   };
   return {
