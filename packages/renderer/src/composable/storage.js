@@ -54,7 +54,7 @@ export function useBrowserStorage(key, options, storage) {
   };
   const get = () => {
     let value =
-      storage.get(key) ?? typeof dValue === 'function' ? dValue(value) : dValue;
+      storage.get(key) ?? (typeof dValue === 'function' ? dValue() : dValue);
     if (typeof value !== 'string') {
       return value;
     }

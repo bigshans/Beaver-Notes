@@ -1,7 +1,4 @@
 const packageJSON = require('./package.json');
-const { loadEnv } = require('./env.js');
-
-loadEnv('private');
 
 /**
  * @type {import('electron-builder').Configuration}
@@ -36,7 +33,7 @@ const electronBuilderConfig = {
     icon: 'buildResources/icon.icns',
     target: [
       {
-        target: 'dmg',
+        target: 'default',
         arch: ['universal'],
       },
     ],
@@ -49,7 +46,7 @@ const electronBuilderConfig = {
       'com.apple.security.device.audio-input': true,
     },
     notarize: {
-      teamId: process.env.APPLE_TEAM_ID,
+      teamId: process.env.APPLE_TEAM_ID || 'none',
     },
   },
   linux: {
@@ -91,8 +88,14 @@ const electronBuilderConfig = {
   },
 };
 
-module.exports = () => {
+module.exports = async () => {
+  // Dynamically import the ES module
+  const envModule = await import('./env.js');
+  const loadEnv = envModule.loadEnv;
+  
+  // Load environment variables
+  loadEnv('private');
+  
   const config = { ...electronBuilderConfig };
-
   return config;
 };

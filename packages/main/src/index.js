@@ -12,7 +12,6 @@ import windowStateKeeper from 'electron-window-state';
 import * as browserStorage from 'electron-browser-storage';
 import { autoUpdater } from 'electron-updater';
 import { ipcMain } from 'electron-better-ipc';
-const { exec } = require('child_process');
 import path, { join, normalize } from 'path';
 import { URL } from 'url';
 const fs = require('node:fs');
@@ -99,16 +98,6 @@ const createWindow = async () => {
     }
   });
 
-  let canClosed = false;
-  mainWindow.on('close', (e) => {
-    if (canClosed) {
-      return;
-    }
-    e.preventDefault();
-    windowCloseHandler(mainWindow);
-    canClosed = true;
-  });
-
   mainWindow?.webContents.setWindowOpenHandler(function (details) {
     const url = details.url;
     if (url.startsWith('note://')) return;
@@ -135,14 +124,12 @@ app.on('NSApplicationDelegate.applicationSupportsSecureRestorableState', () => {
 });
 
 ipcMain.answerRenderer('print-pdf', async (options) => {
-  console.log('printing');
-  const { backgroundColor = '#000000', pdfName } = options; // Default to black if not specified
-  console.log(options);
+  const { pdfName } = options; // Default to black if not specified
 
   const focusedWindow = BrowserWindow.getFocusedWindow(); // Get the current window
   if (!focusedWindow) return;
 
-  const { canceled, filePath } = await dialog.showSaveDialog(focusedWindow, {
+  const { filePath } = await dialog.showSaveDialog(focusedWindow, {
     title: 'Save PDF',
     defaultPath: path.join(
       app.getPath('desktop'),
@@ -153,11 +140,6 @@ ipcMain.answerRenderer('print-pdf', async (options) => {
       { name: 'All Files', extensions: ['*'] },
     ],
   });
-
-  if (canceled || !filePath) {
-    console.log('Save operation canceled by the user.');
-    return;
-  }
 
   try {
     // Apply the custom background color and remove margins/padding
@@ -176,7 +158,6 @@ ipcMain.answerRenderer('print-pdf', async (options) => {
             height: 100%;
             margin: 0;
             padding: 0;
-            background-color: ${backgroundColor};
           }
           * {
             box-sizing: border-box;
@@ -185,10 +166,8 @@ ipcMain.answerRenderer('print-pdf', async (options) => {
         document.head.appendChild(style);
     
         // Apply background color directly
-        document.body.style.backgroundColor = '${backgroundColor}';
         document.body.style.margin = '0';
         document.body.style.padding = '0';
-        document.documentElement.style.backgroundColor = '${backgroundColor}';
         document.documentElement.style.margin = '0';
         document.documentElement.style.padding = '0';
       })();
@@ -212,24 +191,12 @@ app.on('open-file', (event, path) => {
   event.preventDefault();
   if (mainWindow && mainWindow.webContents) {
     if (mainWindow.webContents.isLoading()) {
-      // If the frontend isn't ready, queue the file path
       queuedPath = path;
     } else {
-      // If the frontend is ready, send the file path immediately
       mainWindow.webContents.send('file-opened', path);
     }
   }
 });
-
-async function windowCloseHandler(win) {
-  try {
-    await ipcMain.callRenderer(win, 'win:close');
-  } catch (error) {
-    console.error('Error handling window close:', error);
-  } finally {
-    app.quit();
-  }
-}
 
 app.on('second-instance', () => {
   if (mainWindow) {
@@ -283,20 +250,12 @@ app
       if (filePath) {
         if (mainWindow && mainWindow.webContents) {
           if (mainWindow.webContents.isLoading()) {
-            // If the frontend isn't ready, queue the file path
             queuedPath = filePath;
           } else {
-            // If the frontend is ready, send the file path immediately
             mainWindow.webContents.send('file-opened', filePath);
           }
         }
       } else {
-        // No .bea file found, just print and let the app handle the other arguments
-        console.log(
-          'No valid .bea file found. Continuing with other arguments.',
-        );
-
-        // Process runtime arguments (like --ozone-platform-hint=auto)
         process.argv.forEach((arg) => {
           console.log(`Received argument: ${arg}`);
         });
@@ -314,26 +273,29 @@ app
   .catch((e) => console.error('Failed create window:', e));
 
 autoUpdater.on('checking-for-update', () => {
-  ipcMain.callFocusedRenderer('update-status', 'Checking for updates...');
+  mainWindow?.webContents.send('update-status', 'Checking for updates...');
 });
 
 autoUpdater.on('update-available', (info) => {
-  ipcMain.callFocusedRenderer(
+  mainWindow?.webContents.send(
     'update-status',
     `Update available: ${info.version}`,
   );
 });
 
 autoUpdater.on('update-not-available', () => {
-  ipcMain.callFocusedRenderer('update-status', 'No updates available.');
+  mainWindow?.webContents.send('update-status', 'No updates available.');
 });
 
 autoUpdater.on('download-progress', (progress) => {
-  ipcMain.callFocusedRenderer('update-progress', progress);
+  mainWindow?.webContents.send('update-progress', progress);
 });
 
 autoUpdater.on('update-downloaded', (info) => {
-  ipcMain.callFocusedRenderer('update-status', `Update ready: ${info.version}`);
+  mainWindow?.webContents.send(
+    'update-status',
+    `Update ready: ${info.version}`,
+  );
 });
 
 ipcMain.answerRenderer('check-for-updates', async () => {
@@ -381,7 +343,6 @@ ipcMain.answerRenderer('open-file-external', async (src) => {
 
   try {
     await shell.openPath(fullPath);
-    console.log(`File ${fullPath} opened successfully`);
     return fullPath;
   } catch (error) {
     console.error(`Error opening file: ${error.message}`);
@@ -438,25 +399,6 @@ ipcMain.handle('fs:isFile', async (filePath) => {
   } catch (error) {
     console.error('Error checking if file exists:', error);
     throw error; // Propagate the error back to the renderer process
-  }
-});
-ipcMain.answerRenderer('gvfs:copy', async ({ path, dest }) => {
-  try {
-    await new Promise((resolve, reject) => {
-      exec(`cp -r '${path}/' '${dest}/'`, (error, stdout, stderr) => {
-        if (error) {
-          console.error('Error copying using gvfs-move:', error);
-          reject(error);
-          return;
-        }
-        console.log('stdout:', stdout);
-        console.error('stderr:', stderr);
-        resolve();
-      });
-    });
-  } catch (error) {
-    console.error('Error during gvfs-move:', error);
-    throw error;
   }
 });
 ipcMain.answerRenderer('helper:relaunch', (options = {}) => {
@@ -629,11 +571,11 @@ function initializeMenu() {
       role: 'help',
       submenu: [
         {
-          label: 'Beaver Help',
+          label: 'Docs',
           click: async () => {
             const { shell } = require('electron');
             await shell.openExternal(
-              'https://danieles-organization.gitbook.io/beaver-notes',
+              'https://docs.beavernotes.com/',
             );
           },
         },

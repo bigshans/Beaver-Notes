@@ -47,6 +47,7 @@ export default {
       localStorage.getItem('selected-font-code') || 'JetBrains Mono';
     const selectedDarkText =
       localStorage.getItem('selected-dark-text') || 'white';
+    const colorScheme = localStorage.getItem('color-scheme') || 'light';
     const editorWidth = localStorage.getItem('editorWidth') || '54rem';
     document.documentElement.style.setProperty('--selected-font', selectedFont);
     document.documentElement.style.setProperty(
@@ -57,6 +58,7 @@ export default {
       '--selected-dark-text',
       selectedDarkText
     );
+    document.documentElement.classList.add(colorScheme);
     document.documentElement.style.setProperty('--selected-width', editorWidth);
 
     const zoom = async () => {
@@ -81,6 +83,18 @@ export default {
           translations.value = trans;
         }
       });
+
+      try {
+        const autoUpdateEnabled = await window.electron.ipcRenderer.callMain(
+          'get-auto-update-status'
+        );
+
+        if (autoUpdateEnabled) {
+          await window.electron.ipcRenderer.callMain('check-for-updates');
+        }
+      } catch (error) {
+        console.error('Error checking auto-update status:', error);
+      }
 
       // Apply the stored zoom level on mount
       document.body.style.zoom = state.zoomLevel;
@@ -146,7 +160,7 @@ export default {
     theme.loadTheme();
     onFileOpened((path) => {
       console.log('File opened:', path);
-      importNoteFromBea(path);
+      importNoteFromBea(path, router);
     });
     window.electron.ipcRenderer.callMain(
       'app:set-zoom',

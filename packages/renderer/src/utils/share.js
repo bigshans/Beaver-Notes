@@ -1,5 +1,6 @@
 import { useStorage } from '@/composable/storage';
 const { ipcRenderer, path } = window.electron;
+
 async function encodeAssets(sourcePath) {
   const assets = {};
 
@@ -86,7 +87,7 @@ export async function exportNoteById(noteId, noteTitle) {
   }
 }
 
-export async function importNoteFromBea(filePath) {
+export async function importNoteFromBea(filePath, router) {
   try {
     const fileContent = await ipcRenderer.callMain('fs:read-json', filePath);
 
@@ -114,7 +115,7 @@ export async function importNoteFromBea(filePath) {
     }
 
     // Directly process the imported note
-    await processImportedNote(fileData);
+    await processImportedNote(fileData, router);
 
     return true;
   } catch (error) {
@@ -126,7 +127,7 @@ export async function importNoteFromBea(filePath) {
   }
 }
 
-async function processImportedNote(noteData) {
+async function processImportedNote(noteData, router) {
   const storage = useStorage();
   try {
     const currentNotes = await storage.get('notes', {});
@@ -189,9 +190,7 @@ async function processImportedNote(noteData) {
       }
     }
 
-    alert(`Note "${noteData.title}" processed and stored successfully.`);
-
-    window.location.reload();
+    router.push(`/note/${noteData.id}`);
   } catch (error) {
     console.error('Error processing imported note:', error);
     throw error;

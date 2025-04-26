@@ -21,10 +21,7 @@
   line-height: 1.5;
 }
 .ProseMirror a {
-  @apply text-primary dark:text-amber-400 !important;
-}
-.ProseMirror strong {
-  @apply dark:text-[color:var(--selected-dark-text)];
+  @apply text-primary dark:text-primary !important;
 }
 .ProseMirror blockquote {
   @apply dark:border-neutral-700 dark:text-neutral-100;
@@ -44,8 +41,14 @@
   margin-bottom: 0 !important;
   @apply dark:text-[color:var(--selected-dark-text)];
 }
+.ProseMirror strong {
+  color: inherit !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  @apply dark:text-[color:var(--selected-dark-text)];
+}
 .ProseMirror .mention {
-  @apply py-0.5 px-1 rounded-md bg-primary text-primary bg-opacity-10 dark:text-amber-400 hover:underline;
+  @apply py-0.5 px-1 rounded-md bg-primary text-primary bg-opacity-10 dark:text-primary hover:underline;
   cursor: pointer;
 }
 
@@ -149,8 +152,12 @@ img.ProseMirror-selectednode {
       padding-left: 0 !important;
     }
   }
-  .find {
-    @apply bg-yellow-400;
+  .search-result {
+    @apply bg-primary bg-opacity-20;
+
+    &-current {
+      @apply bg-secondary bg-opacity-50;
+    }
   }
   .inline-code {
     @apply p-0.5 px-1 !important;

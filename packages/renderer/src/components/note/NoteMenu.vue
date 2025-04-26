@@ -45,24 +45,30 @@
             :class="{ 'is-active': editor.isActive('highlight') }"
             class="transition hoverable h-8 px-1 rounded-lg"
           >
-            <v-remixicon name="riMarkPenLine" />
+            <v-remixicon name="riFontColor" />
           </button>
         </template>
-        <div class="grid grid-cols-4 gap-2 p-2">
-          <button
-            v-tooltip.group="translations.menu.highlight"
-            :class="{ 'is-active': editor.isActive('highlight') }"
-            class="transition hoverable w-8 h-8 px-1 rounded-lg cursor-pointer"
-            @click="editor.commands.unsetHighlight()"
-          >
-            <v-remixicon name="riCloseLine" />
-          </button>
-          <div
-            v-for="color in colors"
-            :key="color"
-            :class="['w-8 h-8 cursor-pointer', color]"
-            @click="setHighlightColor(color)"
-          ></div>
+        <div class="px-2">
+          <p class="text-sm py-2">{{ translations.menu.textColor }}</p>
+          <div class="grid grid-cols-4 gap-2">
+            <div
+              v-for="color in textColors"
+              :key="color"
+              :class="['w-8 h-8 cursor-pointer rounded']"
+              @click="setTextColor(color)"
+            >
+              <v-remixicon name="riFontColor" :style="{ color: color }" />
+            </div>
+          </div>
+          <p class="text-sm py-2">{{ translations.menu.highlighterColor }}</p>
+          <div class="grid grid-cols-4 gap-2">
+            <div
+              v-for="color in highlighterColors"
+              :key="color"
+              :class="['w-8 h-8 cursor-pointer rounded', color]"
+              @click="setHighlightColor(color)"
+            ></div>
+          </div>
         </div>
       </ui-popover>
       <hr class="border-r mx-2 h-6" />
@@ -157,7 +163,7 @@
         >
           <v-remixicon :name="isRecording ? 'riStopCircleLine' : 'riMicLine'" />
         </button>
-        <span v-if="isRecording" class="font-amber-100 font-semibold pr-1">{{
+        <span v-if="isRecording" class="font-secondary font-semibold pr-1">{{
           formattedTime
         }}</span>
       </div>
@@ -362,24 +368,30 @@
             :class="{ 'is-active': editor.isActive('highlight') }"
             class="transition hoverable h-8 px-1 rounded-lg"
           >
-            <v-remixicon name="riMarkPenLine" />
+            <v-remixicon name="riFontColor" />
           </button>
         </template>
-        <div class="grid grid-cols-4 gap-2 p-2">
-          <button
-            v-tooltip.group="translations.menu.highlight"
-            :class="{ 'is-active': editor.isActive('highlight') }"
-            class="transition hoverable w-8 h-8 px-1 rounded-lg cursor-pointer"
-            @click="editor.commands.unsetHighlight()"
-          >
-            <v-remixicon name="riCloseLine" />
-          </button>
-          <div
-            v-for="color in colors"
-            :key="color"
-            :class="['w-8 h-8 cursor-pointer', color]"
-            @click="setHighlightColor(color)"
-          ></div>
+        <div class="px-2">
+          <p class="text-sm py-2">{{ translations.menu.textColor }}</p>
+          <div class="grid grid-cols-4 gap-2">
+            <div
+              v-for="color in textColors"
+              :key="color"
+              :class="['w-8 h-8 cursor-pointer rounded']"
+              @click="setTextColor(color)"
+            >
+              <v-remixicon name="riFontColor" :style="{ color: color }" />
+            </div>
+          </div>
+          <p class="text-sm py-2">{{ translations.menu.highlighterColor }}</p>
+          <div class="grid grid-cols-4 gap-2">
+            <div
+              v-for="color in highlighterColors"
+              :key="color"
+              :class="['w-8 h-8 cursor-pointer rounded', color]"
+              @click="setHighlightColor(color)"
+            ></div>
+          </div>
         </div>
       </ui-popover>
       <hr class="border-r mx-2 h-6" />
@@ -428,7 +440,7 @@
         >
           <v-remixicon :name="isRecording ? 'riStopCircleLine' : 'riMicLine'" />
         </button>
-        <span v-if="isRecording" class="font-amber-100 font-semibold pr-1">{{
+        <span v-if="isRecording" class="font-secondary font-semibold pr-1">{{
           formattedTime
         }}</span>
       </div>
@@ -664,7 +676,6 @@ import { useNoteStore } from '../../store/note';
 import { useRouter } from 'vue-router';
 import { useDialog } from '@/composable/dialog';
 import RecordRTC from 'recordrtc';
-import { useTheme } from '@/composable/theme';
 import { useStorage } from '@/composable/storage';
 import { exportNoteById } from '@/utils/share';
 import { useTranslation } from '@/composable/translations';
@@ -672,7 +683,6 @@ import { useTranslation } from '@/composable/translations';
 const { path, ipcRenderer } = window.electron;
 const filePath = '';
 const storage = useStorage('settings');
-const { currentTheme } = useTheme();
 const state = shallowReactive({
   zoomLevel: (+localStorage.getItem('zoomLevel') || 1).toFixed(1),
 });
@@ -953,12 +963,8 @@ export default {
       Mousetrap.unbind(Object.keys(shortcuts));
     });
 
-    const isDarkMode = currentTheme.value === 'dark';
-
     function printContent() {
-      console.log(`${props.note.title}.pdf`);
       ipcRenderer.callMain('print-pdf', {
-        backgroundColor: isDarkMode ? '#232222' : '#ffffff',
         pdfName: `${props.note.title}.pdf`,
       });
     }
@@ -969,7 +975,6 @@ export default {
           translations.value = trans;
         }
       });
-      document.addEventListener('drop', handleDrop);
     });
 
     const showAdavancedSettings = computed(() => {
@@ -1006,50 +1011,8 @@ export default {
       }
     };
 
-    async function handleDrop(event) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      // Check if files are being dropped
-      const files = event.dataTransfer?.files;
-
-      // If no files are present, ignore the drop event
-      if (!files || files.length === 0) {
-        console.log('Ignoring non-file drop event');
-        return;
-      }
-
-      console.log('Files detected, processing drop event:', event);
-
-      try {
-        for (const file of files) {
-          // Determine the type of the file
-          const mimeType = file.type;
-
-          // Ignore image files
-          if (mimeType.startsWith('image/')) {
-            continue;
-          }
-
-          const { fileName, relativePath } = await saveFile(file, props.id);
-          const src = `${relativePath}`; // Construct the complete source path
-
-          if (mimeType.startsWith('audio/')) {
-            props.editor.commands.setAudio(src);
-          } else if (mimeType.startsWith('video/')) {
-            props.editor.commands.setVideo(src);
-          } else {
-            props.editor.commands.setFileEmbed(src, fileName);
-          }
-        }
-      } catch (error) {
-        console.error('Error saving and embedding files:', error);
-      }
-    }
-
     const container = ref();
     function changeWheelDirection(e) {
-      e.preventDefault();
       if (container.value) {
         container.value.scrollLeft += e.deltaY + e.deltaX;
       }
@@ -1184,7 +1147,15 @@ export default {
       }
     });
 
-    const colors = [
+    const highlighterColors = [
+      'bg-[#FFD56B]/60 dark:bg-[#996B1F]/50 dark:text-[color:var(--selected-dark-text)]',
+      'bg-[#FFF78A]/60 dark:bg-[#B8A233]/50 dark:text-[color:var(--selected-dark-text)]',
+      'bg-[#C5F6C7]/60 dark:bg-[#5A9E5D]/50 dark:text-[color:var(--selected-dark-text)]',
+      'bg-[#A7DBFA]/60 dark:bg-[#4785A3]/50 dark:text-[color:var(--selected-dark-text)]',
+      'bg-[#D7B5F7]/60 dark:bg-[#7E5A9A]/50 dark:text-[color:var(--selected-dark-text)]',
+      'bg-[#F9C3D8]/60 dark:bg-[#B15A79]/50 dark:text-[color:var(--selected-dark-text)]',
+      'bg-[#FF9E9E]/60 dark:bg-[#B04C4C]/50 dark:text-[color:var(--selected-dark-text)]',
+      'bg-[#E0E0E0]/60 dark:bg-[#6B6B6B]/50 dark:text-[color:var(--selected-dark-text)]',
       'bg-orange-200 dark:bg-orange-40',
       'bg-yellow-200 dark:bg-yellow-100',
       'bg-green-200 dark:bg-green-100',
@@ -1192,15 +1163,40 @@ export default {
       'bg-purple-200 dark:bg-purple-100',
       'bg-pink-200 dark:bg-pink-100',
       'bg-red-200 dark:bg-red-100',
+      'bg-zinc-200 dark:bg-zinc-100',
+    ];
+
+    const textColors = [
+      '#DC8D42', // Soft Orange
+      '#E3B324', // Warm Yellow
+      '#4CAF50', // Natural Green
+      '#3A8EE6', // Soft Blue
+      '#9B5EE6', // Muted Purple
+      '#E67EA4', // Pastel Pink
+      '#E75C5C', // Warm Red
+      '#A3A3A3', // Soft Gray
     ];
 
     function setHighlightColor(color) {
-      props.editor.commands.setHighlight({ color });
+      if (props.editor.isActive('highlight', { color })) {
+        props.editor.commands.unsetHighlight();
+      } else {
+        props.editor.commands.setHighlight({ color });
+      }
+    }
+
+    function setTextColor(color) {
+      if (props.editor.isActive('textStyle', { color })) {
+        props.editor.chain().focus().unsetColor().run();
+      } else {
+        props.editor.commands.setColor(color);
+      }
     }
 
     return {
       store,
-      colors,
+      highlighterColors,
+      textColors,
       setHighlightColor,
       lists,
       isTableActive,
@@ -1214,6 +1210,7 @@ export default {
       addIframe,
       editorImage,
       headingsTree,
+      setTextColor,
       textFormatting,
       getHeadingsTree,
       toggleReaderMode,
