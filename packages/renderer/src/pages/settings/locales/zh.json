@@ -2,7 +2,7 @@
   "_idvue": {
     "MathPlaceholder": "在此输入……",
     "MermaidPlaceholder": "在此输入 Mermaid 代码……",
-    "Previousnote": "之前的笔记",
+    "Previousnote": "上一篇",
     "error": "哎呀！渲染图表时出现问题。请检查语法。",
     "exit": "按 Ctrl + Enter 关闭",
     "untitlednote": "无标题笔记"
@@ -286,7 +286,7 @@
     "Link": "链接",
     "Navigates": "导航快捷键",
     "Orderedlist": "有序列表",
-    "Previousnote": "之前的笔记",
+    "Previousnote": "上一篇笔记",
     "Strikethrough": "删除线",
     "SubScript": "下标",
     "SuperScript": "上标",

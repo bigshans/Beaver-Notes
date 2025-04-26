@@ -28,38 +28,52 @@
       <p class="mb-2">{{ translations.settings.colorScheme || '-' }}</p>
       <div class="w-full items-center justify-center flex gap-4">
         <button
-          class="bg-red-500 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
-          :class="{ 'ring-2 ring-primary': state.zoomLevel === '1.2' }"
+          class="bg-red-500 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
+          :class="{
+            'ring-offset-2 ring-2 ring-primary': colorScheme === 'red',
+          }"
           @click="setColor('red')"
         ></button>
         <button
-          class="bg-amber-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
-          :class="{ 'ring-2 ring-primary': state.zoomLevel === '1.2' }"
+          class="bg-amber-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
+          :class="{
+            'ring-offset-2 ring-2 ring-primary': colorScheme === 'light',
+          }"
           @click="setColor('light')"
         ></button>
         <button
-          class="bg-emerald-500 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
-          :class="{ 'ring-2 ring-primary': state.zoomLevel === '1.2' }"
+          class="bg-emerald-500 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
+          :class="{
+            'ring-offset-2 ring-2 ring-primary': colorScheme === 'green',
+          }"
           @click="setColor('green')"
         ></button>
         <button
-          class="bg-blue-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
-          :class="{ 'ring-2 ring-primary': state.zoomLevel === '1.2' }"
+          class="bg-blue-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
+          :class="{
+            'ring-offset-2 ring-2 ring-primary': colorScheme === 'blue',
+          }"
           @click="setColor('blue')"
         ></button>
         <button
-          class="bg-purple-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
-          :class="{ 'ring-2 ring-primary': state.zoomLevel === '1.2' }"
+          class="bg-purple-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
+          :class="{
+            'ring-offset-2 ring-2 ring-primary': colorScheme === 'purple',
+          }"
           @click="setColor('purple')"
         ></button>
         <button
-          class="bg-pink-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
-          :class="{ 'ring-2 ring-primary': state.zoomLevel === '1.2' }"
+          class="bg-pink-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
+          :class="{
+            'ring-offset-2 ring-2 ring-primary': colorScheme === 'pink',
+          }"
           @click="setColor('pink')"
         ></button>
         <button
-          class="bg-neutral-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
-          :class="{ 'ring-2 ring-primary': state.zoomLevel === '1.2' }"
+          class="bg-neutral-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
+          :class="{
+            'ring-offset-2 ring-2 ring-primary': colorScheme === 'neutral',
+          }"
           @click="setColor('neutral')"
         ></button>
       </div>
@@ -318,6 +332,7 @@ import LTRImg from '@/assets/images/LTR.png';
 import LTRImgDark from '@/assets/images/LTR-dark.png';
 import RTLImg from '@/assets/images/RTL.png';
 import RTLImgDark from '@/assets/images/RTL-dark.png';
+import { useLocalStorage } from '../../composable/storage';
 
 export default {
   setup() {
@@ -329,6 +344,11 @@ export default {
 
     const theme = useTheme();
     const storage = useStorage();
+    const colorScheme = useLocalStorage('color-scheme', {
+      defaultValue: 'light',
+      parse: (value) => value,
+      stringify: (value) => value ?? 'light',
+    }).ref();
 
     // State for application settings
     const state = shallowReactive({
@@ -431,7 +451,7 @@ export default {
         }
       });
       root.classList.add(color);
-      localStorage.setItem('color-scheme', color);
+      colorScheme.value = color;
     };
 
     const visibilityMenubar = computed({
@@ -589,6 +609,7 @@ export default {
       updateCodeFont,
       setZoom,
       setColor,
+      colorScheme,
     };
   },
 };

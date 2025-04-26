@@ -612,14 +612,29 @@
         </button>
       </ui-popover>
       <hr class="border-r mx-2 h-6" />
-      <button
-        v-if="showAdavancedSettings"
-        v-tooltip.group="translations.menu.delete"
-        class="hoverable h-8 px-1 rounded-lg h-full"
-        @click="deleteNode"
-      >
-        <v-remixicon name="riDeleteBin6Line" />
-      </button>
+      <template v-if="showAdavancedSettings">
+        <button
+          v-tooltip.group="translations.menu.delete"
+          class="hoverable h-8 px-1 rounded-lg h-full"
+          @click="deleteNode"
+        >
+          <v-remixicon name="riDeleteBin6Line" />
+        </button>
+        <button
+          v-tooltip.group="'后退'"
+          class="hoverable h-8 px-1 rounded-lg h-full"
+          @click="goBack"
+        >
+          <v-remixicon name="riArrowLeftLine" />
+        </button>
+        <button
+          v-tooltip.group="'前进'"
+          class="hoverable h-8 px-1 rounded-lg h-full"
+          @click="goForward"
+        >
+          <v-remixicon name="riArrowRightLine" />
+        </button>
+      </template>
       <button
         v-tooltip.group="translations.menu.readerMode"
         :class="{ 'is-active': store.inReaderMode }"
@@ -1193,6 +1208,14 @@ export default {
       }
     }
 
+    function goBack() {
+      router.back();
+    }
+
+    function goForward() {
+      router.forward();
+    }
+
     return {
       store,
       highlighterColors,
@@ -1229,6 +1252,8 @@ export default {
       container,
       changeWheelDirection,
       shareNote,
+      goBack,
+      goForward,
     };
   },
   methods: {

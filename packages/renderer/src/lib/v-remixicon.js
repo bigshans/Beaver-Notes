@@ -6,6 +6,8 @@ import {
   riCalculatorLine,
   riArrowGoBackLine,
   riArrowGoForwardLine,
+  riArrowLeftLine,
+  riArrowRightLine,
   riBallPenLine,
   riEraserLine,
   riVolumeDownFill,
@@ -114,6 +116,8 @@ import {
 VRemixIcon.add({
   riArrowGoBackLine,
   riArrowGoForwardLine,
+  riArrowLeftLine,
+  riArrowRightLine,
   riAttachmentLine,
   riBrush2Fill,
   riBrush3Fill,

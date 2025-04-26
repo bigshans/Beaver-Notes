@@ -102,18 +102,25 @@
             </label>
           </div>
           <!-- Auto Sync -->
-          <div class="flex items-center py-2 justify-between">
+          <div
+            class="flex items-center py-2 justify-between"
+            :class="{ 'opacity-50': !state.dataDir }"
+          >
             <div>
               <span class="block text-lg align-left">
                 {{ translations.settings.autosync || '-' }}
               </span>
             </div>
-            <label class="relative inline-flex cursor-pointer items-center">
+            <label
+              class="relative inline-flex cursor-pointer items-center"
+              :class="{ 'cursor-not-allowed': !state.dataDir }"
+            >
               <input
                 id="switch"
                 v-model="autoSync"
                 type="checkbox"
                 class="peer sr-only"
+                :disabled="!state.dataDir"
                 @change="handleAutoSyncChange"
               />
               <div
