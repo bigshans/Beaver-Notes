@@ -1,5 +1,6 @@
 {
   "name": "Beaver-notes",
+  "productName": "Beaver-notes",
   "type": "module",
   "private": false,
   "version": "4.1.0",
@@ -130,7 +131,9 @@
     "recordrtc": "^5.6.2",
     "remove": "^0.1.5",
     "stream-browserify": "^3.0.0",
+    "tiptap-extension-font-size": "^1.2.0",
     "turndown": "^7.2.0",
+    "turndown-plugin-gfm": "^1.0.2",
     "tw-colors": "^3.3.2",
     "util": "^0.12.5",
     "yaml": "^2.7.0",
