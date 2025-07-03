@@ -207,9 +207,9 @@ export const useNoteStore = defineStore('note', {
         await storage.set('isLocked', this.isLocked);
 
         // Track the change for sync
-        await trackChange('notes', this.data);
-        await trackChange('lockStatus', this.lockStatus);
-        await trackChange('isLocked', this.isLocked);
+        await trackChange(`notes.${id}`, this.data[id]);
+        await trackChange(`lockStatus.${id}`, this.lockStatus[id]);
+        await trackChange(`isLocked.${id}`, this.isLocked[id]);
 
         return this.data[id];
       } catch (error) {
@@ -231,7 +231,7 @@ export const useNoteStore = defineStore('note', {
         await storage.set(`notes.${id}`, this.data[id]);
 
         // Track the change for sync
-        await trackChange('notes', this.data);
+        await trackChange(`notes.${id}`, this.data[id]);
 
         return this.data[id];
       } catch (error) {
@@ -262,9 +262,9 @@ export const useNoteStore = defineStore('note', {
         await storage.set('isLocked', this.isLocked);
         await storage.set('deletedIds', this.deletedIds);
 
-        await trackChange('notes', this.data);
-        await trackChange('lockStatus', this.lockStatus);
-        await trackChange('isLocked', this.isLocked);
+        await trackChange(`notes.${id}`, this.data[id]);
+        await trackChange(`lockStatus.${id}`, this.lockStatus[id]);
+        await trackChange(`isLocked.${id}`, this.isLocked[id]);
         await trackChange('deletedIds', this.deletedIds);
 
         try {
@@ -336,9 +336,9 @@ export const useNoteStore = defineStore('note', {
         ]);
 
         // Track changes for sync
-        await trackChange('notes', this.data);
-        await trackChange('lockStatus', this.lockStatus);
-        await trackChange('isLocked', this.isLocked);
+        await trackChange(`notes.${id}`, this.data[id]);
+        await trackChange(`lockStatus.${id}`, this.lockStatus[id]);
+        await trackChange(`isLocked.${id}`, this.isLocked[id]);
       } catch (error) {
         console.error('Error locking note:', error);
         throw error;
@@ -377,7 +377,7 @@ export const useNoteStore = defineStore('note', {
           ]);
 
           // Track changes for sync
-          await trackChange('notes', this.data);
+          await trackChange(`notes.${id}`, this.data[id]);
           await trackChange('lockStatus', this.lockStatus);
           await trackChange('isLocked', this.isLocked);
           return;
@@ -416,9 +416,9 @@ export const useNoteStore = defineStore('note', {
         ]);
 
         // Track changes for sync
-        await trackChange('notes', this.data);
-        await trackChange('lockStatus', this.lockStatus);
-        await trackChange('isLocked', this.isLocked);
+        await trackChange(`notes.${id}`, this.data[id]);
+        await trackChange(`lockStatus.${id}`, this.lockStatus[id]);
+        await trackChange(`isLocked.${id}`, this.isLocked[id]);
       } catch (error) {
         console.error('Error unlocking note:', error);
         throw error;
@@ -446,7 +446,7 @@ export const useNoteStore = defineStore('note', {
         await storage.set(`notes.${id}`, this.data[id]);
 
         // Track change for sync
-        await trackChange('notes', this.data);
+        await trackChange(`notes.${id}`, this.data[id]);
 
         return labelId;
       } catch (error) {
@@ -476,50 +476,12 @@ export const useNoteStore = defineStore('note', {
         await storage.set(`notes.${id}`, this.data[id]);
 
         // Track change for sync
-        await trackChange('notes', this.data);
+        await trackChange(`notes.${id}`, this.data[id]);
 
         return labelId;
       } catch (error) {
         console.error('Error removing label:', error);
         throw error;
-      }
-    },
-
-    // Handle incoming sync updates (called by sync system when changes are pulled)
-    async applyRemoteChanges(entityType, remoteData) {
-      if (this.syncInProgress) return;
-
-      try {
-        this.syncInProgress = true;
-
-        if (entityType === 'notes') {
-          // Merge the remote notes with local notes
-          // Keep newer versions based on updatedAt timestamp
-          const mergedNotes = { ...this.data };
-
-          for (const [noteId, remoteNote] of Object.entries(remoteData)) {
-            const localNote = this.data[noteId];
-
-            // If note doesn't exist locally or remote is newer, use remote
-            if (!localNote || remoteNote.updatedAt > localNote.updatedAt) {
-              mergedNotes[noteId] = remoteNote;
-            }
-          }
-
-          this.data = mergedNotes;
-          await storage.set('notes', this.data);
-        } else if (entityType === 'lockStatus') {
-          this.lockStatus = { ...this.lockStatus, ...remoteData };
-          await storage.set('lockStatus', this.lockStatus);
-        } else if (entityType === 'isLocked') {
-          this.isLocked = { ...this.isLocked, ...remoteData };
-          await storage.set('isLocked', this.isLocked);
-        }
-      } catch (error) {
-        console.error('Error applying remote changes:', error);
-        throw error;
-      } finally {
-        this.syncInProgress = false;
       }
     },
   },

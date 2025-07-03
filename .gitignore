@@ -65,3 +65,4 @@ packages/preload/dist/index.cjs
 packages/renderer/dist/*
 .vim/
 *.development
+.env.development

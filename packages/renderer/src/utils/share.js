@@ -1,18 +1,17 @@
 import { useStorage } from '@/composable/storage';
 const { ipcRenderer, path } = window.electron;
+import TurndownService from 'turndown';
+import mime from 'mime';
 
 async function encodeAssets(sourcePath) {
   const assets = {};
 
   try {
-    // Fetch the list of files in the directory
     const files = await ipcRenderer.callMain('fs:readdir', sourcePath);
 
     for (const file of files) {
-      // Construct the full file path
       const filePath = path.join(sourcePath, file);
 
-      // Read the file's Base64-encoded contents directly
       const base64Data = await ipcRenderer.callMain('fs:readData', filePath);
 
       if (!base64Data) {
@@ -21,7 +20,6 @@ async function encodeAssets(sourcePath) {
         continue;
       }
 
-      // Store the Base64-encoded data in the assets object
       assets[file] = base64Data;
     }
   } catch (error) {
@@ -31,7 +29,100 @@ async function encodeAssets(sourcePath) {
   return assets;
 }
 
-export async function exportNoteById(noteId, noteTitle) {
+export async function exportHTML(noteId, noteTitle, editor) {
+  let html = editor.getHTML();
+  const storage = useStorage();
+  const dataDir = await storage.get('dataDir', '', 'settings');
+  const noteAssetsSource = path.join(dataDir, 'notes-assets', noteId);
+  const fileAssetsSource = path.join(dataDir, 'file-assets', noteId);
+
+  const assets = {
+    notesAssets: await encodeAssets(noteAssetsSource),
+    fileAssets: await encodeAssets(fileAssetsSource),
+  };
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  const imgs = doc.querySelectorAll('img');
+
+  imgs.forEach((img) => {
+    const src = img.getAttribute('src');
+    if (!src) return;
+
+    // Extract filename from src (handle query strings or hashes if needed)
+    const fileName = src.split('/').pop().split('?')[0].split('#')[0];
+
+    // Check both asset sources
+    const base64Data =
+      assets.notesAssets[fileName] || assets.fileAssets[fileName];
+
+    if (base64Data) {
+      // Determine mime type
+      const mimeType = mime.getType(fileName) || 'application/octet-stream';
+
+      // Set src to base64 data URI
+      img.setAttribute('src', `data:${mimeType};base64,${base64Data}`);
+    } else {
+      console.warn(`No base64 data found for image: ${fileName}`);
+    }
+  });
+
+  const finalHtml = doc.documentElement.outerHTML;
+
+  const blob = new Blob([finalHtml], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${noteTitle}.html`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function exportMD(noteId, noteTitle, editor) {
+  let html = editor.getHTML();
+  const turndownService = new TurndownService();
+  let markdown = turndownService.turndown(html); // convert to Markdown
+
+  const storage = useStorage();
+  const dataDir = await storage.get('dataDir', '', 'settings');
+  const noteAssetsSource = path.join(dataDir, 'notes-assets', noteId);
+  const fileAssetsSource = path.join(dataDir, 'file-assets', noteId);
+
+  const assets = {
+    notesAssets: await encodeAssets(noteAssetsSource),
+    fileAssets: await encodeAssets(fileAssetsSource),
+  };
+
+  // Replace image markdown with base64 data URIs
+  markdown = markdown.replace(
+    /!\[([^\]]*)\]\(([^)]+)\)/g,
+    (match, altText, src) => {
+      const fileName = src.split('/').pop().split('?')[0].split('#')[0];
+      const base64Data =
+        assets.notesAssets[fileName] || assets.fileAssets[fileName];
+
+      if (base64Data) {
+        const mimeType = mime.getType(fileName) || 'application/octet-stream';
+        return `![${altText}](data:${mimeType};base64,${base64Data})`;
+      } else {
+        console.warn(`No base64 data found for image: ${fileName}`);
+        return match;
+      }
+    }
+  );
+
+  // Create and download .md file
+  const blob = new Blob([markdown], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${noteTitle}.md`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function exportBEA(noteId, noteTitle) {
   const storage = useStorage();
   try {
     const { canceled, filePaths } = await ipcRenderer.callMain('dialog:open', {
@@ -87,7 +178,7 @@ export async function exportNoteById(noteId, noteTitle) {
   }
 }
 
-export async function importNoteFromBea(filePath, router) {
+export async function importNoteFromBea(filePath, router, store) {
   try {
     const fileContent = await ipcRenderer.callMain('fs:read-json', filePath);
 
@@ -97,7 +188,6 @@ export async function importNoteFromBea(filePath, router) {
 
     const fileData = fileContent.data;
 
-    // Validate required fields
     if (
       !fileData.id ||
       !fileData.title ||
@@ -108,14 +198,12 @@ export async function importNoteFromBea(filePath, router) {
       throw new Error('Missing essential note fields in the imported file.');
     }
 
-    // Validate assets structure
     const { notesAssets, fileAssets } = fileData.assets;
     if (typeof notesAssets !== 'object' || typeof fileAssets !== 'object') {
       throw new Error('Invalid assets structure in the imported note.');
     }
 
-    // Directly process the imported note
-    await processImportedNote(fileData, router);
+    await processImportedNote(fileData, router, store);
 
     return true;
   } catch (error) {
@@ -127,7 +215,7 @@ export async function importNoteFromBea(filePath, router) {
   }
 }
 
-async function processImportedNote(noteData, router) {
+async function processImportedNote(noteData, router, store) {
   const storage = useStorage();
   try {
     const currentNotes = await storage.get('notes', {});
@@ -138,13 +226,12 @@ async function processImportedNote(noteData, router) {
       [noteData.id]: {
         id: noteData.id,
         title: noteData.title,
-        content: noteData.content, // Directly use content as provided
-        labels: noteData.labels || [], // Import labels
+        content: noteData.content,
+        labels: noteData.labels || [],
       },
     };
     await storage.set('notes', updatedNotes);
 
-    // Process locked notes
     if (noteData.lockedNotes) {
       const existingLockedNotes = JSON.parse(
         localStorage.getItem('lockedNotes') || '{}'
@@ -156,7 +243,6 @@ async function processImportedNote(noteData, router) {
       localStorage.setItem('lockedNotes', JSON.stringify(mergedLockedNotes));
     }
 
-    // Process assets
     if (noteData.assets) {
       const { notesAssets, fileAssets } = noteData.assets;
 
@@ -175,7 +261,7 @@ async function processImportedNote(noteData, router) {
         );
         await ipcRenderer.callMain('fs:writeFile', {
           path: path.join(dataDir, 'notes-assets', noteData.id, filename),
-          data: byteArray.buffer,
+          data: byteArray,
         });
       }
 
@@ -185,11 +271,12 @@ async function processImportedNote(noteData, router) {
         );
         await ipcRenderer.callMain('fs:writeFile', {
           path: path.join(dataDir, 'file-assets', noteData.id, filename),
-          data: byteArray.buffer,
+          data: byteArray,
         });
       }
     }
 
+    store.retrieve('notes', updatedNotes);
     router.push(`/note/${noteData.id}`);
   } catch (error) {
     console.error('Error processing imported note:', error);

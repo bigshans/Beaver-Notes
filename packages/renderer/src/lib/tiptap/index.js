@@ -1,4 +1,5 @@
 import { Editor } from '@tiptap/vue-3';
+import heading from './exts/headings';
 import Video from './exts/video-block';
 import Document from '@tiptap/extension-document';
 import StarterKit from '@tiptap/starter-kit';
@@ -19,12 +20,12 @@ import MermaidBlock from './exts/mermaid-block';
 import TextDirection from 'tiptap-text-direction';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
+import Paper from './exts/paper-block';
 import CodeBlock from './exts/code-block';
 import LinkNote from './exts/link-note';
 import FileEmbed from './exts/file-block';
 import Audio from './exts/audio-block';
 import Text from '@tiptap/extension-text';
-import drawingCanvas from './exts/drawing-block';
 import Iframe from './exts/embed-block/iframe';
 import CollapseHeading from './exts/collapse-heading';
 import SearchAndReplace from '@sereneinserenade/tiptap-search-and-replace';
@@ -87,7 +88,13 @@ if (selectedLanguage === 'de') {
 }
 
 const extensions = [
-  StarterKit,
+  LabelSuggestion,
+  StarterKit.configure({
+    heading: false,
+    text: false,
+    codeBlock: false,
+    code: false,
+  }),
   Highlight.extend({ priority: 1000 }).configure({
     multicolor: true,
   }),
@@ -108,7 +115,7 @@ const extensions = [
   greenCallout,
   LinkNote,
   FileEmbed,
-  LabelSuggestion,
+  Paper,
   Footnotes,
   FootnoteReference,
   Footnote,
@@ -143,7 +150,6 @@ const extensions = [
   Audio,
   Paste,
   SearchAndReplace.configure(),
-  drawingCanvas,
   TextStyle,
   markdownEngine,
   Placeholder.configure({
@@ -170,7 +176,7 @@ const extensions = [
   Iframe,
 ];
 
-export { extensions, CollapseHeading };
+export { extensions, CollapseHeading, heading };
 
 export default function ({ extensions: optsExts, ...opts }) {
   const instance = new Editor({
