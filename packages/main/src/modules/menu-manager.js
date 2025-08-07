@@ -86,7 +86,7 @@ export class MenuManager {
       label: 'File',
       submenu: [
         {
-          label: translations.commands.newnote,
+          label: translations.commands.newNote,
           accelerator: 'CmdOrCtrl+N',
           click: () => this.addNoteFromMenu(),
         },
@@ -195,7 +195,7 @@ export class MenuManager {
 
     try {
       const translations = await import(
-        `../../../renderer/src/pages/settings/locales/${lang}.json`
+        `../../../renderer/src/assets/locales/${lang}.json`
       );
       return translations.default;
     } catch (error) {
