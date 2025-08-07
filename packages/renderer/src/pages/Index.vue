@@ -2,20 +2,50 @@
 <template>
   <div class="container py-5">
     <h1 class="text-3xl mb-8 font-bold">
-      {{ translations.sidebar.Notes || '-' }}
+      {{ translations.sidebar.notes || '-' }}
     </h1>
     <home-note-filter
       v-model:query="state.query"
       v-model:label="state.activeLabel"
-      v-model:sort-by="sortNotes.sortBy"
-      v-model:sort-order="sortNotes.sortOrder"
+      v-model:sort-by="state.sortBy"
+      v-model:sort-order="state.sortOrder"
       v-bind="{
         labels: labelStore.data,
       }"
       @delete:label="deleteLabel"
     />
+
     <div
-      v-if="noteStore.notes.length !== 0"
+      v-if="
+        noteStore.notes.length !== 0 || folderStore.rootFolders.length !== 0
+      "
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+    >
+      <template v-if="folders.all.length">
+        <p
+          class="col-span-full text-gray-600 dark:text-[color:var(--selected-dark-text)] capitalize mt-2"
+        >
+          Folders
+        </p>
+        <home-folder-card
+          v-for="folder in folders.all"
+          :key="folder.id"
+          :folder="folder"
+          :class="{
+            'ring-2 ring-blue-400 bg-blue-50 dark:bg-blue-900':
+              dragOverFolderId === folder.id,
+          }"
+          @dragover.prevent="dragOverFolderId = folder.id"
+          @dragleave="dragOverFolderId = null"
+          @drop="handleDrop($event, folder.id)"
+        />
+      </template>
+    </div>
+
+    <div
+      v-if="
+        noteStore.notes.length !== 0 || folderStore.rootFolders.length !== 0
+      "
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
     >
       <template
@@ -26,8 +56,7 @@
       >
         <p
           v-if="notes[name].length !== 0"
-          class="col-span-full text-gray-600 dark:text-[color:var(--selected-dark-text)] capitalize"
-          :class="{ 'mt-2': name === 'all' }"
+          class="col-span-full text-gray-600 dark:text-[color:var(--selected-dark-text)] capitalize mt-2"
         >
           {{ translations.index[name] }}
         </p>
@@ -37,42 +66,18 @@
           :note-id="note.id"
           :is-locked="note.isLocked"
           v-bind="{ note }"
+          :class="{
+            'opacity-50 transform rotate-2': draggedNoteId === note.id,
+          }"
+          draggable="true"
+          @dragstart="handleDragStart($event, note.id)"
+          @dragend="draggedNoteId = null"
           @update:label="state.activeLabel = $event"
           @update="noteStore.update(note.id, $event)"
         />
-        <div
-          v-if="showDialog"
-          class="bg-black p-5 overflow-y-auto bg-opacity-20 modal-ui__content-container z-50 flex justify-center items-end md:items-center"
-        >
-          <div
-            class="modal-ui__content shadow-lg w-full max-w-sm bg-[#F8F8F7] dark:bg-[#353333] transform rounded-lg transition-transform ui-card overflow-hidden p-4 modal-ui__content shadow-lg w-full max-w-sm"
-          >
-            <h3 class="font-semibold text-lg">
-              {{ translations.index.syncreminder || '-' }}
-            </h3>
-            <p class="mb-4">
-              {{ translations.index.syncmessage || '-' }}
-            </p>
-            <label class="flex items-center space-x-2">
-              <input
-                v-model="disableDialog"
-                type="checkbox"
-                class="form-checkbox rtl:ml-2"
-              />
-              <span class="inline-block align-middle">
-                {{ translations.index.hide || '-' }}</span
-              >
-            </label>
-            <button
-              class="mt-4 ui-button h-10 relative transition focus:ring-2 ring-amber-300 bg-primary text-white dark:bg-secondary dark:hover:bg-primary hover:bg-secondary py-2 px-4 w-full rounded-lg"
-              @click="closeDialog"
-            >
-              {{ translations.index.close || '-' }}
-            </button>
-          </div>
-        </div>
       </template>
     </div>
+
     <div v-else class="text-center">
       <img
         :src="theme.currentTheme.value === 'dark' ? BeaverDark : Beaver"
@@ -82,11 +87,12 @@
       <p
         class="max-w-md mx-auto dark:text-[color:var(--selected-dark-text)] text-gray-600 mt-2"
       >
-        {{ translations.index.newnote || '-' }}
+        {{ translations.index.newNote || '-' }}
       </p>
     </div>
   </div>
 </template>
+
 <script>
 import {
   computed,
@@ -96,64 +102,68 @@ import {
   shallowRef,
   onMounted,
   onUnmounted,
-  shallowReactive,
 } from 'vue';
+import { useTranslation } from '@/composable/translations';
 import { useRoute, useRouter } from 'vue-router';
 import { useTheme } from '@/composable/theme';
 import { useNoteStore } from '@/store/note';
 import { useLabelStore } from '@/store/label';
 import { useDialog } from '@/composable/dialog';
-import { extractNoteText } from '@/utils/helper';
+import { sortArray, extractNoteText } from '@/utils/helper';
 import HomeNoteCard from '@/components/home/HomeNoteCard.vue';
 import HomeNoteFilter from '@/components/home/HomeNoteFilter.vue';
 import KeyboardNavigation from '@/utils/keyboard-navigation';
 import Beaver from '@/assets/images/Beaver.png';
 import BeaverDark from '@/assets/images/Beaver-dark.png';
-import { storeToRefs } from 'pinia';
-
-let hasReminded = true;
+import HomeFolderCard from '../components/home/HomeFolderCard.vue';
+import { useFolderStore } from '../store/folder';
 
 export default {
-  components: { HomeNoteCard, HomeNoteFilter },
+  components: { HomeNoteCard, HomeNoteFilter, HomeFolderCard },
   setup() {
-    const showDialog = ref(checkAppReminder());
     const disableDialog = ref(false);
     const theme = useTheme();
 
-    function checkAppReminder() {
-      const disableReminder = localStorage.getItem('disableAppReminder');
-      return !(disableReminder === 'true') && hasReminded;
-    }
-
-    const showAppReminderDialog = () => {
-      if (!disableDialog.value) {
-        showDialog.value = true;
-      }
-    };
-
-    const closeDialog = () => {
-      showDialog.value = false;
-      hasReminded = false;
-      if (disableDialog.value) {
-        localStorage.setItem('disableAppReminder', 'true');
-      }
-    };
     const route = useRoute();
     const router = useRouter();
     const noteStore = useNoteStore();
+    const folderStore = useFolderStore();
     const labelStore = useLabelStore();
     const dialog = useDialog();
-    const { sortedNotes, sortNotes } = storeToRefs(noteStore);
 
     const keyboardNavigation = shallowRef(null);
+    const dragOverFolderId = ref(null);
+    const draggedNoteId = ref(null);
+
     const state = reactive({
+      notes: [],
       query: '',
       activeLabel: '',
+      sortBy: 'createdAt',
+      sortOrder: 'asc',
     });
 
-    const notes = computed(() =>
-      filterNotes(sortedNotes.value.map(extractNoteContent))
+    const sortedNotes = computed(() =>
+      sortArray({
+        data: state.notes,
+        order: state.sortOrder,
+        key: state.sortBy,
+      })
     );
+
+    const notes = computed(() => filterNotes(sortedNotes.value));
+
+    const folders = computed(() => {
+      const rootFolders = folderStore.rootFolders.filter(
+        (f) => !folderStore.deletedIds[f.id]
+      );
+
+      return {
+        all: rootFolders,
+        bookmarked: [],
+        archived: [],
+      };
+    });
 
     function filterNotes(notes) {
       const filteredNotes = {
@@ -163,32 +173,30 @@ export default {
       };
 
       notes.forEach((note) => {
-        let { title, content, isArchived, isBookmarked, labels } = note;
+        let { title, content, isArchived, isBookmarked, labels, folderId } =
+          note;
 
-        // Sort labels alphabetically
+        if (folderId !== null && folderId !== undefined) {
+          return;
+        }
+
         labels = labels.sort((a, b) => a.localeCompare(b));
 
-        // Check if an active label filter is applied
         const labelFilter = state.activeLabel
           ? labels.includes(state.activeLabel)
           : true;
 
-        // Check if the query matches labels, title, or content
         const queryLower = state.query.toLocaleLowerCase();
-        const isMatch =
-          // Label match (supports `#` prefix and plain text)
-          queryLower.startsWith('#')
-            ? labels.some((label) =>
-                label.toLocaleLowerCase().includes(queryLower.substr(1))
-              )
-            : labels.some((label) =>
-                label.toLocaleLowerCase().includes(queryLower)
-              ) ||
-              // Title and content match
-              title.toLocaleLowerCase().includes(queryLower) ||
-              content.toLocaleLowerCase().includes(queryLower);
+        const isMatch = queryLower.startsWith('#')
+          ? labels.some((label) =>
+              label.toLocaleLowerCase().includes(queryLower.substr(1))
+            )
+          : labels.some((label) =>
+              label.toLocaleLowerCase().includes(queryLower)
+            ) ||
+            title.toLocaleLowerCase().includes(queryLower) ||
+            content.toLocaleLowerCase().includes(queryLower);
 
-        // Add notes to appropriate categories if all conditions are met
         if (isMatch && labelFilter) {
           if (isArchived) return filteredNotes.archived.push(note);
 
@@ -203,14 +211,37 @@ export default {
 
     function extractNoteContent(note) {
       const text = extractNoteText(note.content.content).toLocaleLowerCase();
-
       return { ...note, content: text };
     }
+
     function deleteLabel(id) {
       labelStore.delete(id).then(() => {
         state.activeLabel = '';
       });
     }
+
+    function handleDragStart(event, noteId) {
+      event.dataTransfer.setData('text/plain', noteId);
+      draggedNoteId.value = noteId;
+    }
+
+    function handleDrop(event, folderId) {
+      event.preventDefault();
+      const noteId = event.dataTransfer.getData('text/plain');
+      if (noteId) {
+        noteStore.update(noteId, { folderId });
+      }
+      dragOverFolderId.value = null;
+      draggedNoteId.value = null;
+    }
+
+    watch(
+      () => noteStore.data,
+      () => {
+        state.notes = noteStore.notes.map(extractNoteContent);
+      },
+      { immediate: true, deep: true }
+    );
 
     watch(
       () => route.query.label,
@@ -221,6 +252,17 @@ export default {
       },
       { immediate: true }
     );
+
+    watch(
+      () => [state.sortBy, state.sortOrder],
+      ([sortBy, sortOrder]) => {
+        localStorage.setItem(
+          'sort-notes',
+          JSON.stringify({ sortBy, sortOrder })
+        );
+      }
+    );
+
     watch(notes, () => {
       setTimeout(() => {
         keyboardNavigation.value.refresh();
@@ -256,9 +298,9 @@ export default {
             router.push(`/note/${noteId}`);
           } else if (key === 'Backspace' || key === 'Delete') {
             dialog.confirm({
-              title: translations.card.confirmPrompt,
-              okText: translations.card.confirm,
-              cancelText: translations.card.Cancel,
+              title: translations.value.card.confirmPrompt,
+              okText: translations.value.card.confirm,
+              cancelText: translations.value.card.cancel,
               onConfirm: async () => {
                 await noteStore.delete(noteId);
               },
@@ -267,66 +309,46 @@ export default {
         }
       );
     });
+
     onUnmounted(() => {
       keyboardNavigation.value.destroy();
     });
 
-    //Translations
-
-    const translations = shallowReactive({
-      sidebar: {
-        Notes: 'sidebar.Notes',
-      },
-      index: {
-        newnote: 'index.newnote',
-        all: 'index.all',
-        syncreminder: 'index.syncreminder',
-        syncmessage: 'index.syncmessage',
-        hide: 'index.hide',
-        close: 'index.close',
-      },
+    const translations = ref({
+      sidebar: {},
+      index: {},
     });
 
     onMounted(async () => {
-      // Load translations
-      const loadedTranslations = await loadTranslations();
-      if (loadedTranslations) {
-        Object.assign(translations, loadedTranslations);
-      }
+      await useTranslation().then((trans) => {
+        if (trans) {
+          translations.value = trans;
+        }
+      });
     });
 
-    const loadTranslations = async () => {
-      const selectedLanguage = localStorage.getItem('selectedLanguage') || 'en';
-      try {
-        const translationModule = await import(
-          `../pages/settings/locales/${selectedLanguage}.json`
-        );
-        return translationModule.default;
-      } catch (error) {
-        console.error('Error loading translations:', error);
-        return null;
-      }
-    };
-
     return {
-      sortNotes,
       notes,
       state,
       noteStore,
+      folderStore,
       labelStore,
       translations,
+      folders,
       deleteLabel,
-      showDialog,
       disableDialog,
-      showAppReminderDialog,
-      closeDialog,
       Beaver,
       BeaverDark,
       theme,
+      dragOverFolderId,
+      draggedNoteId,
+      handleDragStart,
+      handleDrop,
     };
   },
 };
 </script>
+
 <style>
 input[type='checkbox'] {
   appearance: none;
@@ -345,7 +367,6 @@ input[type='checkbox']:checked {
   border-color: #fbbf24;
 }
 
-/* Optional: You can add a custom background or other styles for the checked state */
 input[type='checkbox']:checked::before {
   content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16'%3E%3Cpath d='M10.0007 15.1709L19.1931 5.97852L20.6073 7.39273L10.0007 17.9993L3.63672 11.6354L5.05093 10.2212L10.0007 15.1709Z' fill='rgba(251,191,36,1)'%3E%3C/path%3E%3C/svg%3E");
   display: block;
@@ -356,7 +377,17 @@ input[type='checkbox']:checked::before {
   text-align: center;
   color: #fbbf24;
 }
+
+[draggable='true'] {
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+[draggable='true']:active {
+  cursor: grabbing;
+}
 </style>
+
 <style lang="scss">
 @use 'sass:math';
 .tiptap {

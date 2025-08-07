@@ -15,7 +15,7 @@
         class="mr-2 -ml-1 rtl:ml-0 group-hover:-translate-x-1 transform transition rotate-90 rtl:-rotate-90"
       />
       <span>
-        {{ translations._idvue.Previousnote || '-' }}
+        {{ translations.editor.previousNote || '-' }}
       </span>
     </button>
     <template v-if="editor && !note.isLocked">
@@ -31,7 +31,7 @@
       contenteditable="true"
       :value="note.title"
       class="text-4xl outline-none block font-bold bg-transparent w-full mb-6 cursor-text title-placeholder"
-      :placeholder="translations._idvue.untitlednote || '-'"
+      :placeholder="translations.editor.previousNote"
       @input="updateNote({ title: $event.target.innerText })"
       @keydown="disallowedEnter"
     >
@@ -43,7 +43,7 @@
         name="riLockLine"
       />
       <p class="text-center pb-2 text-gray-600 dark:text-gray-200">
-        {{ translations.card.unlocktoedit }}
+        {{ translations.card.unlockToEdit }}
       </p>
       <div class="pb-2">
         <button
@@ -62,7 +62,6 @@
     </div>
 
     <note-editor
-      v-if="!isLocked"
       :id="$route.params.id"
       ref="noteEditor"
       :key="$route.params.id"
@@ -79,14 +78,8 @@
 </template>
 
 <script>
-import {
-  ref,
-  shallowRef,
-  computed,
-  watch,
-  onMounted,
-  shallowReactive,
-} from 'vue';
+import { ref, shallowRef, computed, watch, onMounted } from 'vue';
+import { useTranslation } from '@/composable/translations';
 import { useRouter, onBeforeRouteLeave, useRoute } from 'vue-router';
 import { useNoteStore } from '@/store/note';
 import { usePasswordStore } from '@/store/passwd';
@@ -140,7 +133,6 @@ export default {
       }
       const lastChild =
         noteEditor.value.$el.querySelector('.ProseMirror').lastChild;
-      // does scrollbar appear
       if (
         !(
           document.body.scrollHeight >
@@ -150,7 +142,6 @@ export default {
         return;
       }
       const selection = window.getSelection();
-      // the anchorNode must be the child of the last child or is the last child.
       if (!lastChild.contains(selection.anchorNode)) {
         return;
       }
@@ -161,15 +152,12 @@ export default {
       const lineHeight = rect.height;
 
       const offset = Math.abs(rect.bottom - lastRect.bottom);
-      // editor must fill the viewport
       if (lastRect.top + lastRect.height <= window.innerHeight) {
         return;
       }
       if (lineHeight === 0) {
-        // empty line
         lastChild.scrollIntoView();
       } else if (offset < lineHeight) {
-        // the offset of last line will not exceed the line height
         lastChild.scrollIntoView();
       }
     }, 50);
@@ -237,40 +225,19 @@ export default {
     });
 
     // Translations
-    const translations = shallowReactive({
-      _idvue: {
-        Previousnote: '_idvue.Previousnote',
-        untitlednote: '_idvue.untitlednote',
-      },
-      card: {
-        unlocktoedit: 'card.unlocktoedit',
-        unlock: 'card.unlock',
-      },
-      index: {
-        close: 'index.close',
-      },
+    const translations = ref({
+      editor: {},
+      card: {},
+      index: {},
     });
 
     onMounted(async () => {
-      // Load translations
-      const loadedTranslations = await loadTranslations();
-      if (loadedTranslations) {
-        Object.assign(translations, loadedTranslations);
-      }
+      await useTranslation().then((trans) => {
+        if (trans) {
+          translations.value = trans;
+        }
+      });
     });
-
-    const loadTranslations = async () => {
-      const selectedLanguage = localStorage.getItem('selectedLanguage') || 'en';
-      try {
-        const translationModule = await import(
-          `../settings/locales/${selectedLanguage}.json`
-        );
-        return translationModule.default;
-      } catch (error) {
-        console.error('Error loading translations:', error);
-        return null;
-      }
-    };
 
     const focusEditor = () =>
       noteEditor.value?.$el?.querySelector('*[tabindex="0"]')?.focus();
@@ -295,28 +262,28 @@ export default {
       const noteStore = useNoteStore();
 
       dialog.prompt({
-        title: translations.card.enterpasswd,
-        okText: translations.card.unlock,
-        cancelText: translations.card.Cancel,
-        placeholder: translations.card.Password,
+        title: translations.value.card.enterPasswd,
+        okText: translations.value.card.unlock,
+        cancelText: translations.value.card.cancel,
+        placeholder: translations.value.card.password,
         onConfirm: async (enteredPassword) => {
           try {
             const isValidPassword = await passwordStore.isValidPassword(
               enteredPassword
             );
             if (isValidPassword) {
-              console.log(translations.card.Passwordcorrect);
+              console.log(translations.value.card.passwordCorrect);
               // Note unlocked
               userPassword.value = '';
-              await noteStore.unlockNote(note, enteredPassword); // Pass entered password to unlockNote
+              await noteStore.unlockNote(note, enteredPassword);
               console.log(`Note (ID: ${note}) is unlocked`);
             } else {
-              console.log(translations.card.Passwordcorrect);
-              alert(translations.card.wrongpasswd);
+              console.log(translations.value.card.wrongPasswd);
+              alert(translations.value.card.wrongPasswd);
             }
           } catch (error) {
             console.error('Error unlocking note:', error);
-            alert(translations.card.wrongpasswd);
+            alert(translations.value.card.wrongPasswd);
           }
         },
       });

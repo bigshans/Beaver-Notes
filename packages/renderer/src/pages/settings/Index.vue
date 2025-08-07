@@ -3,7 +3,7 @@
   <div class="general space-y-8 mb-14 w-full max-w-xl">
     <section>
       <div>
-        <p class="mb-2">{{ translations.settings.selectlanguage || '-' }}</p>
+        <p class="mb-2">{{ translations.settings.selectLanguage || '-' }}</p>
         <ui-select
           v-model="selectedLanguage"
           class="w-full"
@@ -20,17 +20,17 @@
       </div>
     </section>
     <section>
-      <p class="mb-2">{{ translations.settings.syncpath || '-' }}</p>
+      <p class="mb-2">{{ translations.settings.syncPath || '-' }}</p>
       <div class="flex items-center ltr:space-x-2">
         <ui-input
           v-model="state.dataDir"
           readonly
-          :placeholder="translations.settings.pathplaceholder || '-'"
+          :placeholder="translations.settings.pathPlaceholder || '-'"
           class="w-full"
           @click="chooseDefaultPath"
         />
         <ui-button class="w-full rtl:mx-2" @click="chooseDefaultPath">
-          {{ translations.settings.selectpath || '-' }}
+          {{ translations.settings.selectPath || '-' }}
         </ui-button>
         <ui-button @click="clearPath">
           <v-remixicon name="riDeleteBin6Line" />
@@ -61,31 +61,11 @@
               ></div>
             </label>
           </div>
-          <!-- App Reminder -->
-          <div class="flex items-center py-2 justify-between">
-            <div>
-              <span class="block text-lg align-left">
-                {{ translations.settings.syncreminder || '-' }}
-              </span>
-            </div>
-            <label class="relative inline-flex cursor-pointer items-center">
-              <input
-                id="switch"
-                v-model="disableAppReminder"
-                type="checkbox"
-                class="peer sr-only"
-                @change="updateDisableAppReminder"
-              />
-              <div
-                class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
-              ></div>
-            </label>
-          </div>
           <!-- Spellcheck -->
           <div class="flex items-center py-2 justify-between">
             <div>
               <span class="block text-lg align-left">
-                {{ translations.settings.spellcheck || '-' }}
+                {{ translations.settings.spellCheck || '-' }}
               </span>
             </div>
             <label class="relative inline-flex cursor-pointer items-center">
@@ -108,7 +88,7 @@
           >
             <div>
               <span class="block text-lg align-left">
-                {{ translations.settings.autosync || '-' }}
+                {{ translations.settings.autoSync || '-' }}
               </span>
             </div>
             <label
@@ -132,7 +112,7 @@
           <div class="flex items-center py-2 justify-between">
             <div>
               <span class="block text-lg align-left"
-                >{{ translations.settings.OpenLastEdited || '-' }}
+                >{{ translations.settings.openLastEdited || '-' }}
               </span>
             </div>
             <label class="relative inline-flex cursor-pointer items-center">
@@ -151,12 +131,12 @@
       </div>
     </section>
     <section>
-      <p class="mb-2">{{ translations.settings.Editor || '-' }}</p>
+      <p class="mb-2">{{ translations.settings.editor || '-' }}</p>
       <div class="space-y-1">
         <div class="flex items-center py-2 justify-between">
           <div>
             <span class="block text-lg align-left"
-              >{{ translations.settings.CollapsibleHeading || '-' }}
+              >{{ translations.settings.collapsibleHeading || '-' }}
             </span>
           </div>
           <label class="relative inline-flex cursor-pointer items-center">
@@ -174,7 +154,7 @@
       </div>
     </section>
     <section>
-      <p class="mb-2">{{ translations.settings.iedata || '-' }}</p>
+      <p class="mb-2">{{ translations.settings.ieData || '-' }}</p>
       <div class="flex ltr:space-x-4">
         <div class="bg-input rtl:ml-4 transition w-6/12 rounded-lg p-4">
           <div class="text-center mb-8 dark:text-gray-300 text-gray-600">
@@ -185,7 +165,7 @@
             </span>
           </div>
           <ui-checkbox v-model="state.withPassword">
-            {{ translations.settings.encryptwpasswd || '-' }}
+            {{ translations.settings.encryptPasswd || '-' }}
           </ui-checkbox>
           <expand-transition>
             <ui-input
@@ -199,7 +179,7 @@
             />
           </expand-transition>
           <ui-button class="w-full mt-4" @click="exportData(defaultPath)">
-            {{ translations.settings.exportdata || '-' }}</ui-button
+            {{ translations.settings.exportData || '-' }}</ui-button
           >
         </div>
         <div class="bg-input transition w-6/12 rounded-lg p-4 flex flex-col">
@@ -212,7 +192,7 @@
           </div>
           <div class="flex-grow"></div>
           <ui-button class="w-full mt-6" @click="importData(defaultPath)">
-            {{ translations.settings.importdata || '-' }}
+            {{ translations.settings.importData || '-' }}
           </ui-button>
         </div>
       </div>
@@ -244,7 +224,7 @@
 </template>
 
 <script>
-import { shallowReactive, onMounted, computed } from 'vue';
+import { shallowReactive, onMounted, computed, ref } from 'vue';
 import { AES } from 'crypto-es/lib/aes';
 import { Utf8 } from 'crypto-es/lib/core';
 import { useTheme } from '@/composable/theme';
@@ -257,24 +237,27 @@ import systemImg from '@/assets/images/system.png';
 import Mousetrap from '@/lib/mousetrap';
 import { usePasswordStore } from '@/store/passwd';
 import { formatTime } from '@/utils/time-format';
-import '../../assets/css/passwd.css';
 import { useRouter } from 'vue-router';
 import { useAppStore } from '../../store/app';
 import { t } from '@/utils/translations';
 import { processDirectory } from '@/utils/markdown-helper';
 import { forceSyncNow } from '../../utils/sync';
 import { importBEA } from '../../utils/share/BEA';
+import { useTranslation } from '@/composable/translations';
 
-const deTranslations = import('../../pages/settings/locales/de.json');
-const enTranslations = import('../../pages/settings/locales/en.json');
-const esTranslations = import('../../pages/settings/locales/es.json');
-const itTranslations = import('../../pages/settings/locales/it.json');
-const nlTranslations = import('../../pages/settings/locales/nl.json');
-const zhTranslations = import('../../pages/settings/locales/zh.json');
-const ukTranslations = import('../../pages/settings/locales/uk.json');
-const trTranslations = import('../../pages/settings/locales/tr.json');
-const ruTranslations = import('../../pages/settings/locales/ru.json');
-const frTranslations = import('../../pages/settings/locales/fr.json');
+const LANGUAGE_CONFIG = {
+  de: { name: 'Deutsch', dir: 'ltr' },
+  en: { name: 'English', dir: 'ltr' },
+  es: { name: 'Español', dir: 'ltr' },
+  fr: { name: 'Français', dir: 'ltr' },
+  it: { name: 'Italiano', dir: 'ltr' },
+  nl: { name: 'Nederlands', dir: 'ltr' },
+  ru: { name: 'Русский', dir: 'ltr' },
+  tr: { name: 'Türkçe', dir: 'ltr' },
+  uk: { name: 'Українська', dir: 'ltr' },
+  zh: { name: '简体中文', dir: 'ltr' },
+  ar: { name: 'العربية', dir: 'rtl' },
+};
 
 export const state = shallowReactive({
   dataDir: '',
@@ -282,8 +265,35 @@ export const state = shallowReactive({
 });
 export const dataDir = state.dataDir;
 
+const getLanguageDirection = (languageCode) => {
+  return LANGUAGE_CONFIG[languageCode]?.dir || 'ltr';
+};
+
 export default {
   setup() {
+    const advancedSettings = ref(
+      localStorage.getItem('advanced-settings') === 'true'
+    );
+
+    const spellcheckEnabled = ref(
+      localStorage.getItem('spellcheckEnabled') === 'true' &&
+        localStorage.getItem('spellcheckEnabled') != null
+    );
+    const autoSync = ref(localStorage.getItem('autoSync') === 'true');
+    const selectedFont = ref(localStorage.getItem('selected-font') || 'Arimo');
+    const selectedLanguage = ref(
+      localStorage.getItem('selectedLanguage') || 'en'
+    );
+    const directionPreference = ref(
+      localStorage.getItem('directionPreference') ||
+        getLanguageDirection(selectedLanguage.value)
+    );
+    const languages = Object.entries(LANGUAGE_CONFIG).map(
+      ([code, { name }]) => ({
+        code,
+        name,
+      })
+    );
     const { ipcRenderer, path, notification } = window.electron;
     const themes = [
       { name: 'light', img: lightImg },
@@ -292,7 +302,6 @@ export default {
     ];
     const router = useRouter();
     const theme = useTheme();
-    // eslint-disable-next-line no-unused-vars
     const dialog = useDialog();
     const storage = useStorage();
 
@@ -318,13 +327,13 @@ export default {
 
         if (canceled) return;
 
-        showAlert(translations.settings.relaunch, {
+        showAlert(translations.value.settings.relaunch, {
           type: 'info',
-          buttons: [translations.settings.relaunchbutton],
+          buttons: [translations.value.settings.relaunchButton],
         });
 
         await storage.set('dataDir', dir);
-        window.location.reload(); // Reload the page
+        window.location.reload();
       } catch (error) {
         console.error(error);
       }
@@ -365,16 +374,12 @@ export default {
         const containsGvfs = folderPath.includes('gvfs');
 
         if (containsGvfs) {
-          // Ensure the directory exists
           await ipcRenderer.callMain('fs:ensureDir', folderPath);
-
-          // Save main data.json
           await ipcRenderer.callMain('fs:output-json', {
             path: path.join(folderPath, 'data.json'),
             data: { data },
           });
 
-          // Copy notes-assets
           const notesAssetsSource = path.join(dataDir, 'notes-assets');
           const notesAssetsDest = path.join(folderPath, 'assets');
           await ipcRenderer.callMain('gvfs:copy', {
@@ -382,7 +387,6 @@ export default {
             dest: notesAssetsDest,
           });
 
-          // Copy file-assets
           const fileAssetsSource = path.join(dataDir, 'file-assets');
           const fileAssetsDest = path.join(folderPath, 'file-assets');
           await ipcRenderer.callMain('gvfs:copy', {
@@ -404,7 +408,7 @@ export default {
             dest: path.join(folderPath, 'file-assets'),
           });
 
-          alert(`${translations.settings.exportmessage}"${folderName}"`);
+          alert(`${translations.value.settings.exportMessage}"${folderName}"`);
         }
 
         state.withPassword = false;
@@ -459,23 +463,22 @@ export default {
           path.join(dirPath, 'data.json')
         );
 
-        if (!data) return showAlert(translations.settings.invaliddata);
+        if (!data) return showAlert(translations.value.settings.invalidData);
 
         if (typeof data === 'string') {
           dialog.prompt({
-            title: translations.settings.Inputpassword,
-            body: translations.settings.body,
-            okText: translations.settings.Import,
-            cancelText: translations.settings.Cancel,
-            placeholder: translations.settings.Password,
+            title: translations.value.settings.inputPassword,
+            body: translations.value.settings.body,
+            okText: translations.value.settings.import,
+            cancelText: translations.value.settings.cancel,
+            placeholder: translations.value.settings.password,
             onConfirm: async (pass) => {
               try {
                 const bytes = AES.decrypt(data, pass);
                 const result = bytes.toString(Utf8);
                 const resultObj = JSON.parse(result);
 
-                // Merge imported data
-                await mergeImportedData(resultObj); // Wait for merge operation to finish
+                await mergeImportedData(resultObj);
 
                 const dataDir = await storage.get('dataDir', '', 'settings');
                 const importedDefaultPath = resultObj['dataDir'];
@@ -517,14 +520,13 @@ export default {
                 console.log('Assets copied successfully.');
                 window.location.reload();
               } catch (error) {
-                showAlert(translations.settings.Invalidpassword);
+                showAlert(translations.value.settings.invalidPassword);
                 return false;
               }
             },
           });
         } else {
-          // Merge imported data
-          await mergeImportedData(data); // Wait for merge operation to finish
+          await mergeImportedData(data);
 
           const dataDir = await storage.get('dataDir', '', 'settings');
           const importedDefaultPath = data['dataDir'];
@@ -578,26 +580,21 @@ export default {
         if (canceled) return;
 
         state.importDir = dir;
-
         await processDirectory(state.importDir);
-
         await storage.set('importDir', state.importDir);
 
-        // Success notification
         notification({
-          title: translations.settings.notification,
+          title: translations.value.settings.notification,
           body:
-            translations.settings.importSuccess ||
+            translations.value.settings.importSuccess ||
             'Directory processed successfully!',
         });
       } catch (error) {
         console.error('Error selecting or processing directory:', error);
-
-        // Failure notification
         notification({
-          title: translations.settings.notification,
+          title: translations.value.settings.notification,
           body:
-            translations.settings.importFail ||
+            translations.value.settings.importFail ||
             'Failed to process the directory.',
         });
       }
@@ -616,23 +613,21 @@ export default {
         if (canceled) return;
 
         state.importFile = file;
-
         await importBEA(state.importFile, router);
 
         notification({
-          title: translations.settings.notification,
+          title: translations.value.settings.notification,
           body:
-            translations.settings.importSuccess ||
+            translations.value.settings.importSuccess ||
             'File processed successfully!',
         });
       } catch (error) {
         console.error('Error selecting or processing file:', error);
-
-        // Failure notification
         notification({
-          title: translations.settings.notification,
+          title: translations.value.settings.notification,
           body:
-            translations.settings.importFail || 'Failed to process the file.',
+            translations.value.settings.importFail ||
+            'Failed to process the file.',
         });
       }
     };
@@ -663,7 +658,7 @@ export default {
     }
 
     onMounted(() => {
-      defaultPath = localStorage.getItem('default-path') || ''; // Set defaultPath here
+      defaultPath = localStorage.getItem('default-path') || '';
       state.dataDir = defaultPath;
     });
 
@@ -673,13 +668,13 @@ export default {
     };
 
     async function resetPasswordDialog() {
-      const passwordStore = usePasswordStore(); // Get the password store instance
+      const passwordStore = usePasswordStore();
 
       dialog.prompt({
-        title: translations.settings.resetPasswordTitle,
-        okText: translations.settings.next,
-        cancelText: translations.settings.Cancel,
-        placeholder: translations.settings.password,
+        title: translations.value.settings.resetPasswordTitle,
+        okText: translations.value.settings.next,
+        cancelText: translations.value.settings.cancel,
+        placeholder: translations.value.settings.password,
         onConfirm: async (currentPassword) => {
           if (currentPassword) {
             const isCurrentPasswordValid = await passwordStore.isValidPassword(
@@ -687,130 +682,49 @@ export default {
             );
             if (isCurrentPasswordValid) {
               dialog.prompt({
-                title: translations.settings.enterNewPassword,
-                okText: translations.settings.resetPassword,
-                body: translations.settings.warning,
-                cancelText: translations.settings.Cancel,
-                placeholder: translations.settings.newPassword,
+                title: translations.value.settings.enterNewPassword,
+                okText: translations.value.settings.resetPassword,
+                body: translations.value.settings.warning,
+                cancelText: translations.value.settings.cancel,
+                placeholder: translations.value.settings.newPassword,
                 onConfirm: async (newPassword) => {
                   if (newPassword) {
                     try {
-                      // Reset the password
                       await passwordStore.setsharedKey(newPassword);
                       console.log('Password reset successful');
-                      alert(translations.settings.passwordResetSuccess);
+                      alert(translations.value.settings.passwordResetSuccess);
                     } catch (error) {
                       console.error('Error resetting password:', error);
-                      alert(translations.settings.passwordResetError);
+                      alert(translations.value.settings.passwordResetError);
                     }
                   } else {
-                    alert(translations.settings.Invalidpassword);
+                    alert(translations.value.settings.invalidPassword);
                   }
                 },
               });
             } else {
-              alert(translations.settings.wrongCurrentPassword);
+              alert(translations.value.settings.wrongCurrentPassword);
             }
           } else {
-            alert(translations.settings.Invalidpassword);
+            alert(translations.value.settings.invalidPassword);
           }
         },
       });
     }
 
     // Translations
-    const translations = shallowReactive({
-      settings: {
-        advancedSettings: 'settings.advancedSettings',
-        apptheme: 'settings.apptheme',
-        light: 'settings.light',
-        dark: 'settings.dark',
-        system: 'settings.system',
-        selectlanguage: 'settings.selectlanguage',
-        selectfont: 'settings.selectfont',
-        syncpath: 'settings.syncpath',
-        selectpath: 'settings.selectpath',
-        iedata: 'settings.iedata',
-        encryptwpasswd: 'settings.encryptwpasswd',
-        exportdata: 'settings.exportdata',
-        importdata: 'settings.importdata',
-        pathplaceholder: 'settings.pathplaceholder',
-        password: 'settings.password',
-        Inputpassword: 'settings.Inputpassword',
-        body: 'settings.body',
-        Editor: 'settings.Editor',
-        CollapsibleHeading: 'settings.CollapsibleHeading',
-        OpenLastEdited: 'settings.OpenLastEdited',
-        Import: 'settings.Import',
-        Cancel: 'settings.Cancel',
-        Password: 'settings.password',
-        Invalidpassword: 'settings.Invalidpassword',
-        relaunch: 'settings.relaunch',
-        relaunchbutton: 'settings.relaunchbutton',
-        exportmessage: 'settings.exportmessage',
-        invaliddata: 'settings.invaliddata',
-        syncreminder: 'settings.syncreminder',
-        spellcheck: 'settings.spellcheck',
-        fullWidth: 'settings.fullwidth',
-        interfacesize: 'settings.interfacesize',
-        large: 'settings.large',
-        medium: 'settings.medium',
-        default: 'settings.default',
-        morespace: 'settings.morespace',
-        aboutDataEncryption: 'settings.aboutDataEncryption',
-        encryptionMessage: 'settings.encryptionMessage',
-        resetPasswordTitle: 'settings.resetPasswordTitle',
-        next: 'settings.next',
-        enterNewPassword: 'settings.enterNewPassword',
-        resetPassword: 'settings.resetPassword',
-        newPassword: 'settings.newPassword',
-        security: 'settings.security',
-        utilities: 'settings.utilities',
-        wrongCurrentPassword: 'settings.wrongCurrentPassword',
-        passwordResetSuccess: 'settings.passwordResetSuccess',
-        passwordResetError: 'settings.passwordResetError',
-        menuBarVisibility: 'settings.menuBarVisibility',
-        interfaceDirection: 'settings.interfaceDirection',
-        LTR: 'settings.LTR',
-        RTL: 'settings.RTL',
-        autosync: 'settings.autosync',
-        clearfont: 'settings.clearfont',
-        platform: 'settings.platform',
-        noAuthorizedApplicaitons: 'settings.noAuthorizedApplicaitons',
-        id: 'settings.id',
-        confirmDelete: 'settings.confirmDelete',
-        createdAt: 'settings.createdAt',
-        authorizedApplications: 'settings.authorizedApplications',
-        exportSuccess: 'settings.exportSuccess',
-        importFail: 'settings.importFail',
-        notification: 'settings.notification',
-        markdownArchive: 'settings.markdownArchive',
-      },
-      menu: {
-        bea: 'menu.bea',
-      },
+    const translations = ref({
+      settings: {},
+      menu: {},
     });
 
     onMounted(async () => {
-      // Load translations
-      const loadedTranslations = await loadTranslations();
-      if (loadedTranslations) {
-        Object.assign(translations, loadedTranslations);
-      }
+      await useTranslation().then((trans) => {
+        if (trans) {
+          translations.value = trans;
+        }
+      });
     });
-
-    const loadTranslations = async () => {
-      const selectedLanguage = localStorage.getItem('selectedLanguage') || 'en';
-      try {
-        const translationModule = await import(
-          `../../pages/settings/locales/${selectedLanguage}.json`
-        );
-        return translationModule.default;
-      } catch (error) {
-        console.error('Error loading translations:', error);
-        return null;
-      }
-    };
 
     Mousetrap.bind(Object.keys(shortcuts), (event, combo) => {
       shortcuts[combo]();
@@ -820,7 +734,7 @@ export default {
 
     function deleteAuth(auth) {
       dialog.confirm({
-        body: t(translations.settings.confirmDelete, {
+        body: t(translations.value.settings.confirmDelete, {
           name: auth.name,
           id: auth.id,
         }),
@@ -841,26 +755,14 @@ export default {
     const handleAutoSyncChange = () => {
       const exportPath = defaultPath;
 
-      // Check if exportPath is null or empty
       if (!exportPath || exportPath.trim() === '') {
-        showAlert(translations.settings.emptyPathWarn);
-        return; // Exit early since there's no valid path to process
+        showAlert(translations.value.settings.emptyPathWarn);
+        return;
       }
 
-      const containsGvfs = exportPath.includes('gvfs');
-
-      if (containsGvfs) {
-        showAlert(translations.settings.gvfswarn);
-      } else {
-        // Read the current value from localStorage
-        const currentValue = localStorage.getItem('autoSync');
-
-        // Determine the new value
-        const newAutoSyncValue = currentValue === 'true' ? 'false' : 'true';
-
-        // Store the new value in localStorage
-        localStorage.setItem('autoSync', newAutoSyncValue);
-      }
+      const currentValue = localStorage.getItem('autoSync');
+      const newAutoSyncValue = currentValue === 'true' ? 'false' : 'true';
+      localStorage.setItem('autoSync', newAutoSyncValue);
     };
 
     const collapsibleHeading = computed({
@@ -880,6 +782,39 @@ export default {
         appStore.setSettingStorage('openLastEdited', v);
       },
     });
+
+    const toggleAdvancedSettings = () => {
+      localStorage.setItem(
+        'advanced-settings',
+        advancedSettings.value.toString()
+      );
+    };
+
+    const toggleSpellcheck = () => {
+      localStorage.setItem('spellcheckEnabled', spellcheckEnabled.value);
+      applySpellcheckAttribute();
+    };
+
+    const applySpellcheckAttribute = () => {
+      const inputElements = document.querySelectorAll(
+        'input, textarea, [contenteditable="true"]'
+      );
+      inputElements.forEach((element) => {
+        element.setAttribute('spellcheck', spellcheckEnabled.value);
+        window.electron.ipcRenderer.callMain(
+          'app:spellcheck',
+          spellcheckEnabled.value
+        );
+      });
+    };
+
+    const updateLanguage = () => {
+      const languageCode = selectedLanguage.value;
+      const dir = getLanguageDirection(languageCode);
+      localStorage.setItem('selectedLanguage', languageCode);
+      localStorage.setItem('directionPreference', dir);
+      window.location.reload(); // Optional: you might want a softer re-render
+    };
 
     return {
       state,
@@ -905,71 +840,22 @@ export default {
       t,
       collapsibleHeading,
       openLastEdited,
-    };
-  },
-  data() {
-    return {
-      advancedSettings: localStorage.getItem('advanced-settings') === 'true',
-      directionPreference: localStorage.getItem('directionPreference') || 'ltr',
-      spellcheckEnabled:
-        localStorage.getItem('spellcheckEnabled') === 'true' &&
-        localStorage.getItem('spellcheckEnabled') != null,
-      disableAppReminder: localStorage.getItem('disableAppReminder') === 'true',
-      autoSync: localStorage.getItem('autoSync') === 'true',
-      selectedFont: localStorage.getItem('selected-font') || 'Arimo',
-      selectedLanguage: localStorage.getItem('selectedLanguage') || 'en', // Initialize with a value from localStorage if available
-      languages: [
-        { code: 'de', name: 'Deutsch', translations: deTranslations },
-        { code: 'en', name: 'English', translations: enTranslations },
-        { code: 'es', name: 'Español', translations: esTranslations },
-        { code: 'fr', name: 'Français', translations: frTranslations },
-        { code: 'it', name: 'Italiano', translations: itTranslations },
-        { code: 'nl', name: 'Nederlands', translations: nlTranslations },
-        { code: 'ru', name: 'Русский', translations: ruTranslations },
-        { code: 'tr', name: 'Türkçe', translations: trTranslations },
-        { code: 'uk', name: 'Українська', translations: ukTranslations },
-        { code: 'zh', name: '简体中文', translations: zhTranslations },
-      ],
+      advancedSettings,
+      directionPreference,
+      spellcheckEnabled,
+      autoSync,
+      selectedFont,
+      selectedLanguage,
+      languages,
+      toggleAdvancedSettings,
+      toggleSpellcheck,
+      applySpellcheckAttribute,
+      updateLanguage,
     };
   },
   computed: {
     isMacOS() {
       return window.navigator.platform.toLowerCase().includes('mac');
-    },
-  },
-  methods: {
-    toggleAdvancedSettings() {
-      localStorage.setItem(
-        'advanced-settings',
-        this.advancedSettings.toString()
-      );
-    },
-    toggleSpellcheck() {
-      localStorage.setItem('spellcheckEnabled', this.spellcheckEnabled);
-      this.applySpellcheckAttribute();
-    },
-    applySpellcheckAttribute() {
-      const inputElements = document.querySelectorAll(
-        'input, textarea, [contenteditable="true"]'
-      );
-      inputElements.forEach((element) => {
-        element.setAttribute('spellcheck', this.spellcheckEnabled);
-        window.electron.ipcRenderer.callMain(
-          'app:spellcheck',
-          this.spellcheckEnabled
-        );
-      });
-    },
-    updateLanguage() {
-      const languageCode = this.selectedLanguage;
-      localStorage.setItem('selectedLanguage', languageCode);
-      window.location.reload(); // Reload the page
-    },
-    updateDisableAppReminder() {
-      localStorage.setItem(
-        'disableAppReminder',
-        this.disableAppReminder.toString()
-      );
     },
   },
 };

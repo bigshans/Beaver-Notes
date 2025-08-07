@@ -17,7 +17,7 @@
             ref="inputRef"
             :value="mermaidContent"
             type="textarea"
-            :placeholder="translations._idvue.MermaidPlaceholder || '-'"
+            :placeholder="translations.editor.mermaidPlaceholder || '-'"
             class="bg-transparent min-h-24 w-full resize-y leading-tight p-2"
             @input="updateContent($event)"
             @keydown.ctrl.enter="closeTextarea"
@@ -27,7 +27,7 @@
         </div>
         <div class="border-t-2 p-2 flex justify-between">
           <p style="margin: 0">
-            <strong>{{ translations._idvue.exit }}</strong>
+            <strong>{{ translations.editor.exit }}</strong>
           </p>
           <v-remixicon
             class="cursor-pointer"
@@ -46,8 +46,9 @@
 </template>
 
 <script>
-import { ref, watch, onMounted, shallowReactive, computed } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import { NodeViewWrapper, nodeViewProps } from '@tiptap/vue-3';
+import { useTranslation } from '@/composable/translations';
 import MermaidComponent from '../../../../utils/mermaid-renderer.vue'; // Adjust the import path accordingly
 
 export default {
@@ -139,33 +140,17 @@ export default {
       }
     );
 
-    const translations = shallowReactive({
-      sidebar: {
-        exit: '_idvue.exit',
-        MermaidPlaceholder: '_idvue.MermaidPlaceholder',
-      },
+    const translations = ref({
+      editor: {},
     });
 
     onMounted(async () => {
-      // Load translations
-      const loadedTranslations = await loadTranslations();
-      if (loadedTranslations) {
-        Object.assign(translations, loadedTranslations);
-      }
+      await useTranslation().then((trans) => {
+        if (trans) {
+          translations.value = trans;
+        }
+      });
     });
-
-    const loadTranslations = async () => {
-      const selectedLanguage = localStorage.getItem('selectedLanguage') || 'en';
-      try {
-        const translationModule = await import(
-          `../../../../pages/settings/locales/${selectedLanguage}.json`
-        );
-        return translationModule.default;
-      } catch (error) {
-        console.error('Error loading translations:', error);
-        return null;
-      }
-    };
 
     return {
       updateContent,

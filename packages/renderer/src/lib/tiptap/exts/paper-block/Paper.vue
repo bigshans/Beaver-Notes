@@ -41,7 +41,7 @@
           <span
             class="text-neutral-800 dark:text-[color:var(--selected-dark-text)] mb-6 text-lg font-medium"
           >
-            {{ translations.paperBlock.clicktoDraw }}
+            {{ translations.paperBlock.clickToDraw }}
           </span>
         </div>
       </div>
@@ -50,7 +50,8 @@
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useTranslation } from '../../../../composable/translations';
 import { getStroke } from 'perfect-freehand';
 import { NodeViewWrapper, nodeViewProps } from '@tiptap/vue-3';
 import {
@@ -77,9 +78,15 @@ export default {
     const height = ref(props.node.attrs.height || 400);
     const isDrawMode = ref(false);
     const translations = ref({
-      paperBlock: {
-        clicktoDraw: 'Click to Draw',
-      },
+      paperBlock: {},
+    });
+
+    onMounted(async () => {
+      await useTranslation().then((trans) => {
+        if (trans) {
+          translations.value = trans;
+        }
+      });
     });
 
     // Watch for external changes to node attributes

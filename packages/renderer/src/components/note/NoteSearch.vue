@@ -20,7 +20,7 @@
         v-model="state.query"
         autofocus
         prepend-icon="riSearchLine"
-        :placeholder="translations.search.searchplaceholder"
+        :placeholder="translations.search.searchPlaceholder"
         class="w-full editor-search"
         @keyup="startSearch"
       />
@@ -35,7 +35,7 @@
     <!-- Replace Term Input -->
     <ui-input
       v-model="state.replaceWith"
-      :placeholder="translations.search.replaceplaceholder"
+      :placeholder="translations.search.replacePlaceholder"
       class="flex-1"
       @keyup="startSearch"
     />
@@ -60,7 +60,7 @@
       :disabled="!state.replaceWith"
       @click="replaceAllText"
     >
-      {{ translations.search.replaceall || 'Replace All' }}
+      {{ translations.search.replaceAll || 'Replace All' }}
     </ui-button>
 
     <!-- Case Sensitivity Toggle -->
@@ -90,7 +90,8 @@
 </template>
 
 <script>
-import { shallowReactive, onMounted, onUnmounted } from 'vue';
+import { shallowReactive, onMounted, onUnmounted, ref } from 'vue';
+import { useTranslation } from '@/composable/translations';
 import Mousetrap from '@/lib/mousetrap';
 
 export default {
@@ -198,39 +199,17 @@ export default {
       if (text) state.query = text;
     });
 
-    const translations = shallowReactive({
-      search: {
-        findnext: 'Find Next',
-        findprevious: 'Find Previous',
-        replace: 'Replace',
-        replaceall: 'Replace All',
-        reset: 'Reset Index',
-        searchplaceholder: 'Search...',
-        replaceplaceholder: 'Replace...',
-        useRegex: 'Use Regex',
-        clear: 'Clear Search',
-      },
+    const translations = ref({
+      search: {},
     });
 
     onMounted(async () => {
-      const loadedTranslations = await loadTranslations();
-      if (loadedTranslations) {
-        Object.assign(translations, loadedTranslations);
-      }
+      await useTranslation().then((trans) => {
+        if (trans) {
+          translations.value = trans;
+        }
+      });
     });
-
-    async function loadTranslations() {
-      const selectedLanguage = localStorage.getItem('selectedLanguage') || 'en';
-      try {
-        const translationModule = await import(
-          `../../pages/settings/locales/${selectedLanguage}.json`
-        );
-        return translationModule.default;
-      } catch (error) {
-        console.error('Error loading translations:', error);
-        return null;
-      }
-    }
 
     onUnmounted(() => {
       if (!props.editor) return;

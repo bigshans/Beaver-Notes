@@ -14,7 +14,16 @@
     </button>
     <button
       v-tooltip:right="
-        translations.sidebar.Editednote + ' (' + keyBinding + '+Shift+W)'
+        translations.sidebar.addNotes + ' (' + keyBinding + '+N)'
+      "
+      class="transition dark:hover:text-[color:var(--selected-dark-text)] hover:text-gray-800 p-2 mb-4"
+      @click="addFolder"
+    >
+      <v-remixicon name="riFolderAddLine" />
+    </button>
+    <button
+      v-tooltip:right="
+        translations.sidebar.editedNote + ' (' + keyBinding + '+Shift+W)'
       "
       class="transition dark:hover:text-[color:var(--selected-dark-text)] hover:text-gray-800 p-2 mb-4"
       :class="{ 'text-primary': $route.name === 'Note' }"
@@ -53,7 +62,7 @@
     </button>
     <button
       v-tooltip:right="
-        translations.sidebar.toggledarktheme + ' (' + keyBinding + '+Shift+L)'
+        translations.sidebar.toggleDarkTheme + ' (' + keyBinding + '+Shift+L)'
       "
       :class="[theme.isDark() ? 'text-secondary' : '']"
       class="transition p-2 mb-4"
@@ -74,11 +83,13 @@
 
 <script>
 import { shallowReactive, onUnmounted, onMounted, computed, ref } from 'vue';
+import { useTranslation } from '@/composable/translations';
 import { useTheme } from '@/composable/theme';
 import { useRouter } from 'vue-router';
 import emitter from 'tiny-emitter/instance';
 import Mousetrap from '@/lib/mousetrap';
 import { useNoteStore } from '@/store/note';
+import { useFolderStore } from '../../store/folder';
 import { forceSyncNow } from '@/utils/sync';
 
 export default {
@@ -87,6 +98,7 @@ export default {
     const theme = useTheme();
     const router = useRouter();
     const noteStore = useNoteStore();
+    const folderStore = useFolderStore();
     const defaultPath = localStorage.getItem('default-path');
 
     const isMacOS = navigator.platform.toUpperCase().includes('MAC');
@@ -102,7 +114,7 @@ export default {
 
     const navs = computed(() => [
       {
-        name: translations.sidebar.Notes,
+        name: translations.value.sidebar.notes,
         path: '/',
         icon: 'riBookletLine',
         shortcut: 'mod+shift+n',
@@ -111,7 +123,7 @@ export default {
         },
       },
       {
-        name: translations.sidebar.Archive,
+        name: translations.value.sidebar.archive,
         path: '/?archived=true',
         icon: 'riArchiveDrawerLine',
         shortcut: 'mod+shift+a',
@@ -122,6 +134,7 @@ export default {
     ]);
 
     const shortcuts = {
+      'mod+n': addNote,
       'mod+,': openSettings,
       'mod+shift+w': openLastEdited,
       'mod+shift+n': () => router.push('/'),
@@ -145,9 +158,16 @@ export default {
 
       if (noteId) router.push(`/note/${noteId}`);
     }
+
     function addNote() {
       noteStore.add().then(({ id }) => {
         router.push(`/note/${id}`);
+      });
+    }
+
+    function addFolder() {
+      folderStore.add().then(({ id }) => {
+        console.log(`${id}`);
       });
     }
 
@@ -161,53 +181,18 @@ export default {
       state.dataDir = defaultPath;
     });
 
-    const translations = shallowReactive({
-      sidebar: {
-        addNotes: 'sidebar.addNotes',
-        Editednote: 'sidebar.Editednote',
-        toggleexport: 'sidebar.toggleexport',
-        toggleimport: 'sidebar.toggleimport',
-        toggledarktheme: 'sidebar.toggledarktheme',
-        Notes: 'sidebar.Notes',
-        Archive: 'sidebar.Archive',
-        notification: 'sidebar.notification',
-        exportSuccess: 'sidebar.exportSuccess',
-        importSuccess: 'sidebar.importSuccess',
-        exportFail: 'sidebar.exportFail',
-        importFail: 'sidebar.importFail',
-      },
-      settings: {
-        title: 'settings.title',
-        Inputpassword: 'settings.Inputpassword',
-        body: 'settings.body',
-        Import: 'settings.Import',
-        Cancel: 'settings.Cancel',
-        Password: 'settings.Password',
-        invaliddata: 'settings.invaliddata',
-        Invalidpassword: 'settings.Invalidpassword',
-      },
+    const translations = ref({
+      sidebar: {},
+      settings: {},
     });
 
     onMounted(async () => {
-      // Load translations
-      const loadedTranslations = await loadTranslations();
-      if (loadedTranslations) {
-        Object.assign(translations, loadedTranslations);
-      }
+      await useTranslation().then((trans) => {
+        if (trans) {
+          translations.value = trans;
+        }
+      });
     });
-
-    const loadTranslations = async () => {
-      const selectedLanguage = localStorage.getItem('selectedLanguage') || 'en';
-      try {
-        const translationModule = await import(
-          `../../pages/settings/locales/${selectedLanguage}.json`
-        );
-        return translationModule.default;
-      } catch (error) {
-        console.error('Error loading translations:', error);
-        return null;
-      }
-    };
 
     const handleNavigation = async (nav) => {
       router.push(nav.path);
@@ -229,6 +214,7 @@ export default {
       theme,
       spinning,
       addNote,
+      addFolder,
       noteStore,
       manualSync,
       openLastEdited,

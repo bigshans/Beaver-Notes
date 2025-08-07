@@ -15,15 +15,8 @@
       autofocus
       :placeholder="state.options.placeholder"
       :label="state.options.label"
+      :password="true"
       class="w-full mt-4"
-    ></ui-input>
-    <ui-input
-      v-else-if="state.type === 'auth'"
-      v-model="state.input"
-      autofocus
-      :placeholder="state.options.placeholder"
-      :label="state.options.label"
-      class="w-full mt-4 no-security-text"
     ></ui-input>
     <div v-if="isEmpty" class="text-sm text-red-500 mt-2">
       {{ translations.dialog.inputEmpty }}
@@ -49,7 +42,7 @@
 </template>
 
 <script>
-import { shallowReactive, reactive, watch, ref, onMounted } from 'vue';
+import { reactive, watch, ref, onMounted } from 'vue';
 import emitter from 'tiny-emitter/instance';
 import { allPermissions } from '../../constants';
 import { useTranslation } from '../../composable/translations';
@@ -68,8 +61,6 @@ const defaultOptions = {
   cancelText: 'Cancel',
   onConfirm: null,
   onCancel: null,
-  showSkipWarn: false,
-  onSkip: null,
 };
 
 export default {
@@ -80,23 +71,16 @@ export default {
       input: '',
       options: defaultOptions,
     });
-    const translations = shallowReactive({
-      index: {
-        hide: 'index.hide',
-      },
-    });
-    const disableDialog = ref(false);
 
     const auths = ref(allPermissions.map((p) => ({ label: p, value: false })));
     const isEmpty = ref(false);
-    const loadTranslations = () =>
+    const translations = ref({});
+    onMounted(async () => {
       useTranslation().then((trans) => {
         if (trans) {
           translations.value = trans;
         }
       });
-    onMounted(async () => {
-      await loadTranslations();
     });
 
     emitter.on('show-dialog', (type, options) => {
@@ -105,7 +89,6 @@ export default {
         ...defaultOptions,
         ...options,
       };
-      console.log(state);
 
       const checkedAuths = state.options.auth || [];
       for (let i = 0, len = auths.value.length; i < len; i++) {
@@ -141,11 +124,6 @@ export default {
         const cbReturn = callback(param);
 
         if (typeof cbReturn === 'boolean') hide = cbReturn;
-      }
-
-      if (disableDialog.value) {
-        console.log(state.options.onSkip);
-        state.options.onSkip && state.options.onSkip();
       }
 
       if (hide) {

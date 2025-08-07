@@ -12,7 +12,7 @@
         @click="updateCurrentLink(note.id)"
       >
         <p class="text-overflow w-full">
-          {{ note.title || translations.link.untitlednote }}
+          {{ note.title || translations.editor.untitledNote }}
         </p>
       </ui-list-item>
     </ui-list>
@@ -23,7 +23,7 @@
         id="bubble-input"
         v-model="currentLinkVal"
         type="url"
-        :placeholder="translations.link.placeholder"
+        :placeholder="translations.editor.linkPlaceholder"
         class="flex-1 bg-transparent"
         @keydown="keydownHandler"
         @keydown.esc="editor.commands.focus()"
@@ -46,15 +46,16 @@
       </button>
     </div>
     <span class="text-xs text-neutral-600 dark:text-neutral-300 leading-none">{{
-      translations.link.shortcut || '-'
+      translations.editor.linkShortcut || '-'
     }}</span>
   </div>
 </template>
 
 <script>
-import { ref, computed, watch, shallowReactive, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useTranslation } from '@/composable/translations';
 import { useNoteStore } from '@/store/note';
+import { useRoute } from 'vue-router';
 
 export default {
   props: {
@@ -133,34 +134,17 @@ export default {
       { immediate: true }
     );
 
-    const translations = shallowReactive({
-      link: {
-        untitlednote: 'link.untitlednote',
-        placeholder: 'link.placeholder',
-        shortcut: 'link.shortcut',
-      },
+    const translations = ref({
+      editor: {},
     });
 
     onMounted(async () => {
-      // Load translations
-      const loadedTranslations = await loadTranslations();
-      if (loadedTranslations) {
-        Object.assign(translations, loadedTranslations);
-      }
+      await useTranslation().then((trans) => {
+        if (trans) {
+          translations.value = trans;
+        }
+      });
     });
-
-    const loadTranslations = async () => {
-      const selectedLanguage = localStorage.getItem('selectedLanguage') || 'en';
-      try {
-        const translationModule = await import(
-          `../../pages/settings/locales/${selectedLanguage}.json`
-        );
-        return translationModule.default;
-      } catch (error) {
-        console.error('Error loading translations:', error);
-        return null;
-      }
-    };
 
     return {
       notes,

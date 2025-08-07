@@ -13,7 +13,7 @@
         v-model="state.query"
         v-autofocus
         class="w-full bg-transparent command-input"
-        :placeholder="translations.commandprompt.placeholder || '-'"
+        :placeholder="translations.commandPrompt.placeholder || '-'"
         @keyup.enter="selectItem"
         @keyup.esc="clear"
         @keydown="keydownHandler"
@@ -31,13 +31,7 @@
         <div class="w-full">
           <p class="text-overflow w-full flex flex-1 justify-between">
             <span>
-              {{ item.title || translations.commandprompt.untitlednote }}
-              <template v-if="item.isBookmarked">
-                <v-remixicon
-                  name="riBookmarkLine"
-                  class="w-4 translate-y-[-1.5px]"
-                />
-              </template>
+              {{ item.title || translations.commandPrompt.untitledNote }}
               <template v-if="item.isLocked">
                 <v-remixicon
                   name="riLockLine"
@@ -58,7 +52,15 @@
   </ui-card>
 </template>
 <script>
-import { shallowReactive, computed, watch, onMounted, onUnmounted } from 'vue';
+import {
+  shallowReactive,
+  computed,
+  watch,
+  onMounted,
+  onUnmounted,
+  ref,
+} from 'vue';
+import { useTranslation } from '@/composable/translations';
 import { useRouter } from 'vue-router';
 import { useNoteStore } from '@/store/note';
 import { debounce } from '@/utils/helper';
@@ -109,7 +111,7 @@ export default {
     });
 
     const items = computed(() => {
-      const filterItems = isCommand.value ? commands : noteStore.sortedNotes;
+      const filterItems = isCommand.value ? commands : noteStore.notes;
 
       return filterItems
         .map((item) => {
@@ -188,32 +190,17 @@ export default {
       }, 100)
     );
 
-    const translations = shallowReactive({
-      commandprompt: {
-        placeholder: 'commandprompt.placeholder',
-        untitlednote: 'commandprompt.untitlednote',
-      },
+    const translations = ref({
+      commandPrompt: {},
     });
 
     onMounted(async () => {
-      const loadedTranslations = await loadTranslations();
-      if (loadedTranslations) {
-        Object.assign(translations, loadedTranslations);
-      }
+      await useTranslation().then((trans) => {
+        if (trans) {
+          translations.value = trans;
+        }
+      });
     });
-
-    const loadTranslations = async () => {
-      const selectedLanguage = localStorage.getItem('selectedLanguage') || 'en';
-      try {
-        const translationModule = await import(
-          `../../pages/settings/locales/${selectedLanguage}.json`
-        );
-        return translationModule.default;
-      } catch (error) {
-        console.error('Error loading translations:', error);
-        return null;
-      }
-    };
 
     const escQuit = (event) => {
       if (event.code === 'Escape') {
