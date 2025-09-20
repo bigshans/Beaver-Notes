@@ -32,25 +32,37 @@
     "archive": "Archive",
     "bookmark": "Favoris",
     "cancel": "Annuler",
+    "colors": "",
     "confirm": "Confirmer",
     "confirmPrompt": "Êtes-vous sûr de vouloir supprimer cette note ?",
+    "confirmPromptFolder": "",
     "content": "Aucun contenu",
     "delete": "Supprimer",
+    "deleteAction": "",
+    "deleteItem": "",
+    "deleteItems": "",
+    "duplicate": "",
     "enterPasswd": "Entrer votre mot de passe.",
     "isLocked": "Cette note est verrouillée",
     "keyFail": "La configuration du mot de passe a été annulée. La note ne peut pas être verrouillée.",
     "lock": "Verrouiller",
+    "moveToFolder": "",
     "newKey": "Nouvelle clé",
+    "noEmojis": "",
+    "noEmojisMessage": "",
     "noKey": "Aucune clé partagée n'a été configurée pour cette note",
     "passwdCorrect": "Le mot de passe est incorrect.",
     "password": "Mot de passe",
     "removeBookmark": "Supprimer des favoris",
+    "rename": "",
     "setKey": "Définir la clé",
     "setupKey": "Définir la clé partagée",
     "unarchive": "Désarchiver",
     "unarchived": "Désarchivé",
     "unlock": "Déverrouiller",
     "unlockToEdit": "Déverrouiller pour modifier",
+    "untitledFolder": "",
+    "untitledNote": "",
     "warning": "Attention, si vous oubliez votre mot de passe, vous perdrez l'accès à vos notes verrouillées. et la création d'un nouveau mot de passe nécessitera de connaître l'ancien.",
     "wrongPasswd": "Mot de passe incorrect. La note ne peut pas être déverrouillée."
   },
@@ -61,6 +73,7 @@
   "commands": {
     "darkTheme": "Appliquer le thème sombre",
     "lightTheme": "AAppliquer le thème clair",
+    "newFolder": "",
     "newNote": "Créer une nouvelle note",
     "settings": "Paramètres"
   },
@@ -68,6 +81,7 @@
     "inputEmpty": "La saisie est vide."
   },
   "editor": {
+    "embedPlaceholder": "",
     "error": "Oups ! Il y a eu un problème lors du rendu du diagramme. Veuillez vérifier la syntaxe.",
     "exit": "Appuyer sur Ctrl + Entrer pour fermer",
     "linkPlaceholder": "URL ou tapez @ pour lier une note à un lien",
@@ -89,6 +103,16 @@
     "searchPlaceholder": "Rechercher...",
     "selectLabel": "Sélectionner l'étiquette"
   },
+  "folderTree": {
+    "cancel": "",
+    "move": "",
+    "moveItemsToFolder": "",
+    "moveToFolder": "",
+    "newFolder": "",
+    "noFolders": "",
+    "root": "",
+    "untitledFolder": ""
+  },
   "image": {
     "imgUrl": "URL de l'image"
   },
@@ -97,7 +121,12 @@
     "archived": "Archivé",
     "bookmarked": "Favoris",
     "close": "Fermer",
-    "newNote": "Pour créer une nouvelle note, vous pouvez appuyer sur Ctrl + N, Cmd + N ou cliquer sur le bouton + en haut à gauche. en haut à gauche"
+    "folders": "",
+    "home": "",
+    "newNote": "Pour créer une nouvelle note, vous pouvez appuyer sur Ctrl + N, Cmd + N ou cliquer sur le bouton + en haut à gauche. en haut à gauche",
+    "notFound": "",
+    "search": "",
+    "untitledFolder": ""
   },
   "menu": {
     "add": "Ajouter",
@@ -157,6 +186,7 @@
     "toggleHeader": "Changer l'en-tête",
     "underline": "Souligné",
     "untitled": "Sans titre",
+    "upload": "",
     "vidUrl": "Lien vers la vidéo",
     "video": "Vidéo",
     "videoUrl": "Lien vers la vidéo",
@@ -237,6 +267,7 @@
     "next": "Prochain",
     "noAuthorizedApplications": "Aucune application autorisée",
     "notification": "Notification",
+    "openAfterCreation": "",
     "openLastEdited": "Ouvrir la dernière note modifiée au démarrage",
     "password": "Mot de passe",
     "passwordResetError": "Un problème s'est produit lors de la réinitialisation de votre mot de passe",
@@ -302,6 +333,7 @@
     "exportSuccess": "L'exportation a réussi !",
     "importFail": "L'importation a échoué !",
     "importSuccess": "L'importation a réussi !",
+    "newFolder": "",
     "notes": "Notes",
     "notification": "Notification",
     "toggleDarkTheme": "Basculer au thème sombre",

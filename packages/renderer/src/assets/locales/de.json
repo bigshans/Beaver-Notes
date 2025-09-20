@@ -38,6 +38,9 @@
     "confirmPromptFolder": "Bist du sich das du den Ordner löschen möchtest?",
     "content": "Kein Inhalt",
     "delete": "Löschen",
+    "deleteAction": "",
+    "deleteItem": "",
+    "deleteItems": "",
     "duplicate": "Kopie",
     "enterPasswd": "Geben Sie das Passwort ein",
     "isLocked": "Notiz ist gesperrt",
@@ -103,6 +106,7 @@
   "folderTree": {
     "cancel": "Abbrechen",
     "move": "Verschieben",
+    "moveItemsToFolder": "",
     "moveToFolder": "Verschiebe Notiz in einen Ordner",
     "newFolder": "Erstelle erst einen Ordner um deine Notizen zu organisieren",
     "noFolders": "Keine Ordner verfügbar",

@@ -32,25 +32,37 @@
     "archive": "Archivia",
     "bookmark": "Preferito",
     "cancel": "Annulla",
+    "colors": "",
     "confirm": "Conferma",
     "confirmPrompt": "Sei sicuro di voler eliminare questa note?",
+    "confirmPromptFolder": "",
     "content": "Nessun contenuto",
     "delete": "Elimina",
+    "deleteAction": "",
+    "deleteItem": "",
+    "deleteItems": "",
+    "duplicate": "",
     "enterPasswd": "Inserisci la password",
     "isLocked": "Questa nota è bloccata",
     "keyFail": "Impostazione chiave annullata. Impossibile bloccare la nota.",
     "lock": "Blocca",
+    "moveToFolder": "",
     "newKey": "Nuova chiave",
+    "noEmojis": "",
+    "noEmojisMessage": "",
     "noKey": "Nessuna chiave condivisa impostata per questa nota.",
     "passwdCorrect": "La password è incorretta.",
     "password": "Password",
     "removeBookmark": "Rimuovi dai preferiti",
+    "rename": "",
     "setKey": "Imposta chiave",
     "setupKey": "Imposta una nuova chiave condivisa",
     "unarchive": "Non archiviare",
     "unarchived": "Non archiviato",
     "unlock": "Sblocca",
     "unlockToEdit": "Sblocca per modificare",
+    "untitledFolder": "",
+    "untitledNote": "",
     "warning": "Attenzione, se dimentichi la tua password, perderai l'accesso alle tue note bloccate, e impostare una nuova password richiederà di conoscere quella vecchia.",
     "wrongPasswd": "Password errata. Impossibile sbloccare la nota."
   },
@@ -61,6 +73,7 @@
   "commands": {
     "darkTheme": "Applica il tema scuro",
     "lightTheme": "Applica il tema chiaro",
+    "newFolder": "",
     "newNote": "Crea una nuova nota",
     "settings": "Impostazioni"
   },
@@ -68,6 +81,7 @@
     "inputEmpty": "L'input è vuoto"
   },
   "editor": {
+    "embedPlaceholder": "",
     "error": "Ops! C'è stato un problema nel renderizzare il diagramma. Controlla la sintassi.",
     "exit": "Premi Ctrl + Invio per chiudere",
     "linkPlaceholder": "URL o digita @ per collegare un'altra nota",
@@ -89,6 +103,16 @@
     "searchPlaceholder": "Cerca...",
     "selectLabel": "Seleziona etichetta"
   },
+  "folderTree": {
+    "cancel": "",
+    "move": "",
+    "moveItemsToFolder": "",
+    "moveToFolder": "",
+    "newFolder": "",
+    "noFolders": "",
+    "root": "",
+    "untitledFolder": ""
+  },
   "image": {
     "imgUrl": "URL immagine"
   },
@@ -97,7 +121,12 @@
     "archived": "Archiviate",
     "bookmarked": "Contrassegnate",
     "close": "Chiudi",
-    "newNote": "Per creare una nuova nota, premi Ctrl + N, Cmd + N o clicca sul + in alto a sinistra"
+    "folders": "",
+    "home": "",
+    "newNote": "Per creare una nuova nota, premi Ctrl + N, Cmd + N o clicca sul + in alto a sinistra",
+    "notFound": "",
+    "search": "",
+    "untitledFolder": ""
   },
   "menu": {
     "add": "Aggiungi",
@@ -157,6 +186,7 @@
     "toggleHeader": "Cella di intestazione",
     "underline": "Sottolinea",
     "untitled": "Senza titolo",
+    "upload": "",
     "vidUrl": "URL Video",
     "video": "Video",
     "videoUrl": "Url Video",
@@ -237,6 +267,7 @@
     "next": "Avanti",
     "noAuthorizedApplications": "Nessuna applicazione autorizzata",
     "notification": "Notifica",
+    "openAfterCreation": "",
     "openLastEdited": "Apri l'ultima nota modificata all'avvio",
     "password": "Password",
     "passwordResetError": "Qualcosa è andato storto durante il reset della password",
@@ -302,6 +333,7 @@
     "exportSuccess": "Esportazione riuscita!",
     "importFail": "Importazione fallita!",
     "importSuccess": "Importazione riuscita!",
+    "newFolder": "",
     "notes": "Note",
     "notification": "Notifica",
     "toggleDarkTheme": "Attiva/disattiva tema scuro",

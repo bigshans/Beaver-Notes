@@ -32,25 +32,37 @@
     "archive": "Arşiv",
     "bookmark": "Yer imi",
     "cancel": "İptal",
+    "colors": "",
     "confirm": "Onayla",
     "confirmPrompt": "Bu notu silmek istediğinizden emin misiniz ?",
+    "confirmPromptFolder": "",
     "content": "İçerik yok",
     "delete": "Sil",
+    "deleteAction": "",
+    "deleteItem": "",
+    "deleteItems": "",
+    "duplicate": "",
     "enterPasswd": "Şifrenizi Girin",
     "isLocked": "Bu not kilitli",
     "keyFail": "Şifre oluşturma iptal edildi. Not kilitlenemedi.",
     "lock": "Kilitle",
+    "moveToFolder": "",
     "newKey": "Yeni Anahtar",
+    "noEmojis": "",
+    "noEmojisMessage": "",
     "noKey": "Bu not için paylaşılmış bir anahtar yok",
     "passwdCorrect": "Şifre yanlış.",
     "password": "Şifre",
     "removeBookmark": "Yer imini kaldır",
+    "rename": "",
     "setKey": "Anahtar Tanımla",
     "setupKey": "Yeni Bir Paylaşım Anahtarı Tanımla",
     "unarchive": "Arşivden Çıkar",
     "unarchived": "Arşivlenmemiş",
     "unlock": "Kilidi aç",
     "unlockToEdit": "Düzenlemek için kilidi aç",
+    "untitledFolder": "",
+    "untitledNote": "",
     "warning": "Uyarı, eğer şifrenizi unutursanız kilitli notlarınıza olan erişiminizi kaybedersiniz. Yeni şifrenizi tanımlamak da eski şifrenizi bilmenizi gerektirir.",
     "wrongPasswd": "Yanlış şifre. Not kilidi açılamadı."
   },
@@ -61,6 +73,7 @@
   "commands": {
     "darkTheme": "Karanlık temayı uygula",
     "lightTheme": "Aydınlık temayı uygula",
+    "newFolder": "",
     "newNote": "Yeni not oluştur",
     "settings": "Ayarlar"
   },
@@ -68,6 +81,7 @@
     "inputEmpty": "Girdi boş."
   },
   "editor": {
+    "embedPlaceholder": "",
     "error": "Aman! Diyagramın render edilmesinde bir sorun oluştu. Lütfen sözdizimini kontrol edin.",
     "exit": "Ctrl + Enter kombinasyonu ile kapatabilirsiniz",
     "linkPlaceholder": "Adres(url) ya da @ tuşu ile notu bağla",
@@ -89,6 +103,16 @@
     "searchPlaceholder": "Ara...",
     "selectLabel": "Etiket seç"
   },
+  "folderTree": {
+    "cancel": "",
+    "move": "",
+    "moveItemsToFolder": "",
+    "moveToFolder": "",
+    "newFolder": "",
+    "noFolders": "",
+    "root": "",
+    "untitledFolder": ""
+  },
   "image": {
     "imgUrl": "Resim adresi(url)"
   },
@@ -97,7 +121,12 @@
     "archived": "Arşivlenmiş",
     "bookmarked": "Yer imlenmiş",
     "close": "Kapat",
-    "newNote": "Yeni not oluşturmak için Ctrl + N, Cmd + N kombinasyonlarını ya da sol üstteki + butonunu kullanabilirsiniz"
+    "folders": "",
+    "home": "",
+    "newNote": "Yeni not oluşturmak için Ctrl + N, Cmd + N kombinasyonlarını ya da sol üstteki + butonunu kullanabilirsiniz",
+    "notFound": "",
+    "search": "",
+    "untitledFolder": ""
   },
   "menu": {
     "add": "Ekle",
@@ -157,6 +186,7 @@
     "toggleHeader": "Başlık hücresini aç/kapat",
     "underline": "Altı Çizili",
     "untitled": "İsimlendirilmemiş",
+    "upload": "",
     "vidUrl": "Video adresi(url)",
     "video": "Video",
     "videoUrl": "Video adresi(url)",
@@ -237,6 +267,7 @@
     "next": "İleri",
     "noAuthorizedApplications": "Yetkilendirilmiş uygulama yok",
     "notification": "Bildirim",
+    "openAfterCreation": "",
     "openLastEdited": "Başlangıçta son düzenlenen notu aç",
     "password": "Şifre",
     "passwordResetError": "Şifrenizi sıfırlarken bir şeyler yanlış gitti",
@@ -302,6 +333,7 @@
     "exportSuccess": "Dışa aktarma başarılı !",
     "importFail": "İçe aktarma başarısız !",
     "importSuccess": "İçe aktarma başarılı !",
+    "newFolder": "",
     "notes": "Notlar",
     "notification": "Bildirim",
     "toggleDarkTheme": "Karanlık temayı aç/kapa",

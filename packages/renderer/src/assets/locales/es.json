@@ -32,25 +32,37 @@
     "archive": "Archivo",
     "bookmark": "Fijar",
     "cancel": "Cancelar",
+    "colors": "",
     "confirm": "Confirmar",
     "confirmPrompt": "¿Estás seguro de que quieres borrar esta nota?",
+    "confirmPromptFolder": "",
     "content": "Sin contenido",
     "delete": "Eliminar",
+    "deleteAction": "",
+    "deleteItem": "",
+    "deleteItems": "",
+    "duplicate": "",
     "enterPasswd": "Introduce la contraseña",
     "isLocked": "Esta nota está bloqueada",
     "keyFail": "Configuración de contraseña cancelada. La nota no pudo ser bloqueada.",
     "lock": "Bloquear",
+    "moveToFolder": "",
     "newKey": "Nueva llave",
+    "noEmojis": "",
+    "noEmojisMessage": "",
     "noKey": "No se ha configurado una llave compartida para esta nota",
     "passwdCorrect": "Contraseña incorrecta.",
     "password": "Contraseña",
     "removeBookmark": "Desfijar",
+    "rename": "",
     "setKey": "Establecer llave",
     "setupKey": "Configura una nueva llave compartida",
     "unarchive": "Desarchivar",
     "unarchived": "Sin archivar",
     "unlock": "Desbloquear",
     "unlockToEdit": "Desbloquea para editar",
+    "untitledFolder": "",
+    "untitledNote": "",
     "warning": "Atención, si olvidas tu contraseña, perderás acceso a tus notas bloqueadas, y establecer una nueva requerirá recordar la anterior.",
     "wrongPasswd": "Contraseña incorrecta. Imposible desbloquear nota."
   },
@@ -61,6 +73,7 @@
   "commands": {
     "darkTheme": "Aplicar tema oscuro",
     "lightTheme": "Aplicar tema claro",
+    "newFolder": "",
     "newNote": "Crear nueva nota",
     "settings": "Ajustes"
   },
@@ -68,6 +81,7 @@
     "inputEmpty": "No hay datos"
   },
   "editor": {
+    "embedPlaceholder": "",
     "error": "¡Ups! Hubo un problema al renderizar el diagrama. Por favor, revise la sintaxis.",
     "exit": "Pulsa Ctrl + Enter para cerrar",
     "linkPlaceholder": "URL o escribe @ para vincular una nota",
@@ -89,6 +103,16 @@
     "searchPlaceholder": "Buscar...",
     "selectLabel": "Selecciona etiqueta"
   },
+  "folderTree": {
+    "cancel": "",
+    "move": "",
+    "moveItemsToFolder": "",
+    "moveToFolder": "",
+    "newFolder": "",
+    "noFolders": "",
+    "root": "",
+    "untitledFolder": ""
+  },
   "image": {
     "imgUrl": "Url de la imágen"
   },
@@ -97,7 +121,12 @@
     "archived": "Archivado",
     "bookmarked": "Fijado",
     "close": "Cerrar",
-    "newNote": "Para crear una nota nueva, puedes presionar Ctrl + N, Cmd + N o presionar el botón de + arriba a la izquierda"
+    "folders": "",
+    "home": "",
+    "newNote": "Para crear una nota nueva, puedes presionar Ctrl + N, Cmd + N o presionar el botón de + arriba a la izquierda",
+    "notFound": "",
+    "search": "",
+    "untitledFolder": ""
   },
   "menu": {
     "add": "Añadir",
@@ -157,6 +186,7 @@
     "toggleHeader": "Activar celda de cabecera",
     "underline": "Subrayado",
     "untitled": "Sin título",
+    "upload": "",
     "vidUrl": "Url Vídeo",
     "video": "Vídeo",
     "videoUrl": "URL del video",
@@ -237,6 +267,7 @@
     "next": "Siguiente",
     "noAuthorizedApplications": "No hay aplicaciones autorizadas",
     "notification": "Notificación",
+    "openAfterCreation": "",
     "openLastEdited": "Abrir la última nota editada al iniciar",
     "password": "Contraseña",
     "passwordResetError": "Algo salió mal al intentar restablecer tu contraseña",
@@ -302,6 +333,7 @@
     "exportSuccess": "Exportación exitosa",
     "importFail": "Fallo al importar",
     "importSuccess": "Importación exitosa",
+    "newFolder": "",
     "notes": "Notas",
     "notification": "Notificación",
     "toggleDarkTheme": "Activar tema oscuro",

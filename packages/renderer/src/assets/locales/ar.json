@@ -38,6 +38,9 @@
     "confirmPromptFolder": "هل أنت متأكد من أنك تريد حذف هذا المجلد؟",
     "content": "لا يوجد محتوى",
     "delete": "حذف",
+    "deleteAction": "",
+    "deleteItem": "",
+    "deleteItems": "",
     "duplicate": "تكرار",
     "enterPasswd": "أدخل كلمة المرور",
     "isLocked": "هذه الملاحظة مقفلة",
@@ -103,6 +106,7 @@
   "folderTree": {
     "cancel": "إلغاء",
     "move": "نقل",
+    "moveItemsToFolder": "",
     "moveToFolder": "نقل الملاحظة إلى مجلد",
     "newFolder": "أنشئ مجلدًا أولاً لتنظيم ملاحظاتك",
     "noFolders": "لا توجد مجلدات متاحة",

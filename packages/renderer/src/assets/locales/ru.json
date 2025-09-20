@@ -32,25 +32,37 @@
     "archive": "Архивировать",
     "bookmark": "Закладка",
     "cancel": "Отменить",
+    "colors": "",
     "confirm": "Подтвердить",
     "confirmPrompt": "Вы уверены, что хотите удалить эту заметку?",
+    "confirmPromptFolder": "",
     "content": "Нет содержимого",
     "delete": "Удалить",
+    "deleteAction": "",
+    "deleteItem": "",
+    "deleteItems": "",
+    "duplicate": "",
     "enterPasswd": "Введите пароль",
     "isLocked": "Эта заметка заблокирована",
     "keyFail": "Настройка пароля отменена. Заметка не может быть заблокирована.",
     "lock": "Заблокировать",
+    "moveToFolder": "",
     "newKey": "Новая комбинация клавиш",
+    "noEmojis": "",
+    "noEmojisMessage": "",
     "noKey": "Для этой заметки не установлен общий ключ.",
     "passwdCorrect": "Пароль введен неверно.",
     "password": "Пароль",
     "removeBookmark": "Удалить из закладок",
+    "rename": "",
     "setKey": "Установить комбинацию клавиш",
     "setupKey": "Настроить новый общий ключ",
     "unarchive": "Разархивировать",
     "unarchived": "Разархивировано",
     "unlock": "Разблокировать",
     "unlockToEdit": "Разблокировать для редактирования",
+    "untitledFolder": "",
+    "untitledNote": "",
     "warning": "Предупреждение, если вы забудете свой пароль, вы потеряете доступ к зашифрованным заметкам, и для установки нового пароля потребуется знать старый.",
     "wrongPasswd": "Неверный пароль. Заметка не может быть разблокирована."
   },
@@ -61,6 +73,7 @@
   "commands": {
     "darkTheme": "Применить темную тему",
     "lightTheme": "Применить светлую тему",
+    "newFolder": "",
     "newNote": "Создать новую заметку",
     "settings": "Настройки"
   },
@@ -68,6 +81,7 @@
     "inputEmpty": "Поле ввода пустое."
   },
   "editor": {
+    "embedPlaceholder": "",
     "error": "Упс! Возникла проблема при отображении диаграммы. Пожалуйста, проверьте синтаксис.",
     "exit": "Нажмите Ctrl + Enter, чтобы закрыть",
     "linkPlaceholder": "URL или введите @, чтобы связать заметку",
@@ -89,6 +103,16 @@
     "searchPlaceholder": "Поиск...",
     "selectLabel": "Выбрать метку"
   },
+  "folderTree": {
+    "cancel": "",
+    "move": "",
+    "moveItemsToFolder": "",
+    "moveToFolder": "",
+    "newFolder": "",
+    "noFolders": "",
+    "root": "",
+    "untitledFolder": ""
+  },
   "image": {
     "imgUrl": "URL изображения"
   },
@@ -97,7 +121,12 @@
     "archived": "Архивированные",
     "bookmarked": "В закладках",
     "close": "Закрыть",
-    "newNote": "Чтобы создать новую заметку, нажмите Ctrl + N, Cmd + N или нажмите кнопку + в левом верхнем углу"
+    "folders": "",
+    "home": "",
+    "newNote": "Чтобы создать новую заметку, нажмите Ctrl + N, Cmd + N или нажмите кнопку + в левом верхнем углу",
+    "notFound": "",
+    "search": "",
+    "untitledFolder": ""
   },
   "menu": {
     "add": "Добавить",
@@ -157,6 +186,7 @@
     "toggleHeader": "Переключить ячейку заголовка",
     "underline": "Подчеркнутый",
     "untitled": "Без названия",
+    "upload": "",
     "vidUrl": "URL видео",
     "video": "Видео",
     "videoUrl": "URL видео",
@@ -237,6 +267,7 @@
     "next": "Далее",
     "noAuthorizedApplications": "Нет авторизованных приложений",
     "notification": "Уведомления",
+    "openAfterCreation": "",
     "openLastEdited": "Открыть последнюю отредактированную заметку при запуске",
     "password": "Пароль",
     "passwordResetError": "Произошла ошибка при сбросе пароля",
@@ -302,6 +333,7 @@
     "exportSuccess": "Экспорт прошёл успешно!",
     "importFail": "Импорт не удался!",
     "importSuccess": "Импорт выполнен успешно!",
+    "newFolder": "",
     "notes": "Заметки",
     "notification": "Уведомления",
     "toggleDarkTheme": "Выключить тёмную тему",
