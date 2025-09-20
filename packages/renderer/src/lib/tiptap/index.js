@@ -167,7 +167,8 @@ const extensions = [
   Link.extend({
     addKeyboardShortcuts() {
       return {
-        'Mod-k': () => this.editor.chain().focus().toggleLink().run(),
+        'Mod-k': () =>
+          this.editor.chain().focus().toggleLink({ href: '' }).run(),
       };
     },
   }).configure({
@@ -181,7 +182,9 @@ const extensions = [
       title: 'Ctrl+Click to open URL',
     },
   }),
-  Iframe,
+  Iframe.configure({
+    placeholderText: translations.editor.embedPlaceholder,
+  }),
 ];
 
 export { extensions, CollapseHeading, heading, dropFile };

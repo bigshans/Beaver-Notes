@@ -5,38 +5,50 @@
     :style="{ 'padding-bottom': isLocked ? 0 : null }"
   >
     <button
-      v-if="$route.query.linked && !store.inReaderMode"
+      v-if="
+        (showBack && !store.inReaderMode) ||
+        ($route.query.linked && !store.inReaderMode)
+      "
       class="ltr:left-0 rtl:right-0 ml-24 mt-4 fixed group"
       title="Alt+Arrow left"
-      @click="$router.back()"
+      @click="goBack"
     >
       <v-remixicon
         name="riArrowDownLine"
         class="mr-2 -ml-1 rtl:ml-0 group-hover:-translate-x-1 transform transition rotate-90 rtl:-rotate-90"
       />
-      <span>
+      <span v-if="$route.query.linked && !store.inReaderMode">
         {{ translations.editor.previousNote || '-' }}
       </span>
     </button>
+
     <template v-if="editor && !note.isLocked">
       <note-menu v-bind="{ editor, id, note }" class="mb-6" />
-      <note-search
-        v-if="showSearch"
-        v-bind="{ editor }"
-        @keyup.esc="closeSearch"
-      />
+      <transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0 translate-y-4"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 translate-y-4"
+      >
+        <note-search
+          v-if="showSearch"
+          v-bind="{ editor }"
+          @close="closeSearch"
+          @keyup.esc="closeSearch"
+        />
+      </transition>
     </template>
     <div
       v-if="!isLocked"
+      ref="titleDiv"
       contenteditable="true"
-      :value="note.title"
       class="text-4xl outline-none block font-bold bg-transparent w-full mb-6 cursor-text title-placeholder"
       :placeholder="translations.editor.untitledNote"
       @input="updateNote({ title: $event.target.innerText })"
       @keydown="disallowedEnter"
-    >
-      {{ note.title }}
-    </div>
+    ></div>
     <div v-else class="flex flex-col items-center justify-center h-screen">
       <v-remixicon
         class="w-24 h-auto text-gray-600 dark:text-white"
@@ -106,7 +118,6 @@ export default {
     const labelStore = useLabelStore();
     const appStore = useAppStore();
     const dialog = useDialog();
-    const userPassword = ref('');
 
     const editor = shallowRef(null);
     const noteEditor = ref();
@@ -127,6 +138,34 @@ export default {
         immediate: true,
       }
     );
+
+    const showBack = computed(() => {
+      const back = router.options.history.state.back;
+      if (!back) return false;
+      if (back === '/' || back.includes('/#/?')) return false;
+      return true;
+    });
+
+    function goBack() {
+      const from = router.options.history.state.back;
+
+      if (!from) {
+        router.push('/');
+        return;
+      }
+
+      if (from.includes('/folder/') || from.includes('/archive/')) {
+        router.go(-1);
+        return;
+      }
+
+      if (from.includes('/note/')) {
+        router.go(-1);
+        return;
+      }
+
+      router.push('/');
+    }
 
     const autoScroll = debounce(() => {
       if (!noteEditor.value) {
@@ -269,18 +308,26 @@ export default {
         placeholder: translations.value.card.password,
         onConfirm: async (enteredPassword) => {
           try {
-            const isValidPassword = await passwordStore.isValidPassword(
-              enteredPassword
-            );
-            if (isValidPassword) {
-              console.log(translations.value.card.passwordCorrect);
-              // Note unlocked
-              userPassword.value = '';
-              await noteStore.unlockNote(note, enteredPassword);
-              console.log(`Note (ID: ${note}) is unlocked`);
+            const hassharedKey = await passwordStore.retrieve();
+
+            if (!hassharedKey) {
+              try {
+                console.log('test');
+                await noteStore.unlockNote(note, enteredPassword);
+                await passwordStore.setsharedKey(enteredPassword);
+              } catch (error) {
+                alert(translations.value.card.wrongPasswd);
+                return;
+              }
             } else {
-              console.log(translations.value.card.wrongPasswd);
-              alert(translations.value.card.wrongPasswd);
+              const isValidPassword = await passwordStore.isValidPassword(
+                enteredPassword
+              );
+              if (isValidPassword) {
+                await noteStore.unlockNote(note, enteredPassword);
+              } else {
+                alert(translations.value.card.wrongPasswd);
+              }
             }
           } catch (error) {
             console.error('Error unlocking note:', error);
@@ -290,8 +337,19 @@ export default {
       });
     }
 
+    const titleDiv = ref(null);
+
+    onMounted(() => {
+      if (titleDiv.value && note.value.title) {
+        titleDiv.value.innerText = note.value.title;
+      }
+    });
+
     return {
       id,
+      showBack,
+      titleDiv,
+      goBack,
       noteEditor,
       note,
       translations,

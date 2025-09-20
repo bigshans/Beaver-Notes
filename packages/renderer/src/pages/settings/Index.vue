@@ -7,6 +7,7 @@
         <ui-select
           v-model="selectedLanguage"
           class="w-full"
+          :search="true"
           @change="updateLanguage"
         >
           <option
@@ -57,7 +58,7 @@
                 @change="toggleAdvancedSettings"
               />
               <div
-                class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+                class="peer h-6 w-11 rounded-full border bg-neutral-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-neutral-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
               ></div>
             </label>
           </div>
@@ -77,7 +78,7 @@
                 @change="toggleSpellcheck"
               />
               <div
-                class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+                class="peer h-6 w-11 rounded-full border bg-neutral-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-neutral-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
               ></div>
             </label>
           </div>
@@ -104,7 +105,7 @@
                 @change="handleAutoSyncChange"
               />
               <div
-                class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+                class="peer h-6 w-11 rounded-full border bg-neutral-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-neutral-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
               ></div>
             </label>
           </div>
@@ -123,7 +124,26 @@
                 class="peer sr-only"
               />
               <div
-                class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+                class="peer h-6 w-11 rounded-full border bg-neutral-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-neutral-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+              ></div>
+            </label>
+          </div>
+          <!-- show after creation -->
+          <div class="flex items-center py-2 justify-between">
+            <div>
+              <span class="block text-lg align-left"
+                >{{ translations.settings.openAfterCreation || '-' }}
+              </span>
+            </div>
+            <label class="relative inline-flex cursor-pointer items-center">
+              <input
+                id="switch"
+                v-model="openAfterCreation"
+                type="checkbox"
+                class="peer sr-only"
+              />
+              <div
+                class="peer h-6 w-11 rounded-full border bg-neutral-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-neutral-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
               ></div>
             </label>
           </div>
@@ -147,7 +167,7 @@
               class="peer sr-only"
             />
             <div
-              class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+              class="peer h-6 w-11 rounded-full border bg-neutral-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-neutral-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
             ></div>
           </label>
         </div>
@@ -157,7 +177,7 @@
       <p class="mb-2">{{ translations.settings.ieData || '-' }}</p>
       <div class="flex ltr:space-x-4">
         <div class="bg-input rtl:ml-4 transition w-6/12 rounded-lg p-4">
-          <div class="text-center mb-8 dark:text-gray-300 text-gray-600">
+          <div class="text-center mb-8 dark:text-neutral-300 text-neutral-600">
             <span
               class="p-5 rounded-full bg-black dark:bg-white dark:bg-opacity-5 bg-opacity-5 inline-block"
             >
@@ -183,7 +203,7 @@
           >
         </div>
         <div class="bg-input transition w-6/12 rounded-lg p-4 flex flex-col">
-          <div class="text-center mb-6 dark:text-gray-300 text-gray-600">
+          <div class="text-center mb-6 dark:text-neutral-300 text-neutral-600">
             <span
               class="p-5 rounded-full bg-black dark:bg-white dark:bg-opacity-5 bg-opacity-5 inline-block"
             >
@@ -201,7 +221,7 @@
           name="riQuestionLine"
           class="inline-block align-middle mr-1 mt-2"
         />
-        <p class="text-sm relative text-gray-500 mt-2">
+        <p class="text-sm relative text-neutral-500 mt-2">
           <span v-tooltip:right="translations.settings.encryptionMessage">
             {{ translations.settings.aboutDataEncryption || '-' }}
           </span>
@@ -244,6 +264,8 @@ import { processDirectory } from '@/utils/markdown-helper';
 import { forceSyncNow } from '../../utils/sync';
 import { importBEA } from '../../utils/share/BEA';
 import { useTranslation } from '@/composable/translations';
+import { useNoteStore } from '../../store/note';
+import { useFolderStore } from '../../store/folder';
 
 const LANGUAGE_CONFIG = {
   de: { name: 'Deutsch', dir: 'ltr' },
@@ -271,6 +293,7 @@ const getLanguageDirection = (languageCode) => {
 
 export default {
   setup() {
+    const passwordStore = usePasswordStore();
     const advancedSettings = ref(
       localStorage.getItem('advanced-settings') === 'true'
     );
@@ -304,6 +327,8 @@ export default {
     const theme = useTheme();
     const dialog = useDialog();
     const storage = useStorage();
+    const noteStore = useNoteStore();
+    const folerStore = useFolderStore();
 
     const state = shallowReactive({
       dataDir: '',
@@ -350,6 +375,7 @@ export default {
 
     async function exportData() {
       try {
+        const dataDir = await storage.get('dataDir', '', 'settings');
         const { canceled, filePaths } = await ipcRenderer.callMain(
           'dialog:open',
           {
@@ -361,15 +387,17 @@ export default {
         if (canceled) return;
 
         let data = await storage.store();
-        data['default-path'] = defaultPath;
+        data['sharedKey'] = storage.get('sharedKey');
         data['lockedNotes'] = JSON.parse(localStorage.getItem('lockedNotes'));
+        await passwordStore.retrieve();
+        data['sharedKey'] = passwordStore.sharedKey;
+        data['derivedKey'] = passwordStore.derivedKey;
         if (state.withPassword) {
           data = AES.encrypt(JSON.stringify(data), state.password).toString();
         }
 
         const folderName = dayjs().format('[Beaver Notes] YYYY-MM-DD');
         const folderPath = path.join(filePaths[0], folderName);
-        const dataDir = await storage.get('dataDir', '', 'settings');
 
         const containsGvfs = folderPath.includes('gvfs');
 
@@ -425,6 +453,7 @@ export default {
           { key: 'labels', dfData: [] },
           { key: 'lockStatus', dfData: {} },
           { key: 'isLocked', dfData: {} },
+          { key: 'folders', dfData: {} },
         ];
 
         for (const { key, dfData } of keys) {
@@ -440,6 +469,8 @@ export default {
           }
 
           await storage.set(key, mergedData);
+          await noteStore.retrieve();
+          await folerStore.retrieve();
         }
       } catch (error) {
         console.error(error);
@@ -448,6 +479,7 @@ export default {
 
     async function importData() {
       try {
+        const dataDir = await storage.get('dataDir', '', 'settings');
         const {
           canceled,
           filePaths: [dirPath],
@@ -480,7 +512,6 @@ export default {
 
                 await mergeImportedData(resultObj);
 
-                const dataDir = await storage.get('dataDir', '', 'settings');
                 const importedDefaultPath = resultObj['dataDir'];
                 const importedLockedStatus = resultObj['lockStatus'];
                 const importedIsLocked = resultObj['isLocked'];
@@ -507,6 +538,13 @@ export default {
                   );
                 }
 
+                if (data['sharedKey']) {
+                  await passwordStore.importSharedKey(
+                    data['sharedKey'],
+                    data['derivedKey']
+                  );
+                }
+
                 await ipcRenderer.callMain('fs:copy', {
                   path: path.join(dirPath, 'assets'),
                   dest: path.join(dataDir, 'notes-assets'),
@@ -518,7 +556,6 @@ export default {
                 });
 
                 console.log('Assets copied successfully.');
-                window.location.reload();
               } catch (error) {
                 showAlert(translations.value.settings.invalidPassword);
                 return false;
@@ -528,12 +565,15 @@ export default {
         } else {
           await mergeImportedData(data);
 
-          const dataDir = await storage.get('dataDir', '', 'settings');
-          const importedDefaultPath = data['dataDir'];
           const importedLockedStatus = data['lockStatus'];
           const importedIsLocked = data['isLocked'];
 
-          localStorage.setItem('dataDir', importedDefaultPath);
+          if (data['sharedKey']) {
+            await passwordStore.importSharedKey(
+              data['sharedKey'],
+              data['derivedKey']
+            );
+          }
 
           if (
             importedLockedStatus !== null &&
@@ -558,9 +598,6 @@ export default {
             path: path.join(dirPath, 'file-assets'),
             dest: path.join(dataDir, 'file-assets'),
           });
-
-          console.log('Assets copied successfully.');
-          window.location.reload();
         }
       } catch (error) {
         console.error(error);
@@ -668,8 +705,6 @@ export default {
     };
 
     async function resetPasswordDialog() {
-      const passwordStore = usePasswordStore();
-
       dialog.prompt({
         title: translations.value.settings.resetPasswordTitle,
         okText: translations.value.settings.next,
@@ -783,6 +818,15 @@ export default {
       },
     });
 
+    const openAfterCreation = computed({
+      get() {
+        return appStore.setting.openAfterCreation;
+      },
+      set(v) {
+        appStore.setSettingStorage('openAfterCreation', v);
+      },
+    });
+
     const toggleAdvancedSettings = () => {
       localStorage.setItem(
         'advanced-settings',
@@ -840,6 +884,7 @@ export default {
       t,
       collapsibleHeading,
       openLastEdited,
+      openAfterCreation,
       advancedSettings,
       directionPreference,
       spellcheckEnabled,

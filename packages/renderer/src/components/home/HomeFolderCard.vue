@@ -1,8 +1,7 @@
 <template>
   <div
-    class="bg-neutral-50 dark:bg-neutral-700/50 transform rounded-xl transition-transform ui-card overflow-hidden hover:ring-2 ring-secondary group note-card transition flex flex-row items-center p-3"
+    class="bg-neutral-50 dark:bg-neutral-750 transform rounded-xl transition-transform ui-card overflow-hidden hover:ring-2 hover:ring-secondary group note-card transition flex flex-row items-center p-3"
   >
-    <!-- Emoji / Icon selector -->
     <ui-popover padding="p-3 flex flex-col print:hidden">
       <template #trigger>
         <button
@@ -13,27 +12,21 @@
           }}</span>
           <v-remixicon
             v-else
-            name="riFolder3Line"
+            name="riFolder5Fill"
             class="w-6 h-6"
             :style="{ color: folder.color || '#6B7280' }"
           />
         </button>
       </template>
 
-      <!-- Tab Headers -->
       <div
         class="flex mb-4 border-b border-neutral-200 dark:border-neutral-700 w-full relative"
       >
         <button
           class="flex-1 px-4 py-2 font-medium text-sm transition-colors relative"
-          :class="{
-            'text-primary': activeTab === 'icon',
-            'text-neutral-600 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200':
-              activeTab !== 'icon',
-          }"
           @click="activeTab = 'icon'"
         >
-          Colors
+          {{ translations.card.colors }}
         </button>
         <button
           class="flex-1 px-4 py-2 font-medium text-sm transition-colors relative"
@@ -47,7 +40,6 @@
           Emojis
         </button>
 
-        <!-- Animated underline -->
         <div
           class="absolute bottom-0 h-0.5 bg-primary transition-all duration-300"
           :style="{
@@ -57,7 +49,6 @@
         ></div>
       </div>
 
-      <!-- Color Icons Grid -->
       <div v-if="activeTab === 'icon'" class="grid grid-cols-4 gap-2">
         <button
           v-for="color in iconColors"
@@ -66,7 +57,7 @@
           @click="selectColorIcon(color)"
         >
           <v-remixicon
-            name="riFolder3Line"
+            name="riFolder5Fill"
             class="w-6 h-6"
             :style="{ color: color }"
           />
@@ -82,14 +73,16 @@
             class="w-full note-search-input"
             prepend-icon="riSearch2Line"
             :clearable="true"
-            placeholder="Search emojis..."
+            :placeholder="translations.index.search"
             @keydown.esc="$event.target.blur()"
             @change="searchQuery = $event.toLowerCase()"
           />
         </div>
 
-        <!-- Category Filters -->
-        <div v-if="!searchQuery" class="flex flex-wrap gap-1 mb-3">
+        <div
+          v-if="!searchQuery"
+          class="flex flex-wrap gap-1 mb-3 justify-center"
+        >
           <button
             v-for="category in emojiCategories"
             :key="category.name"
@@ -108,12 +101,15 @@
           </button>
         </div>
 
-        <!-- Emoji Grid -->
         <div class="grid grid-cols-8 gap-1 max-h-64 overflow-auto">
           <button
             v-for="emoji in filteredEmojis"
             :key="emoji.char"
             class="text-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 p-2 rounded-md transition-colors duration-150 relative group"
+            style="
+              font-family: 'Apple Color Emoji', 'Segoe UI Emoji',
+                'Noto Color Emoji', 'Twemoji', sans-serif;
+            "
             :title="emoji.name"
             @click="selectEmoji(emoji.char)"
           >
@@ -121,7 +117,6 @@
           </button>
         </div>
 
-        <!-- No results message -->
         <div
           v-if="filteredEmojis.length === 0"
           class="text-center py-8 text-neutral-500 dark:text-neutral-400"
@@ -130,13 +125,12 @@
             name="riEmotionUnhappyFill"
             class="w-8 h-8 mx-auto mb-2 opacity-50"
           />
-          <p class="text-sm">No emojis found</p>
-          <p class="text-xs mt-1">Try a different search term or category</p>
+          <p class="text-sm">{{ translations.card.noEmojis }}</p>
+          <p class="text-xs mt-1">{{ translations.card.noEmojisMessage }}</p>
         </div>
       </div>
     </ui-popover>
 
-    <!-- Folder Name -->
     <div class="flex flex-col flex-grow min-w-0 ml-2">
       <router-link
         v-if="!isRenaming"
@@ -144,7 +138,7 @@
         class="block group truncate font-medium hover:text-primary transition-colors"
         @dblclick.prevent="startRenaming"
       >
-        {{ folder.name }}
+        {{ folder.name || translations.card.untitledFolder }}
       </router-link>
 
       <input
@@ -159,13 +153,11 @@
       />
     </div>
 
-    <!-- Actions -->
     <div
       class="flex z-10 items-center text-neutral-600 dark:text-neutral-200 gap-2"
     >
-      <!-- Rename -->
       <button
-        v-tooltip.group="'Rename'"
+        v-tooltip.group="translations.card.rename"
         type="button"
         class="hover:text-neutral-900 dark:hover:text-[color:var(--selected-dark-text)] transition invisible group-hover:visible"
         @click="startRenaming"
@@ -174,7 +166,7 @@
       </button>
 
       <button
-        v-tooltip.group="'Move to Folder'"
+        v-tooltip.group="translations.card.moveToFolder"
         class="hover:text-neutral-900 dark:hover:text-[color:var(--selected-dark-text)] transition invisible group-hover:visible"
         @click="showFolderMoveModal = true"
       >
@@ -182,17 +174,7 @@
       </button>
 
       <button
-        v-tooltip.group="'Duplicate'"
-        type="button"
-        class="hover:text-neutral-900 dark:hover:text-[color:var(--selected-dark-text)] transition invisible group-hover:visible"
-        @click="duplicateFolder"
-      >
-        <v-remixicon name="riFoldersLine" />
-      </button>
-
-      <!-- Delete -->
-      <button
-        v-tooltip.group="'Delete'"
+        v-tooltip.group="translations.card.delete"
         type="button"
         class="hover:text-red-500 rtl: dark:hover:text-red-400 transition invisible group-hover:visible"
         @click="deleteFolder"
@@ -201,12 +183,17 @@
       </button>
     </div>
 
-    <folder-tree v-model="showFolderMoveModal" :folder="folder" mode="folder" />
+    <folder-tree
+      v-model="showFolderMoveModal"
+      :folders="[folder]"
+      mode="folder"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick, computed } from 'vue';
+import { useTranslation } from '@/composable/translations';
+import { ref, nextTick, computed, onMounted } from 'vue';
 import { useFolderStore } from '@/store/folder';
 import { useDialog } from '@/composable/dialog';
 import FolderTree from './FolderTree.vue';
@@ -265,7 +252,7 @@ const emojiCategories = [
     groups: ['Objects'],
   },
   {
-    name: 'Symbols & Flags', // ✅ Merged
+    name: 'Symbols & Flags',
     icon: 'riFlagLine',
     groups: ['Symbols', 'Flags'],
   },
@@ -280,29 +267,36 @@ const searchQuery = ref('');
 const selectedCategory = ref(null);
 
 const filteredEmojis = computed(() => {
-  let filtered = emojis;
+  let filtered = emojis; // assuming emojis is a plain array, not a ref
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
-    filtered = emojis.filter((emoji) =>
+    filtered = filtered.filter((emoji) =>
       emoji.name.toLowerCase().includes(query)
     );
   } else if (selectedCategory.value) {
-    const selected = emojiCategories.find(
+    const category = emojiCategories.find(
       (cat) => cat.name === selectedCategory.value
     );
-    if (selected) {
-      filtered = emojis.filter((emoji) => {
+    if (category) {
+      filtered = filtered.filter((emoji) => {
         const mainGroup = (emoji.group || '').split(' (')[0];
-        const subgroup = emoji.subgroup || '';
-        const inGroup = selected.groups.includes(mainGroup);
-        const inSubgroup = selected.subgroups
-          ? selected.subgroups.includes(subgroup)
+        const inGroup = category.groups.includes(mainGroup);
+        const inSubgroup = category.subgroups
+          ? category.subgroups.includes(emoji.subgroup || '')
           : true;
         return inGroup && inSubgroup;
       });
     }
   }
+
+  const seen = new Set();
+  filtered = filtered.filter((emoji) => {
+    const normalized = emoji.char.normalize('NFC').replace(/\uFE0F/g, '');
+    if (seen.has(normalized)) return false;
+    seen.add(normalized);
+    return true;
+  });
 
   return filtered;
 });
@@ -333,31 +327,37 @@ function cancelRename() {
 function selectEmoji(emoji) {
   folderStore.update(props.folder.id, {
     icon: emoji,
-    color: null, // Remove color when emoji is selected
+    color: null,
   });
 }
 
 function selectColorIcon(color) {
   folderStore.update(props.folder.id, {
     color: color,
-    icon: null, // Remove emoji when color is selected
-  });
-}
-
-function duplicateFolder() {
-  folderStore.duplicate(props.folder.id, {
-    includeChildren: true,
+    icon: null,
   });
 }
 
 function deleteFolder() {
   dialog.confirm({
-    title: 'Delete Folder?',
-    body: 'Are you sure you want to delete this folder and its contents?',
+    title: translations.value.card.confirmPrompt,
     onConfirm: () =>
       folderStore.delete(props.folder.id, { deleteContents: true }),
   });
 }
+
+const translations = ref({
+  card: {},
+  inxed: {},
+});
+
+onMounted(async () => {
+  await useTranslation().then((trans) => {
+    if (trans) {
+      translations.value = trans;
+    }
+  });
+});
 </script>
 
 <style scoped>

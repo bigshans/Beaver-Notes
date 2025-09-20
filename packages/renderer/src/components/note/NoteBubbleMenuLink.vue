@@ -1,22 +1,4 @@
 <template>
-  <expand-transition>
-    <ui-list
-      v-if="currentLinkVal.startsWith('@')"
-      class="p-2 space-y-1 border-b"
-    >
-      <ui-list-item
-        v-for="(note, index) in notes"
-        :key="note.id"
-        :active="index === selectedNoteIndex"
-        class="cursor-pointer line-clamp leading-tight"
-        @click="updateCurrentLink(note.id)"
-      >
-        <p class="text-overflow w-full">
-          {{ note.title || translations.editor.untitledNote }}
-        </p>
-      </ui-list-item>
-    </ui-list>
-  </expand-transition>
   <div class="p-2">
     <div class="flex items-center space-x-2">
       <input
@@ -29,6 +11,14 @@
         @keydown.esc="editor.commands.focus()"
         @keyup.enter="updateCurrentLink"
       />
+      <button
+        icon
+        class="text-neutral-600 dark:text-neutral-200"
+        title="Open link"
+        @click="handleClick"
+      >
+        <v-remixicon name="riExternalLinkLine" />
+      </button>
       <button
         icon
         class="text-neutral-600 dark:text-neutral-200"
@@ -49,13 +39,31 @@
       translations.editor.linkShortcut || '-'
     }}</span>
   </div>
+  <expand-transition>
+    <ui-list
+      v-if="currentLinkVal.startsWith('@')"
+      class="p-2 space-y-1 border-b"
+    >
+      <ui-list-item
+        v-for="(note, index) in notes"
+        :key="note.id"
+        :active="index === selectedNoteIndex"
+        class="cursor-pointer line-clamp leading-tight"
+        @click="updateCurrentLink(note.id)"
+      >
+        <p class="text-overflow w-full">
+          {{ note.title || translations.editor.untitledNote }}
+        </p>
+      </ui-list-item>
+    </ui-list>
+  </expand-transition>
 </template>
 
 <script>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useTranslation } from '@/composable/translations';
 import { useNoteStore } from '@/store/note';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 export default {
   props: {
@@ -66,6 +74,7 @@ export default {
   },
   setup(props) {
     const route = useRoute();
+    const router = useRouter();
     const noteStore = useNoteStore();
 
     const selectedNoteIndex = ref(0);
@@ -105,6 +114,21 @@ export default {
         .extendMarkRange('link')
         .setLink({ href: value })
         .run();
+    }
+    function handleClick() {
+      const href = props.editor.getAttributes('link')?.href;
+
+      if (!href) return;
+
+      if (href.startsWith('note://')) {
+        const noteId = href.slice(7);
+        router.push({
+          params: { id: noteId },
+          query: { linked: true },
+        });
+      } else {
+        window.open(href, '_blank', 'noopener');
+      }
     }
     function keydownHandler(event) {
       if (!currentLinkVal.value.startsWith('@')) return;
@@ -153,6 +177,7 @@ export default {
       currentLinkVal,
       selectedNoteIndex,
       updateCurrentLink,
+      handleClick,
       keyBinding,
     };
   },

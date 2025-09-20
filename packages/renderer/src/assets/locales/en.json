@@ -34,15 +34,18 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "confirmPrompt": "Are you sure you want to delete this note?",
+    "confirmPromptFolder": "Are you sure you want to delete this folder?",
+    "confirmPromptLabel": "Are you sure you want to delete this label?",
+    "deleteAction": "This action cannot be undone",
     "content": "No content",
     "delete": "Delete",
+    "deleteItem": "Delete this item?",
+    "deleteItems": "Delete {count} items?",
     "enterPasswd": "Enter the Password",
     "isLocked": "This note is locked",
     "keyFail": "Password setup cancelled. Note cannot be locked.",
     "lock": "Lock",
     "newKey": "New Key",
-    "noKey": "No shared key set up for this note",
-    "passwdCorrect": "Password is incorrect.",
     "password": "Password",
     "removeBookmark": "Remove bookmark",
     "setKey": "Set Key",
@@ -52,7 +55,25 @@
     "unlock": "Unlock",
     "unlockToEdit": "Unlock to edit",
     "warning": "Warning, if you forget your password, you'll lose access to your locked notes, and setting a new password will require knowing the old one.",
-    "wrongPasswd": "Incorrect password. Note cannot be unlocked."
+    "wrongPasswd": "Incorrect password. Note cannot be unlocked.",
+    "duplicate": "Duplicate",
+    "moveToFolder": "Move to folder",
+    "rename": "Rename",
+    "noEmojis": "No emojis found",
+    "noEmojisMessage": "Try a different search term or category",
+    "untitledNote": "Untitled note",
+    "untitledFolder": "Untitled folder",
+    "colors": "Colors"
+  },
+  "folderTree": {
+    "noFolders": "No folders available",
+    "newFolder": "Create a folder first to organize your notes",
+    "cancel": "Cancel",
+    "move": "Move",
+    "moveToFolder": "Move to folder",
+    "moveItemsToFolder": "Move {count} items to folder",
+    "root": "Root",
+    "untitledFolder": "Untitled folder"
   },
   "commandPrompt": {
     "placeholder": "Search file or type '>' to search commands",
@@ -62,6 +83,7 @@
     "darkTheme": "Apply dark theme",
     "lightTheme": "Apply light theme",
     "newNote": "Create new note",
+    "newFolder": "Create new folder",
     "settings": "Settings"
   },
   "dialog": {
@@ -75,7 +97,8 @@
     "mathPlaceholder": "Text here...",
     "mermaidPlaceholder": "Enter Mermaid code here...",
     "previousNote": "Previous notes",
-    "tiptapPlaceholder": "Write something...",
+    "tiptapPlaceholder": "Write something... or type \"/\" for commands.",
+    "embedPlaceholder": "Click here to embed a link",
     "untitledNote": "Untitled note"
   },
   "filter": {
@@ -86,7 +109,7 @@
     "descending": "Descending",
     "lastUpdated": "Last updated",
     "search": "+ F to start search",
-    "searchPlaceholder": "Search...",
+    "searchPlaceholder": "Find notes or type # for labels",
     "selectLabel": "Select label"
   },
   "image": {
@@ -96,11 +119,17 @@
     "all": "All",
     "archived": "Archived",
     "bookmarked": "Bookmarked",
+    "home": "Home",
+    "folders": "Folders",
     "close": "Close",
-    "newNote": "To create a new note, you can press Ctrl + N, Cmd + N or click the + button on top left"
+    "newNote": "To create a new note, you can press Ctrl + N, Cmd + N or click the + button on top left",
+    "search": "Search something...",
+    "notFound": "No options found",
+    "untitledFolder": "Untitled folder"
   },
   "menu": {
     "add": "Add",
+    "share": "Share",
     "addColumnLeft": "Add column left",
     "addColumnRight": "Add column right",
     "addRowAbove": "Add row above",
@@ -146,6 +175,7 @@
     "purpleCallout": "Purple Callout",
     "readerMode": "Reader Mode",
     "record": "Record",
+    "upload": "Upload",
     "redCallout": "Red Callout",
     "resume": "Resume",
     "searchHeadings": "Search headings",
@@ -153,7 +183,7 @@
     "table": "Table",
     "tableInsert": "Insert table",
     "tableOptions": "Table options",
-    "textcolor": "Text Color",
+    "textColor": "Text Color",
     "toggleHeader": "Toggle header cell",
     "underline": "Underline",
     "untitled": "Untitled",
@@ -257,6 +287,7 @@
     "spellCheck": "Spellcheck",
     "syncPath": "Sync path",
     "title": "Settings",
+    "openAfterCreation": "Open Note After Creation",
     "updateAvailable": "A new update is available",
     "updateDescription": "An update is being installed. The app will close automatically when the update has completed.",
     "updateTitle": "Installing Update...",
@@ -295,7 +326,8 @@
     "underline": "Underline"
   },
   "sidebar": {
-    "addNotes": "Add notes",
+    "addNotes": "Add note",
+    "newFolder": "New Folder",
     "archive": "Archive",
     "editedNote": "Edited note",
     "exportFail": "Export failed!",

@@ -1,22 +1,22 @@
 <template>
   <aside
-    class="w-16 text-gray-600 dark:text-[color:var(--selected-dark-text)] bg-[#F8F8F7] dark:bg-[#353333] fixed text-center flex flex-col items-center h-full left-0 top-0 z-40 py-4 no-print"
+    class="w-16 text-neutral-600 dark:text-[color:var(--selected-dark-text)] bg-neutral-50 dark:bg-neutral-750 fixed text-center flex flex-col items-center h-full left-0 top-0 z-40 py-4 no-print"
   >
     <!-- Sidebar top icons-->
     <button
       v-tooltip:right="
         translations.sidebar.addNotes + ' (' + keyBinding + '+N)'
       "
-      class="transition p-2 mb-4 text-primary bg-input rounded-lg"
+      class="transition p-2 mb-4 text-primary bg-input rounded-lg focus:ring-secondary"
       @click="addNote"
     >
       <v-remixicon name="riAddFill" />
     </button>
     <button
       v-tooltip:right="
-        translations.sidebar.addNotes + ' (' + keyBinding + '+N)'
+        translations.sidebar.newFolder + ' (' + keyBinding + '+Shift+F)'
       "
-      class="transition dark:hover:text-[color:var(--selected-dark-text)] hover:text-gray-800 p-2 mb-4"
+      class="transition dark:hover:text-[color:var(--selected-dark-text)] hover:text-neutral-800 p-2 mb-4"
       @click="addFolder"
     >
       <v-remixicon name="riFolderAddLine" />
@@ -25,7 +25,7 @@
       v-tooltip:right="
         translations.sidebar.editedNote + ' (' + keyBinding + '+Shift+W)'
       "
-      class="transition dark:hover:text-[color:var(--selected-dark-text)] hover:text-gray-800 p-2 mb-4"
+      class="transition dark:hover:text-[color:var(--selected-dark-text)] hover:text-neutral-800 p-2 mb-4"
       :class="{ 'text-primary': $route.name === 'Note' }"
       @click="openLastEdited"
     >
@@ -40,7 +40,7 @@
       :class="{
         'text-primary dark:text-secondary': $route.fullPath === nav.path,
       }"
-      class="transition dark:hover:text-[color:var(--selected-dark-text)] hover:text-gray-800 p-2 mb-4"
+      class="transition dark:hover:text-[color:var(--selected-dark-text)] hover:text-neutral-800 p-2 mb-4"
       @click="handleNavigation(nav)"
     >
       <v-remixicon :name="nav.icon" />
@@ -73,7 +73,7 @@
     <router-link
       v-tooltip:right="translations.settings.title + ' (' + keyBinding + '+,)'"
       to="/settings"
-      class="transition dark:hover:text-[color:var(--selected-dark-text)] hover:text-gray-800 p-2"
+      class="transition dark:hover:text-[color:var(--selected-dark-text)] hover:text-neutral-800 p-2"
       active-class="text-primary dark:text-secondary"
     >
       <v-remixicon name="riSettingsLine" />
@@ -85,18 +85,21 @@
 import { shallowReactive, onUnmounted, onMounted, computed, ref } from 'vue';
 import { useTranslation } from '@/composable/translations';
 import { useTheme } from '@/composable/theme';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import emitter from 'tiny-emitter/instance';
 import Mousetrap from '@/lib/mousetrap';
 import { useNoteStore } from '@/store/note';
 import { useFolderStore } from '../../store/folder';
 import { forceSyncNow } from '@/utils/sync';
+import { useAppStore } from '../../store/app';
 
 export default {
   setup() {
     const spinning = ref(false);
     const theme = useTheme();
+    const route = useRoute();
     const router = useRouter();
+    const appStore = useAppStore();
     const noteStore = useNoteStore();
     const folderStore = useFolderStore();
     const defaultPath = localStorage.getItem('default-path');
@@ -117,7 +120,7 @@ export default {
         name: translations.value.sidebar.notes,
         path: '/',
         icon: 'riBookletLine',
-        shortcut: 'mod+shift+n',
+        shortcut: 'mod+Shift+N',
         action: () => {
           router.push('/');
         },
@@ -126,7 +129,7 @@ export default {
         name: translations.value.sidebar.archive,
         path: '/?archived=true',
         icon: 'riArchiveDrawerLine',
-        shortcut: 'mod+shift+a',
+        shortcut: 'mod+Shift+A',
         action: () => {
           router.push('/?archived=true');
         },
@@ -136,6 +139,7 @@ export default {
     const shortcuts = {
       'mod+n': addNote,
       'mod+,': openSettings,
+      'mod+shift+f': addFolder,
       'mod+shift+w': openLastEdited,
       'mod+shift+n': () => router.push('/'),
       'mod+shift+a': () => router.push('/?archived=true'),
@@ -144,7 +148,10 @@ export default {
     };
 
     emitter.on('new-note', addNote);
+    emitter.on('new-folder', addFolder);
     emitter.on('open-settings', openSettings);
+    emitter.on('dark', () => theme.setTheme('dark'));
+    emitter.on('light', () => theme.setTheme('light'));
 
     Mousetrap.bind(Object.keys(shortcuts), (event, combo) => {
       shortcuts[combo]();
@@ -153,20 +160,39 @@ export default {
     function openSettings() {
       router.push('/settings');
     }
+
     function openLastEdited() {
       const noteId = localStorage.getItem('lastNoteEdit');
-
       if (noteId) router.push(`/note/${noteId}`);
     }
 
-    function addNote() {
-      noteStore.add().then(({ id }) => {
-        router.push(`/note/${id}`);
+    const FolderId = computed(() => route.params.id ?? null);
+
+    async function addNote() {
+      const currentFolderId = FolderId.value;
+      const folderId =
+        currentFolderId && (await folderStore.exists(currentFolderId))
+          ? currentFolderId
+          : null;
+
+      noteStore.add({ folderId }).then(({ id }) => {
+        if (appStore.setting.openAfterCreation) {
+          const target = `/note/${id}`;
+          if (router.currentRoute.value.path !== target) {
+            router.push(target);
+          }
+        }
       });
     }
 
-    function addFolder() {
-      folderStore.add().then(({ id }) => {
+    async function addFolder() {
+      const currentFolderId = FolderId.value;
+      const parentId =
+        currentFolderId && (await folderStore.exists(currentFolderId))
+          ? currentFolderId
+          : null;
+
+      folderStore.add({ parentId }).then(({ id }) => {
         console.log(`${id}`);
       });
     }
@@ -196,6 +222,7 @@ export default {
 
     const handleNavigation = async (nav) => {
       router.push(nav.path);
+      emitter.emit('clear-label');
     };
 
     function manualSync() {
@@ -213,6 +240,7 @@ export default {
       translations,
       theme,
       spinning,
+      FolderId,
       addNote,
       addFolder,
       noteStore,

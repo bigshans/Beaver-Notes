@@ -36,7 +36,7 @@ export default defineComponent({
   setup(props) {
     const elRef = ref(null);
     const mermaidString = ref('');
-    const { currentTheme } = useTheme(); // Assuming useTheme provides currentTheme
+    const { currentTheme, isDark } = useTheme(); // Assuming useTheme provides currentTheme
     const hasSyntaxError = ref(false);
 
     function genSvgId() {
@@ -64,8 +64,7 @@ export default defineComponent({
     function initializeMermaid() {
       if (!elRef.value) return;
 
-      const isDarkMode = currentTheme.value === 'dark';
-      const theme = isDarkMode ? 'dark' : 'default';
+      const theme = isDark() ? 'dark' : 'default';
 
       mermaid.initialize({
         startOnLoad: true,
@@ -76,8 +75,7 @@ export default defineComponent({
     }
 
     function addThemeToContent(content) {
-      const isDarkMode = currentTheme.value === 'dark';
-      const theme = isDarkMode ? 'dark' : 'default';
+      const theme = isDark() ? 'dark' : 'default';
 
       return `%%{init: {'theme':'${theme}'}}%%\n${content}`;
     }

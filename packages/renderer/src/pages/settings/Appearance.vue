@@ -5,7 +5,7 @@
     <section>
       <p class="mb-2">{{ translations.appearence.appTheme || '-' }}</p>
       <div
-        class="flex ltr:space-x-4 text-gray-600 dark:text-[color:var(--selected-dark-text)]"
+        class="flex ltr:space-x-4 text-neutral-600 dark:text-[color:var(--selected-dark-text)]"
       >
         <button
           v-for="item in themes"
@@ -28,52 +28,38 @@
       <p class="mb-2">{{ translations.appearence.colorScheme || '-' }}</p>
       <div class="w-full items-center justify-center flex gap-4">
         <button
-          class="bg-red-500 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
-          :class="{
-            'ring-offset-2 ring-2 ring-primary': colorScheme === 'red',
-          }"
+          class="bg-red-500 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
+          :class="{ 'ring-2 ring-primary': state.accentColor === 'red' }"
           @click="setColor('red')"
         ></button>
         <button
-          class="bg-amber-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
-          :class="{
-            'ring-offset-2 ring-2 ring-primary': colorScheme === 'light',
-          }"
+          class="bg-amber-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
+          :class="{ 'ring-2 ring-primary': state.accentColor === 'light' }"
           @click="setColor('light')"
         ></button>
         <button
-          class="bg-emerald-500 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
-          :class="{
-            'ring-offset-2 ring-2 ring-primary': colorScheme === 'green',
-          }"
+          class="bg-emerald-500 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
+          :class="{ 'ring-2 ring-primary': state.accentColor === 'green' }"
           @click="setColor('green')"
         ></button>
         <button
-          class="bg-blue-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
-          :class="{
-            'ring-offset-2 ring-2 ring-primary': colorScheme === 'blue',
-          }"
+          class="bg-blue-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
+          :class="{ 'ring-2 ring-primary': state.accentColor === 'blue' }"
           @click="setColor('blue')"
         ></button>
         <button
-          class="bg-purple-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
-          :class="{
-            'ring-offset-2 ring-2 ring-primary': colorScheme === 'purple',
-          }"
+          class="bg-purple-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
+          :class="{ 'ring-2 ring-primary': state.accentColor === 'purple' }"
           @click="setColor('purple')"
         ></button>
         <button
-          class="bg-pink-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
-          :class="{
-            'ring-offset-2 ring-2 ring-primary': colorScheme === 'pink',
-          }"
+          class="bg-pink-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
+          :class="{ 'ring-2 ring-primary': state.accentColor === 'pink' }"
           @click="setColor('pink')"
         ></button>
         <button
-          class="bg-neutral-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer dark:ring-offset-[#000000]"
-          :class="{
-            'ring-offset-2 ring-2 ring-primary': colorScheme === 'neutral',
-          }"
+          class="bg-neutral-400 p-2 w-10 h-10 rounded-full focus:ring-primary transition cursor-pointer"
+          :class="{ 'ring-2 ring-primary': state.accentColor === 'neutral' }"
           @click="setColor('neutral')"
         ></button>
       </div>
@@ -81,58 +67,60 @@
     <!-- Interface size -->
     <section>
       <p class="mb-2">{{ translations.appearence.interfaceSize || '-' }}</p>
+
       <div class="grid grid-cols-4 gap-4">
         <button
-          class="bg-input p-2 rounded-lg focus:ring-primary transition cursor-pointer"
-          :class="{ 'ring-2 ring-primary': state.zoomLevel === '1.2' }"
-          @click="setZoom(1.2)"
+          v-for="opt in [
+            {
+              s: 1.2,
+              key: '1.2',
+              label: translations.appearence.large || 'Large',
+            },
+            {
+              s: 1.1,
+              key: '1.1',
+              label: translations.appearence.medium || 'Medium',
+            },
+            {
+              s: 1.0,
+              key: '1.0',
+              label: translations.appearence.default || 'Default',
+            },
+            {
+              s: 0.9,
+              key: '0.9',
+              label: translations.appearence.moreSpace || 'More Space',
+            },
+          ]"
+          :key="opt.key"
+          class="bg-input p-2 rounded-lg border transition focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+          :class="{
+            'ring-2 ring-primary border-primary':
+              String(state.zoomLevel) === opt.key,
+          }"
+          :aria-pressed="String(state.zoomLevel) === opt.key"
+          type="button"
+          @click="setZoom(Number(opt.key))"
         >
-          <img
-            src="/src/assets/images/Large.png"
-            class="w-40 border-2 mb-1 rounded-lg"
-          />
-          <p class="capitalize text-center text-sm">
-            {{ translations.appearence.large || '-' }}
-          </p>
-        </button>
-        <button
-          class="bg-input p-2 rounded-lg focus:ring-primary transition cursor-pointer"
-          :class="{ 'ring-2 ring-primary': state.zoomLevel === '1.1' }"
-          @click="setZoom(1.1)"
-        >
-          <img
-            src="/src/assets/images/Medium.png"
-            class="w-40 border-2 mb-1 rounded-lg"
-          />
-          <p class="capitalize text-center text-sm">
-            {{ translations.appearence.medium || '-' }}
-          </p>
-        </button>
-        <button
-          class="bg-input p-2 rounded-lg focus:ring-primary transition cursor-pointer"
-          :class="{ 'ring-2 ring-primary': state.zoomLevel === '1.0' }"
-          @click="setZoom(1.0)"
-        >
-          <img
-            src="/src/assets/images/Default.png"
-            class="w-40 border-2 mb-1 rounded-lg"
-          />
-          <p class="capitalize text-center text-sm">
-            {{ translations.appearence.default || '-' }}
-          </p>
-        </button>
-        <button
-          class="bg-input p-2 rounded-lg focus:ring-primary transition cursor-pointer"
-          :class="{ 'ring-2 ring-primary': state.zoomLevel === '0.9' }"
-          @click="setZoom(0.9)"
-        >
-          <img
-            src="/src/assets/images/More Space.png"
-            class="w-40 border-2 mb-1 rounded-lg"
-          />
-          <p class="capitalize text-center text-sm">
-            {{ translations.appearence.moreSpace || '-' }}
-          </p>
+          <!-- Fixed-size preview frame -->
+          <div
+            class="w-full h-20 bg-white dark:bg-neutral-800 rounded border mb-4 overflow-hidden relative"
+            :style="`--s:${opt.s}`"
+          >
+            <!-- Centered, scale-compensated wrapper (prevents clipping at any scale) -->
+            <div class="fit-scale">
+              <div class="p-1 text-center text-xs leading-4">
+                <div class="font-semibold mb-1 truncate">Lorem Ipsum</div>
+                <div
+                  class="text-neutral-600 dark:text-neutral-300 line-clamp-3"
+                >
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="capitalize text-center text-sm">{{ opt.label }}</p>
         </button>
       </div>
     </section>
@@ -143,6 +131,7 @@
         <ui-select
           v-model="state.selectedFont"
           class="w-full"
+          :search="true"
           @change="updateFont"
         >
           <optgroup>
@@ -199,7 +188,7 @@
       <div class="grid grid-cols-3 gap-4">
         <!-- Normal Button -->
         <ui-button
-          class="bg-input py-2 px-4 rounded-lg transition duration-200 hover:bg-gray-200"
+          class="bg-input py-2 px-4 rounded-lg transition duration-200 hover:bg-neutral-200"
           :class="{
             'outline-none ring-2 ring-primary': selectedWidth === '54rem',
           }"
@@ -209,7 +198,7 @@
         </ui-button>
         <!-- Wide Button -->
         <ui-button
-          class="bg-input py-2 px-4 rounded-lg transition duration-200 hover:bg-gray-200"
+          class="bg-input py-2 px-4 rounded-lg transition duration-200 hover:bg-neutral-200"
           :class="{
             'outline-none ring-2 ring-primary': selectedWidth === '68rem',
           }"
@@ -217,12 +206,10 @@
         >
           {{ translations.appearence.wide || '-' }}
         </ui-button>
-        <!-- Custom Width (takes up the remaining space) -->
         <div class="relative col-span-1">
-          <!-- Button (shown when not editing) -->
           <ui-button
             v-if="!isEditingCustomWidth"
-            class="py-2 w-full px-4 rounded-lg bg-input transition duration-200 hover:bg-gray-200"
+            class="py-2 w-full px-4 rounded-lg bg-input transition duration-200 hover:bg-neutral-200"
             :class="{
               'outline-none ring-2 ring-primary': selectedWidth === customWidth,
             }"
@@ -230,7 +217,6 @@
           >
             {{ customWidth }}
           </ui-button>
-          <!-- Input (shown when editing) -->
           <div v-else class="relative">
             <input
               v-model="customWidthInput"
@@ -241,7 +227,7 @@
               @blur="applyCustomWidth"
               @keydown.enter="applyCustomWidth"
             />
-            <span class="absolute top-2 right-2 text-gray-500">rem</span>
+            <span class="absolute top-2 right-2 text-neutral-500">rem</span>
           </div>
         </div>
       </div>
@@ -266,7 +252,7 @@
                 @change="toggleClearFont"
               />
               <div
-                class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+                class="peer h-6 w-11 rounded-full border bg-neutral-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-neutral-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
               ></div>
             </label>
           </div>
@@ -286,7 +272,7 @@
                 @change="toggleVisibilityOfMenubar"
               />
               <div
-                class="peer h-6 w-11 rounded-full border bg-slate-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+                class="peer h-6 w-11 rounded-full border bg-neutral-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-neutral-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
               ></div>
             </label>
           </div>
@@ -301,6 +287,7 @@ import { shallowReactive, onMounted, computed, ref } from 'vue';
 import { useTranslation } from '../../composable/translations';
 import { useTheme } from '@/composable/theme';
 import { useStorage } from '@/composable/storage';
+import { useAppStore } from '../../store/app';
 import lightImg from '@/assets/images/light.png';
 import darkImg from '@/assets/images/dark.png';
 import systemImg from '@/assets/images/system.png';
@@ -308,10 +295,16 @@ import { useLocalStorage } from '../../composable/storage';
 
 export default {
   setup() {
+    const appStore = useAppStore();
     const themes = [
       { name: 'light', img: lightImg },
       { name: 'dark', img: darkImg },
       { name: 'system', img: systemImg },
+    ];
+
+    const layouts = [
+      { name: 'default', img: lightImg },
+      { name: 'columns', img: darkImg },
     ];
 
     const theme = useTheme();
@@ -327,6 +320,7 @@ export default {
       password: '',
       withPassword: false,
       lastUpdated: null,
+      accentColor: localStorage.getItem('color-scheme') || 'light',
       zoomLevel: (+localStorage.getItem('zoomLevel') || 1).toFixed(1),
       directionPreference: localStorage.getItem('directionPreference') || 'ltr',
       selectedFont: localStorage.getItem('selected-font') || 'Arimo',
@@ -364,7 +358,8 @@ export default {
         }
       });
       root.classList.add(color);
-      colorScheme.value = color;
+      state.accentColor = color;
+      localStorage.setItem('color-scheme', color);
     };
 
     const visibilityMenubar = computed({
@@ -500,6 +495,7 @@ export default {
       state,
       theme,
       themes,
+      layouts,
       storage,
       translations,
       toggleClearFont,
@@ -521,7 +517,34 @@ export default {
       colorScheme,
       defaultFonts,
       systemFonts,
+      appStore,
     };
   },
 };
 </script>
+<style scoped>
+/* Absolutely center the preview; size-compensate so scale never overflows */
+.fit-scale {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /* compensate size so the scaled content fits within the frame */
+  width: calc(100% / var(--s));
+  height: calc(100% / var(--s));
+  transform: translate(-50%, -50%) scale(var(--s));
+  transform-origin: center center;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* crisp rendering; avoids subpixel fuzz */
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Optional: reduce jitter on some browsers */
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+</style>
