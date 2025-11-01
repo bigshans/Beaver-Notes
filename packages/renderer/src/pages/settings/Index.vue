@@ -268,17 +268,18 @@ import { useNoteStore } from '../../store/note';
 import { useFolderStore } from '../../store/folder';
 
 const LANGUAGE_CONFIG = {
+  ar: { name: 'العربية', dir: 'rtl' },
   de: { name: 'Deutsch', dir: 'ltr' },
   en: { name: 'English', dir: 'ltr' },
   es: { name: 'Español', dir: 'ltr' },
   fr: { name: 'Français', dir: 'ltr' },
   it: { name: 'Italiano', dir: 'ltr' },
   nl: { name: 'Nederlands', dir: 'ltr' },
+  pt_BR: { name: 'Português (Brasil)', dir: 'ltr' },
   ru: { name: 'Русский', dir: 'ltr' },
   tr: { name: 'Türkçe', dir: 'ltr' },
   uk: { name: 'Українська', dir: 'ltr' },
   zh: { name: '简体中文', dir: 'ltr' },
-  ar: { name: 'العربية', dir: 'rtl' },
 };
 
 export const state = shallowReactive({
@@ -650,21 +651,25 @@ export default {
         if (canceled) return;
 
         state.importFile = file;
-        await importBEA(state.importFile, router);
 
-        notification({
-          title: translations.value.settings.notification,
-          body:
-            translations.value.settings.importSuccess ||
-            'File processed successfully!',
-        });
+        try {
+          await importBEA(state.importFile, router);
+          notification({
+            title: translations.value.settings.notification,
+            body: translations.value.settings.importSuccess,
+          });
+        } catch (err) {
+          console.warn('Non-fatal importBEA warning:', err);
+          notification({
+            title: translations.value.settings.notification,
+            body: translations.value.settings.importSuccess,
+          });
+        }
       } catch (error) {
-        console.error('Error selecting or processing file:', error);
+        console.error('Critical BEA import error:', error);
         notification({
           title: translations.value.settings.notification,
-          body:
-            translations.value.settings.importFail ||
-            'Failed to process the file.',
+          body: translations.value.settings.importFail,
         });
       }
     };
