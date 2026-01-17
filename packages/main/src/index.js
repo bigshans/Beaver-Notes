@@ -1,6 +1,8 @@
 // main.js
 import path from 'path';
 import { app } from 'electron';
+import { existsSync } from 'fs';
+import { copySync, removeSync } from 'fs-extra';
 import { WindowManager } from './modules/window-manager.js';
 import { ProtocolManager } from './modules/protocol-manager.js';
 import { IPCHandlers } from './modules/ipc-handlers.js';
@@ -8,24 +10,22 @@ import { AutoUpdater } from './modules/auto-updater.js';
 import { MenuManager } from './modules/menu-manager.js';
 import { FileHandler } from './modules/file-handler.js';
 
-let pendingFilePath = null; 
+// Migrate old data directory from "Beaver-notes" to "Beaver Notes"
+// !!! To be removed in future versions !!!
+async function migrateOldData() {
+  const base = app.getPath('appData');
+  const oldDir = path.join(base, 'Beaver-notes');
+  const newDir = path.join(base, 'Beaver Notes');
 
-app.on('open-file', (event, filePath) => {
-  event.preventDefault();
-  pendingFilePath = filePath;
-});
-
-const isSingleInstance = app.requestSingleInstanceLock();
-if (!isSingleInstance) {
-  app.quit();
-  process.exit(0);
-}
-
-if (process.env.PORTABLE_EXECUTABLE_DIR) {
-  app.setPath(
-    'userData',
-    path.join(process.env.PORTABLE_EXECUTABLE_DIR, 'data'),
-  );
+  if (existsSync(oldDir)) {
+    try {
+      copySync(oldDir, newDir, { overwrite: true });
+      removeSync(oldDir);
+      console.log('[Migration] Old data migrated successfully.');
+    } catch (e) {
+      console.error('[Migration] Failed:', e);
+    }
+  }
 }
 
 class Application {
@@ -36,11 +36,12 @@ class Application {
     this.autoUpdater = new AutoUpdater();
     this.menuManager = new MenuManager();
     this.fileHandler = new FileHandler();
+
+    this.protocolManager.registerSchemes();
   }
 
   async initialize() {
     try {
-      this.protocolManager.registerSchemes();
       await app.whenReady();
 
       await this.protocolManager.initialize();
@@ -85,6 +86,32 @@ class Application {
   }
 }
 
-// Initialize application
+app.setName('Beaver Notes');
+
+let pendingFilePath = null;
+app.on('open-file', (event, filePath) => {
+  event.preventDefault();
+  pendingFilePath = filePath;
+});
+
+const isSingleInstance = app.requestSingleInstanceLock();
+if (!isSingleInstance) {
+  app.quit();
+  process.exit(0);
+}
+
+if (process.env.PORTABLE_EXECUTABLE_DIR) {
+  app.setPath(
+    'userData',
+    path.join(process.env.PORTABLE_EXECUTABLE_DIR, 'data'),
+  );
+}
+
 const application = new Application();
-application.initialize();
+
+(async () => {
+  await migrateOldData();
+
+  await app.whenReady();
+  await application.initialize();
+})();

@@ -1,5 +1,6 @@
 const packageJSON = require('./package.json');
-const { azuresigntool } = require('@ossign/azuresigntool');
+const { azuresigntoolSync } = require('@ossign/azuresigntool');
+const os = require('os');
 const path = require('path');
 
 /**
@@ -8,7 +9,7 @@ const path = require('path');
  */
 const electronBuilderConfig = {
   appId: 'com.danielerolli.beaver-notes',
-  productName: 'Beaver-notes',
+  productName: 'Beaver Notes',
   asar: true,
   asarUnpack: ['**/*.node'],
   files: [
@@ -51,10 +52,7 @@ const electronBuilderConfig = {
     gatekeeperAssess: true,
     category: 'public.app-category.productivity',
     extendInfo: { 'com.apple.security.device.audio-input': true },
-    notarize: {
-      appBundleId: 'com.danielerolli.beaver-notes',
-      ascProvider: 'F8U6VTU2DJ',
-    },
+    notarize: false,
   },
 
   linux: {
@@ -75,7 +73,7 @@ const electronBuilderConfig = {
       { target: 'portable', arch: ['x64', 'arm64'] },
       { target: 'nsis', arch: ['x64', 'arm64'] },
     ],
-    sign: process.env.AST_TD === 'SHA256' ? azuresigntool : undefined,
+    sign: process.env.AST_TD === 'SHA256' ? azuresigntoolSync : undefined,
   },
 
   nsis: {
@@ -88,7 +86,15 @@ const electronBuilderConfig = {
   },
 
   portable: { artifactName: '${productName}-${version}-portable.${ext}' },
-  afterSign: 'scripts/notarize.js',
+  afterSign:
+    os.platform() === 'darwin'
+      ? async (context) => {
+          const { default: notarizing } = await import(
+            './scripts/notarize.js'
+          );
+          return notarizing(context);
+        }
+      : undefined,
   afterPack: async (context) => {
     const fs = require('fs');
     const { appOutDir, packager } = context;
@@ -100,7 +106,7 @@ const electronBuilderConfig = {
             `${packager.appInfo.productFilename}.app`,
             'Contents',
             'Resources',
-            'locales',
+            'locales'
           )
         : path.join(appOutDir, 'locales');
 

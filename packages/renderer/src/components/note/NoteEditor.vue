@@ -4,7 +4,7 @@
     <editor-content
       v-if="editor"
       :editor="editor"
-      class="prose dark:text-neutral-100 max-w-none prose-indigo print:cursor-none"
+      class="prose dark:text-neutral-100 max-w-none prose-indigo print:cursor-none overflow-hidden"
     />
     <note-bubble-menu v-if="editor" v-bind="{ editor }" />
   </div>
@@ -59,6 +59,10 @@ export default {
     onMounted(() => {
       if (!editor.value) return;
       emit('init', editor.value);
+
+      if (editor.value && props.modelValue) {
+        editor.value.commands.setContent(props.modelValue);
+      }
 
       editor.value.on('update', () => {
         const data = editor.value.getJSON();

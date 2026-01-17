@@ -19,9 +19,10 @@
           <button
             v-tooltip.group="translations.menu.headings"
             :class="{ 'is-active': editor.isActive('heading') }"
-            class="transition hoverable h-8 px-1 rounded-lg"
+            class="transition hoverable h-8 px-1 rounded-lg flex items-center"
           >
-            <v-remixicon name="riHeading" class="block" />
+            <v-remixicon name="riHeading" />
+            <v-remixicon name="riArrowDownSLine" class="opacity-70 size-4" />
           </button>
         </template>
         <button
@@ -164,9 +165,16 @@
           <template #trigger>
             <button
               v-tooltip.group="translations.menu.lists"
-              class="transition hoverable h-8 px-1 rounded-lg space-x-1"
+              :class="{
+                'is-active':
+                  editor.isActive('orderedList') ||
+                  editor.isActive('bulletList') ||
+                  editor.isActive('taskList'),
+              }"
+              class="transition hoverable h-8 px-1 rounded-lg flex items-center"
             >
               <v-remixicon name="riListOrdered" />
+              <v-remixicon name="riArrowDownSLine" class="opacity-70 size-4" />
             </button>
           </template>
           <button
@@ -700,7 +708,7 @@ export default {
         },
         {
           name: 'markdown',
-          title: 'MD',
+          title: 'Mardkown',
           icon: 'riMarkdownLine',
           handler: () => shareMarkdown(),
         },
@@ -933,6 +941,13 @@ export default {
       });
     }
 
+    function printOnePage() {
+      ipcRenderer.callMain('print-pdf', {
+        pdfName: `${props.note.title}.pdf`,
+        onePage: true,
+      });
+    }
+
     onMounted(async () => {
       await useTranslation().then((trans) => {
         if (trans) {
@@ -1141,6 +1156,7 @@ export default {
       showAdavancedSettings,
       showHeadingsTree,
       printContent,
+      printOnePage,
       container,
       changeWheelDirection,
       shareNote,

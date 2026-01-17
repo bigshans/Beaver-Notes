@@ -24,10 +24,6 @@ select {
   }
 }
 
-#app {
-  height: 100vh;
-}
-
 option {
   @apply dark:bg-neutral-700 dark:text-[color:var(--selected-dark-text)];
 }
