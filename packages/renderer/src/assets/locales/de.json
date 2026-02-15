@@ -26,7 +26,21 @@
     "selectCodeFont": "Code-Schriftart auswählen",
     "selectFont": "Schriftart auswählen",
     "system": "System",
-    "wide": "Breit"
+    "wide": "Breit",
+    "backgroundImage": "Hintergrundbild",
+    "enterImageUrl": "Bild-URL eingeben",
+    "setBackground": "Festlegen",
+    "currentBackground": "Aktueller Hintergrund",
+    "backgroundOpacity": "Hintergrund-Transparenz",
+    "backgroundBlur": "Hintergrund-Unschärfe",
+    "uploadImage": "Bild hochladen",
+    "backgroundFit": "Hintergrund-Anpassung",
+    "fitCover": "Ausfüllen",
+    "fitContain": "Enthalten",
+    "fitFill": "Strecken",
+    "fitRepeat": "Wiederholen",
+    "fitRepeatX": "Horizontal wiederholen",
+    "fitRepeatY": "Vertikal wiederholen"
   },
   "card": {
     "archive": "Archiv",

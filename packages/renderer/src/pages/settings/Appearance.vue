@@ -279,6 +279,125 @@
         </div>
       </div>
     </section>
+
+    <!-- Background Image Settings -->
+    <section>
+      <p class="mb-2">
+        {{ translations.appearence.backgroundImage || 'Background Image' }}
+      </p>
+      <div class="space-y-4">
+        <!-- Background Image URL Input -->
+        <div class="flex items-center gap-2">
+          <input
+            v-model="appStore.ui.backgroundImage"
+            type="text"
+            :placeholder="
+              translations.appearence.enterImageUrl || 'Enter image URL'
+            "
+            class="flex-1 p-2 rounded-lg border bg-input focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/*"
+            class="hidden"
+            @change="handleFileUpload"
+          />
+          <ui-button
+            class="px-4 py-2 bg-secondary rounded-lg hover:bg-secondary-dark transition"
+            @click="triggerFileUpload"
+          >
+            {{ translations.appearence.uploadImage || 'Upload Image' }}
+          </ui-button>
+        </div>
+
+        <!-- Current Background Preview -->
+        <div v-if="appStore.ui.backgroundImage" class="mt-2">
+          <p class="text-lg align-left mb-2">
+            {{
+              translations.appearence.currentBackground || 'Current Background'
+            }}:
+          </p>
+          <div class="relative inline-block">
+            <img
+              :src="appStore.ui.backgroundImage"
+              class="w-32 h-20 object-cover rounded border"
+              alt="Background preview"
+            />
+            <button
+              class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition text-sm"
+              @click="removeBackgroundImage"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+
+        <!-- Background Fit Options -->
+        <div v-if="appStore.ui.backgroundImage" class="mt-4">
+          <label class="block text-lg mb-2">
+            {{ translations.appearence.backgroundFit || 'Background Fit' }}
+          </label>
+          <select
+            v-model="appStore.ui.backgroundFit"
+            class="w-full p-2 rounded-lg border bg-input focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="cover">
+              {{ translations.appearence.fitCover || 'Cover' }}
+            </option>
+            <option value="contain">
+              {{ translations.appearence.fitContain || 'Contain' }}
+            </option>
+            <option value="fill">
+              {{ translations.appearence.fitFill || 'Fill' }}
+            </option>
+            <option value="repeat">
+              {{ translations.appearence.fitRepeat || 'Repeat' }}
+            </option>
+            <option value="repeat-x">
+              {{ translations.appearence.fitRepeatX || 'Repeat X' }}
+            </option>
+            <option value="repeat-y">
+              {{ translations.appearence.fitRepeatY || 'Repeat Y' }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Opacity Control -->
+        <div v-if="appStore.ui.backgroundImage" class="mt-4">
+          <label class="block text-lg mb-2">
+            {{
+              translations.appearence.backgroundOpacity || 'Background Opacity'
+            }}: {{ Math.round(appStore.ui.backgroundOpacity * 100) }}%
+          </label>
+          <input
+            v-model="appStore.ui.backgroundOpacity"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            class="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer"
+            @input="updateBackgroundOpacity"
+          />
+        </div>
+
+        <!-- Blur Control -->
+        <div v-if="appStore.ui.backgroundImage" class="mt-4">
+          <label class="block text-lg mb-2">
+            {{ translations.appearence.backgroundBlur || 'Background Blur' }}:
+            {{ Math.round(appStore.ui.backgroundBlur) }}px
+          </label>
+          <input
+            v-model="appStore.ui.backgroundBlur"
+            type="range"
+            min="0"
+            max="20"
+            step="0.5"
+            class="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer"
+          />
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -292,10 +411,16 @@ import lightImg from '@/assets/images/light.png';
 import darkImg from '@/assets/images/dark.png';
 import systemImg from '@/assets/images/system.png';
 import { useLocalStorage } from '../../composable/storage';
+import {
+  uploadBackgroundImage,
+  deleteBackgroundImage,
+} from '../../utils/background-image';
 
 export default {
   setup() {
     const appStore = useAppStore();
+    const fileInput = ref(null);
+
     const themes = [
       { name: 'light', img: lightImg },
       { name: 'dark', img: darkImg },
@@ -405,6 +530,60 @@ export default {
     );
     const customWidthInput = ref(customWidth.value.replace('rem', ''));
     const isEditingCustomWidth = ref(false);
+
+    // 新增：处理文件上传的逻辑
+    const handleFileUpload = async (event) => {
+      const file = event.target.files[0];
+      console.log('file', file);
+      if (!file) return;
+
+      try {
+        // 上传图片文件
+        const result = await uploadBackgroundImage(file);
+
+        // 将上传后的图片地址设置为背景图
+        appStore.ui.backgroundImage = result.assetUrl;
+
+        // 清空文件输入框
+        if (fileInput.value) {
+          fileInput.value.value = '';
+        }
+
+        console.log('背景图片上传成功:', result.assetUrl);
+      } catch (error) {
+        console.error('上传背景图片失败:', error);
+        // 可以在这里添加错误提示
+      }
+    };
+
+    // 新增：触发文件选择对话框
+    const triggerFileUpload = () => {
+      if (fileInput.value) {
+        console.log(fileInput.value.click);
+        fileInput.value.click();
+      }
+    };
+
+    // 新增：删除背景图片
+    const removeBackgroundImage = async () => {
+      try {
+        const currentBackground = appStore.ui.backgroundImage;
+        if (
+          currentBackground &&
+          currentBackground.startsWith('assets://background/')
+        ) {
+          // 删除对应的背景文件
+          await deleteBackgroundImage(currentBackground);
+        }
+        // 清除背景设置
+        appStore.ui.backgroundImage = '';
+        console.log('背景图片已移除');
+      } catch (error) {
+        console.error('移除背景图片失败:', error);
+        // 即使文件删除失败，也要清除UI显示
+        appStore.ui.backgroundImage = '';
+      }
+    };
 
     onMounted(() => {
       defaultPath = localStorage.getItem('default-path') || '';
@@ -518,6 +697,10 @@ export default {
       defaultFonts,
       systemFonts,
       appStore,
+      fileInput,
+      handleFileUpload,
+      triggerFileUpload,
+      removeBackgroundImage,
     };
   },
 };

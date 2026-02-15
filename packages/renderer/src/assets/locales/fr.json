@@ -26,7 +26,21 @@
     "selectCodeFont": "Sélectionner la police pour le code",
     "selectFont": "Sélectionner la police",
     "system": "Système",
-    "wide": "Large"
+    "wide": "Large",
+    "backgroundImage": "Image d'arrière-plan",
+    "enterImageUrl": "Entrez l'URL de l'image",
+    "setBackground": "Définir",
+    "currentBackground": "Arrière-plan actuel",
+    "backgroundOpacity": "Opacité de l'arrière-plan",
+    "backgroundBlur": "Flou de l'arrière-plan",
+    "uploadImage": "Télécharger une image",
+    "backgroundFit": "Ajustement de l'arrière-plan",
+    "fitCover": "Remplir",
+    "fitContain": "Contenir",
+    "fitFill": "Étirer",
+    "fitRepeat": "Répéter",
+    "fitRepeatX": "Répéter horizontalement",
+    "fitRepeatY": "Répéter verticalement"
   },
   "card": {
     "archive": "Archive",

@@ -1,4 +1,11 @@
 <template>
+  <!-- Background Image Container -->
+  <div
+    v-if="appStore.ui.backgroundImage"
+    class="fixed inset-0 -z-10 overflow-hidden select-none pointer-events-none print:hidden"
+    :style="backgroundContainerStyle"
+  ></div>
+
   <app-command-prompt />
   <app-sidebar v-show="!store.inReaderMode" />
   <div
@@ -19,7 +26,11 @@
     />
   </div>
 
-  <main v-if="retrieved" :class="{ 'pl-16 print:p-2': !store.inReaderMode }">
+  <main
+    v-if="retrieved"
+    class="relative z-0"
+    :class="{ 'pl-16 print:p-2': !store.inReaderMode }"
+  >
     <router-view />
   </main>
   <div
@@ -33,7 +44,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, reactive } from 'vue';
+import { ref, onMounted, onUnmounted, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useTheme } from './composable/theme';
 import { useStore } from './store';
@@ -100,6 +111,7 @@ export default {
 
     const appStore = useAppStore();
     const translations = ref({ dialog: {}, settings: {} });
+    console.log(appStore.updateToStorage);
 
     // Handle update banner actions
     const handleUpdateInstall = () => {
@@ -110,6 +122,63 @@ export default {
     const handleUpdateDismiss = () => {
       updateBanner.show = false;
     };
+
+    // 统一的背景容器样式计算
+    const backgroundContainerStyle = computed(() => {
+      const fitMode = appStore.ui.backgroundFit;
+      const opacity = appStore.ui.backgroundOpacity;
+      const blur = appStore.ui.backgroundBlur;
+      const imageUrl = appStore.ui.backgroundImage;
+
+      // 基础样式
+      const baseStyles = {
+        opacity: opacity,
+        filter: `blur(${blur}px)`,
+        backgroundImage: `url(${imageUrl})`,
+        backgroundPosition: 'center',
+      };
+
+      // 根据不同模式设置背景属性
+      switch (fitMode) {
+        case 'contain':
+          return {
+            ...baseStyles,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+          };
+        case 'fill':
+          return {
+            ...baseStyles,
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+          };
+        case 'repeat':
+          return {
+            ...baseStyles,
+            backgroundSize: 'auto',
+            backgroundRepeat: 'repeat',
+          };
+        case 'repeat-x':
+          return {
+            ...baseStyles,
+            backgroundSize: 'auto',
+            backgroundRepeat: 'repeat-x',
+          };
+        case 'repeat-y':
+          return {
+            ...baseStyles,
+            backgroundSize: 'auto',
+            backgroundRepeat: 'repeat-y',
+          };
+        case 'cover':
+        default:
+          return {
+            ...baseStyles,
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+          };
+      }
+    });
 
     // Listen for update banner events
     const setupUpdateListeners = () => {
@@ -260,6 +329,7 @@ export default {
       updateBanner,
       handleUpdateInstall,
       handleUpdateDismiss,
+      backgroundContainerStyle,
     };
   },
 };

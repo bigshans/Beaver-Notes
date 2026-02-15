@@ -26,7 +26,21 @@
     "selectCodeFont": "选择代码字体",
     "selectFont": "选择字体",
     "system": "系统",
-    "wide": "宽的"
+    "wide": "宽的",
+    "backgroundImage": "背景图片",
+    "enterImageUrl": "输入图片链接",
+    "setBackground": "设置",
+    "currentBackground": "当前背景",
+    "backgroundOpacity": "背景透明度",
+    "backgroundBlur": "背景模糊度",
+    "uploadImage": "上传图片",
+    "backgroundFit": "背景适配",
+    "fitCover": "填充",
+    "fitContain": "包含",
+    "fitFill": "拉伸",
+    "fitRepeat": "重复",
+    "fitRepeatX": "水平重复",
+    "fitRepeatY": "垂直重复"
   },
   "card": {
     "archive": "归档",
