@@ -2,7 +2,7 @@
   <!-- Background Image Container -->
   <div
     v-if="appStore.ui.backgroundImage"
-    class="fixed inset-0 -z-10 overflow-hidden select-none pointer-events-none print:hidden"
+    class="fixed inset-0 -z-10 select-none pointer-events-none print:hidden"
     :style="backgroundContainerStyle"
   ></div>
 
@@ -26,13 +26,20 @@
     />
   </div>
 
-  <main
-    v-if="retrieved"
-    class="relative z-0"
-    :class="{ 'pl-16 print:p-2': !store.inReaderMode }"
+  <!-- Main Container with proper sidebar spacing -->
+  <div
+    class="flex flex-col h-screen relative"
+    :class="{ 'pl-16': !store.inReaderMode }"
   >
-    <router-view />
-  </main>
+    <!-- Tab Bar - 组件内部控制显示条件 -->
+    <tab-bar />
+
+    <!-- Main Content Area - 确保可以滚动 -->
+    <main v-if="retrieved" class="flex-1 overflow-auto relative z-0">
+      <router-view />
+    </main>
+  </div>
+
   <div
     v-show="appStore.loading"
     class="fixed w-full h-full top-0 left-0 z-50 flex justify-center items-center bg-opacity-40 bg-black"
@@ -53,15 +60,18 @@ import { useLabelStore } from './store/label';
 import notes from './utils/notes';
 import AppSidebar from './components/app/AppSidebar.vue';
 import AppCommandPrompt from './components/app/AppCommandPrompt.vue';
+import TabBar from './components/app/TabBar.vue';
 import Mousetrap from '@/lib/mousetrap';
 import { useAppStore } from './store/app';
 import { useTranslation } from './composable/translations';
 import { importBEA } from './utils/share/BEA';
+import { useTabsStore } from './store/tabs';
 
 export default {
   components: {
     AppSidebar,
     AppCommandPrompt,
+    TabBar,
   },
   setup() {
     const { onFileOpened } = window.electron;
@@ -70,6 +80,7 @@ export default {
     const router = useRouter();
     const noteStore = useNoteStore();
     const labelStore = useLabelStore();
+    const tabsStore = useTabsStore();
     const retrieved = ref(false);
 
     // Update banner state
@@ -113,6 +124,16 @@ export default {
     const translations = ref({ dialog: {}, settings: {} });
     console.log(appStore.updateToStorage);
 
+    // Check if current route is settings page
+    const isInSettings = computed(() => {
+      const route = router.currentRoute.value;
+      return (
+        route.name === 'Settings' ||
+        route.name?.startsWith('Settings-') ||
+        route.path.startsWith('/settings')
+      );
+    });
+
     // Handle update banner actions
     const handleUpdateInstall = () => {
       window.electron.ipcRenderer.callMain('install-update');
@@ -123,14 +144,14 @@ export default {
       updateBanner.show = false;
     };
 
-    // 统一的背景容器样式计算
+    // Calculate background container style
     const backgroundContainerStyle = computed(() => {
       const fitMode = appStore.ui.backgroundFit;
       const opacity = appStore.ui.backgroundOpacity;
       const blur = appStore.ui.backgroundBlur;
       const imageUrl = appStore.ui.backgroundImage;
 
-      // 基础样式
+      // Base styles
       const baseStyles = {
         opacity: opacity,
         filter: `blur(${blur}px)`,
@@ -138,7 +159,7 @@ export default {
         backgroundPosition: 'center',
       };
 
-      // 根据不同模式设置背景属性
+      // Set background properties based on different modes
       switch (fitMode) {
         case 'contain':
           return {
@@ -225,6 +246,33 @@ export default {
 
       setupUpdateListeners();
 
+      // Initialize tabs store - restore saved tabs from localStorage
+      tabsStore.initTabs();
+
+      // Handle direct route note only when there are no saved tabs
+      // Or if current note is not in saved tabs, add it
+      const route = router.currentRoute.value;
+      if (route.name === 'Note' && route.params.id) {
+        const note = noteStore.getById(route.params.id);
+        if (note) {
+          const existingTab = tabsStore.tabs.find((tab) => tab.id === note.id);
+          if (!existingTab) {
+            tabsStore.addTab({
+              id: note.id,
+              type: 'note',
+              title: note.title || 'Untitled Note',
+            });
+          } else {
+            tabsStore.setActiveTab(note.id);
+          }
+        }
+      }
+
+      // If there are saved tabs but no active tab, activate the first tab
+      if (tabsStore.tabs.length > 0 && !tabsStore.activeTabId) {
+        tabsStore.setActiveTab(tabsStore.tabs[0].id);
+      }
+
       // Notify main process that renderer is ready
       try {
         await window.electron.ipcRenderer.callMain('renderer-ready');
@@ -259,6 +307,7 @@ export default {
     const isFirstTime = localStorage.getItem('first-time');
 
     if (!isFirstTime) {
+      // First time setup: add default notes and labels
       const promises = Promise.allSettled(
         Object.values(notes).map(({ title, content, id }) =>
           noteStore.add({ id, title, content: JSON.parse(content) })
@@ -280,6 +329,7 @@ export default {
         retrieved.value = true;
       });
     } else {
+      // Normal startup: retrieve data and optionally open last edited note
       store.retrieve().then(() => (retrieved.value = true));
 
       if (appStore.setting.openLastEdited) {
@@ -290,8 +340,10 @@ export default {
       }
     }
 
+    // Load theme
     theme.loadTheme();
 
+    // Handle file open event from OS
     onFileOpened(async (path) => {
       await router.isReady();
       while (!retrieved.value) await new Promise((r) => setTimeout(r, 100));
@@ -330,6 +382,8 @@ export default {
       handleUpdateInstall,
       handleUpdateDismiss,
       backgroundContainerStyle,
+      tabsStore,
+      isInSettings,
     };
   },
 };

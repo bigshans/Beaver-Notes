@@ -16,6 +16,10 @@ export const useAppStore = defineStore('appStore', () => {
       defaultValue: true,
       parse: (v) => (typeof v === 'boolean' ? v : v === 'true'),
     }),
+    enableTabs: useLocalStorage('enableTabs', {
+      defaultValue: false,
+      parse: (v) => (typeof v === 'boolean' ? v : v === 'true'),
+    }),
     backgroundImage: useLocalStorage('backgroundImage', {
       defaultValue: '',
       parse: (v) => v,
@@ -38,6 +42,7 @@ export const useAppStore = defineStore('appStore', () => {
     collapsibleHeading: settingStorage.collapsibleHeading.get(),
     openLastEdited: settingStorage.openLastEdited.get(),
     openAfterCreation: settingStorage.openAfterCreation.get(),
+    enableTabs: settingStorage.enableTabs.get(),
   });
 
   const ui = {

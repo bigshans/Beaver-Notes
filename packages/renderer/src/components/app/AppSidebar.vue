@@ -175,7 +175,10 @@ export default {
           ? currentFolderId
           : null;
 
-      noteStore.add({ folderId }).then(({ id }) => {
+      noteStore.add({ folderId }).then(async ({ id }) => {
+        // 等待一小段时间确保笔记数据已经保存到store
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
         if (appStore.setting.openAfterCreation) {
           const target = `/note/${id}`;
           if (router.currentRoute.value.path !== target) {

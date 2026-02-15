@@ -171,6 +171,31 @@
             ></div>
           </label>
         </div>
+        <!-- Tab Pages Switch -->
+        <div class="flex items-center py-2 justify-between">
+          <div>
+            <span class="block text-lg align-left">
+              {{ translations.settings.enableTabs || '启用标签页' }}
+            </span>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400">
+              {{
+                translations.settings.enableTabsDesc ||
+                '开启后可以同时打开多个笔记标签页'
+              }}
+            </p>
+          </div>
+          <label class="relative inline-flex items-center">
+            <input
+              id="switch"
+              v-model="enableTabs"
+              type="checkbox"
+              class="peer sr-only"
+            />
+            <div
+              class="peer h-6 w-11 rounded-full border bg-neutral-200 dark:bg-[#353333] after:absolute after:left-[2px] rtl:after:right-[22px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-neutral-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full rtl:peer-checked:after:border-white peer-focus:ring-green-300"
+            ></div>
+          </label>
+        </div>
       </div>
     </section>
     <section>
@@ -833,6 +858,15 @@ export default {
       },
     });
 
+    const enableTabs = computed({
+      get() {
+        return appStore.setting.enableTabs;
+      },
+      set(v) {
+        appStore.setSettingStorage('enableTabs', v);
+      },
+    });
+
     const toggleAdvancedSettings = () => {
       localStorage.setItem(
         'advanced-settings',
@@ -891,6 +925,7 @@ export default {
       collapsibleHeading,
       openLastEdited,
       openAfterCreation,
+      enableTabs,
       advancedSettings,
       directionPreference,
       spellcheckEnabled,
