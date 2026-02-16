@@ -332,7 +332,10 @@ export default {
         if (!appStore.setting.enableTabs) return;
 
         newNotes.forEach(({ id, title }) => {
-          tabsStore.updateTabTitle(id, title || 'Untitled Note');
+          tabsStore.updateTabTitle(
+            id,
+            title || translations.value.editor.untitledNote || 'Untitled Note'
+          );
         });
       },
       { deep: true }
@@ -366,7 +369,7 @@ export default {
               tabsStore.addTab({
                 id: note.id,
                 type: 'note',
-                title: note.title || 'Untitled Note',
+                title: note.title,
               });
             }
             break;

@@ -260,7 +260,7 @@ export default {
             tabsStore.addTab({
               id: note.id,
               type: 'note',
-              title: note.title || 'Untitled Note',
+              title: note.title,
             });
           } else {
             tabsStore.setActiveTab(note.id);
