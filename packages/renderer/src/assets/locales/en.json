@@ -361,5 +361,12 @@
     "notification": "Notification",
     "toggleDarkTheme": "Toggle dark theme",
     "toggleSync": "Toggle sync"
+  },
+  "tabs": {
+    "closeCurrentTab": "Close Current Tab",
+    "closeOtherTabs": "Close Other Tabs",
+    "closeTabsToLeft": "Close Tabs to the Left",
+    "closeTabsToRight": "Close Tabs to the Right",
+    "closeAllTabs": "Close All Tabs"
   }
 }

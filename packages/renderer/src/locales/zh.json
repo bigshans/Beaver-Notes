@@ -323,5 +323,12 @@
     "notification": "通知",
     "toggleDarkTheme": "启用/禁用深色主题",
     "toggleSync": "立即同步"
+  },
+  "tabs": {
+    "closeCurrentTab": "关闭当前页",
+    "closeOtherTabs": "关闭除当前页外的页面",
+    "closeTabsToLeft": "关闭标签页以左的页面",
+    "closeTabsToRight": "关闭标签页以右的页面",
+    "closeAllTabs": "关闭所有标签页"
   }
 }

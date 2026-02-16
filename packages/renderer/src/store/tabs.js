@@ -84,20 +84,38 @@ export const useTabsStore = defineStore('tabsStore', () => {
   };
 
   // Remove tab
-  const removeTab = (tabId) => {
+  const removeTab = (tabId, router) => {
     const tabIndex = tabs.value.findIndex((tab) => tab.id === tabId);
     if (tabIndex === -1) return;
 
     const removedTab = tabs.value.splice(tabIndex, 1)[0];
+    let newActiveTabId = null;
 
     // If closing the current active tab, need to switch to another tab
     if (currentActiveTabId.value === tabId) {
       if (tabs.value.length > 0) {
-        // Prefer left tab, otherwise select the first one on the right
-        const newActiveIndex = tabIndex > 0 ? tabIndex - 1 : 0;
-        setActiveTab(tabs.value[newActiveIndex]?.id || '');
+        // 根据需求：如果是第一个标签页，取右边的；否则取左边的
+        let newActiveIndex;
+        if (tabIndex === 0) {
+          // 第一个标签页被关闭，取右边的第一个
+          newActiveIndex = 0;
+        } else {
+          // 不是第一个，取左边的
+          newActiveIndex = tabIndex - 1;
+        }
+
+        newActiveTabId = tabs.value[newActiveIndex]?.id || '';
+        currentActiveTabId.value = newActiveTabId;
       } else {
         currentActiveTabId.value = '';
+      }
+    }
+
+    // 如果提供了router并且有新的活动标签页，自动跳转
+    if (router && newActiveTabId) {
+      const newActiveTab = tabs.value.find((tab) => tab.id === newActiveTabId);
+      if (newActiveTab && newActiveTab.type === 'note') {
+        router.push(`/note/${newActiveTabId}`);
       }
     }
 

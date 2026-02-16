@@ -57,36 +57,36 @@
           @click="closeCurrentTab"
         >
           <v-remixicon name="riCloseLine" class="w-4 h-4 mr-2" />
-          Close Current Tab
+          {{ translations.tabs.closeCurrentTab || 'Close Current Tab' }}
         </div>
         <div
           class="px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer flex items-center"
           @click="closeOtherTabs"
         >
           <v-remixicon name="riSubtractLine" class="w-4 h-4 mr-2" />
-          Close Other Tabs
+          {{ translations.tabs.closeOtherTabs || 'Close Other Tabs' }}
         </div>
         <div
           class="px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer flex items-center"
           @click="closeTabsToLeft"
         >
           <v-remixicon name="riArrowLeftLine" class="w-4 h-4 mr-2" />
-          Close Tabs to the Left
+          {{ translations.tabs.closeTabsToLeft || 'Close Tabs to the Left' }}
         </div>
         <div
           class="px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer flex items-center"
           @click="closeTabsToRight"
         >
           <v-remixicon name="riArrowRightLine" class="w-4 h-4 mr-2" />
-          Close Tabs to the Right
+          {{ translations.tabs.closeTabsToRight || 'Close Tabs to the Right' }}
         </div>
         <hr class="my-1 border-neutral-200 dark:border-neutral-700" />
         <div
           class="px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer flex items-center"
           @click="closeAllTabs"
         >
-          <v-remixicon name="riCloseCircleLine" class="w-4 h-4 mr-2" />
-          Close All Tabs
+          <v-remixicon name="riCloseLine" class="w-4 h-4 mr-2" />
+          {{ translations.tabs?.closeAllTabs || 'Close All Tabs' }}
         </div>
       </div>
 
@@ -106,6 +106,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useNoteStore } from '@/store/note';
 import { useAppStore } from '@/store/app';
 import { useTabsStore } from '@/store/tabs';
+import { useTranslation } from '@/composable/translations';
 
 export default {
   setup() {
@@ -115,6 +116,19 @@ export default {
     const appStore = useAppStore();
     const tabsStore = useTabsStore();
     const tabsContainer = ref(null);
+
+    // Translations
+    const translations = ref({
+      tabs: {},
+    });
+
+    onMounted(async () => {
+      await useTranslation().then((trans) => {
+        if (trans) {
+          translations.value = trans;
+        }
+      });
+    });
 
     // Right-click menu state
     const contextMenu = ref({
@@ -197,7 +211,7 @@ export default {
         const targetTabId = contextMenu.value.targetTab.id;
         tabsStore.tabs.forEach((tab) => {
           if (tab.id !== targetTabId) {
-            tabsStore.removeTab(tab.id);
+            tabsStore.removeTab(tab.id, router);
           }
         });
         tabsStore.setActiveTab(targetTabId);
@@ -214,7 +228,7 @@ export default {
         if (targetTabIndex > 0) {
           const tabsToRemove = tabsStore.tabs.slice(0, targetTabIndex);
           tabsToRemove.forEach((tab) => {
-            tabsStore.removeTab(tab.id);
+            tabsStore.removeTab(tab.id, router);
           });
         }
       }
@@ -230,7 +244,7 @@ export default {
         if (targetTabIndex < tabsStore.tabs.length - 1) {
           const tabsToRemove = tabsStore.tabs.slice(targetTabIndex + 1);
           tabsToRemove.forEach((tab) => {
-            tabsStore.removeTab(tab.id);
+            tabsStore.removeTab(tab.id, router);
           });
         }
       }
@@ -251,7 +265,7 @@ export default {
 
     // Close tab
     const closeTab = (tabId) => {
-      tabsStore.removeTab(tabId);
+      tabsStore.removeTab(tabId, router);
 
       // If no tabs left, go back to home page
       if (tabsStore.tabs.length === 0) {
@@ -371,6 +385,7 @@ export default {
       tabsStore,
       tabsContainer,
       contextMenu,
+      translations,
       shouldShowTabs,
       handleWheelScroll,
       showContextMenu,
