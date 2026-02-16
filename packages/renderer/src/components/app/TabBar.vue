@@ -29,7 +29,9 @@
             :name="getTabIcon(tab)"
             class="w-4 h-4 mr-2 flex-shrink-0"
           />
-          <span class="truncate max-w-xs">{{ tab.title }}</span>
+          <span class="truncate max-w-xs">{{
+            tab.title || translations.editor.untitledNote
+          }}</span>
           <!-- Always show close button -->
           <button
             class="ml-2 p-0.5 rounded-full hover:bg-primary hover:bg-opacity-20 transition-all duration-200 flex-shrink-0 group"
@@ -120,6 +122,7 @@ export default {
     // Translations
     const translations = ref({
       tabs: {},
+      editor: {},
     });
 
     onMounted(async () => {
@@ -308,7 +311,7 @@ export default {
               tabsStore.addTab({
                 id: note.id,
                 type: 'note',
-                title: note.title || 'Untitled Note',
+                title: note.title,
               });
               nextTick(() => scrollToActiveTab());
               break;
