@@ -446,7 +446,7 @@
       >
         <v-remixicon name="riTableLine" />
       </button>
-      <ui-popover padding="p-2 flex flex-col items-center">
+      <ui-popover padding="p-2 flex items-center">
         <ui-popover padding="p-2 flex items-center">
           <template #trigger>
             <button
@@ -454,15 +454,6 @@
               class="flex items-center p-2 rounded-lg text-black dark:text-[color:var(--selected-dark-text)] hover:bg-neutral-100 dark:hover:bg-[#353333] transition duration-200"
             >
               <v-remixicon name="riPagesLine" />
-              <div
-                class="text-left overflow-hidden text-ellipsis whitespace-nowrap"
-              >
-                <p
-                  class="font-medium text-neutral-800 dark:text-[color:var(--selected-dark-text)] pl-2"
-                >
-                  {{ translations.menu.embed }}
-                </p>
-              </div>
             </button>
           </template>
           <input
