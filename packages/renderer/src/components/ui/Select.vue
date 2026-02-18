@@ -36,7 +36,38 @@
         @keydown="onKeydown"
         @blur="handleBlur"
       >
-        <span v-if="selectedText" class="block truncate">
+        <!-- Multiple selection display -->
+        <div
+          v-if="multiple && Array.isArray(modelValue) && modelValue.length > 0"
+          class="flex flex-wrap gap-1"
+        >
+          <span
+            v-for="value in modelValue.slice(0, maxDisplayTags)"
+            :key="value"
+            class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-secondary bg-opacity-20 text-secondary"
+          >
+            {{ getSelectedText(value) }}
+            <button
+              v-if="!disableTagRemoval"
+              type="button"
+              class="ml-1 text-secondary hover:text-red-500 focus:outline-none"
+              @click.stop="removeTag(value)"
+              @keydown.enter.stop="removeTag(value)"
+              @keydown.space.stop="removeTag(value)"
+            >
+              <v-remixicon name="riCloseLine" size="14" />
+            </button>
+          </span>
+          <span
+            v-if="modelValue.length > maxDisplayTags"
+            class="text-neutral-500 text-sm"
+          >
+            +{{ modelValue.length - maxDisplayTags }} more
+          </span>
+        </div>
+
+        <!-- Single selection or placeholder -->
+        <span v-else-if="selectedText" class="block truncate">
           {{ selectedText }}
         </span>
         <span v-else-if="placeholder" class="block truncate text-neutral-500">
@@ -85,30 +116,39 @@
           <div class="max-h-48 overflow-y-auto">
             <div
               v-if="placeholder && !hideePlaceholderInDropdown"
-              class="px-4 py-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 text-neutral-500"
+              class="px-4 py-2 hover:bg-neutral-200 dark:hover:bg-neutral-600 text-neutral-500 flex items-center justify-between"
               :class="{
-                'bg-neutral-200 dark:bg-neutral-600': modelValue === '',
+                'bg-neutral-200 dark:bg-neutral-600': isSelected(''),
               }"
               @click="select({ value: '', text: placeholder })"
             >
-              {{ placeholder }}
+              <span>{{ placeholder }}</span>
+              <v-remixicon
+                v-if="isSelected('')"
+                name="riCheckLine"
+                class="text-primary flex-shrink-0 ml-2"
+              />
             </div>
 
             <div
               v-for="(option, index) in filteredOptions"
               :key="`${option.value}-${index}`"
               :ref="(el) => setOptionRef(el, index)"
-              class="px-4 py-2 hover:bg-secondary hover:bg-opacity-20 transition-colors"
+              class="px-4 py-2 hover:bg-secondary hover:bg-opacity-20 transition-colors flex items-center justify-between"
               :class="{
-                'bg-neutral-100 dark:bg-neutral-700':
-                  option.value === String(modelValue),
+                'bg-neutral-100 dark:bg-neutral-700': isSelected(option.value),
                 'opacity-50 cursor-not-allowed': option.disabled,
                 'bg-secondary bg-opacity-20':
                   index === focusedIndex && !option.disabled,
               }"
               @click="select(option)"
             >
-              {{ option.text }}
+              <span>{{ option.text }}</span>
+              <v-remixicon
+                v-if="isSelected(option.value)"
+                name="riCheckLine"
+                class="text-primary flex-shrink-0 ml-2"
+              />
             </div>
 
             <div
@@ -130,12 +170,21 @@ import { useTranslation } from '@/composable/translations';
 
 export default {
   props: {
-    modelValue: [String, Number],
+    modelValue: [String, Number, Array], // 支持数组类型用于多选
     label: String,
     prependIcon: String,
     placeholder: String,
     block: Boolean,
     search: Boolean,
+    multiple: Boolean, // 新增多选模式开关
+    maxDisplayTags: {
+      type: Number,
+      default: 3, // 最多显示的标签数量
+    },
+    disableTagRemoval: {
+      type: Boolean,
+      default: false, // 是否禁用标签移除功能
+    },
     hideePlaceholderInDropdown: {
       type: Boolean,
       default: false,
@@ -222,12 +271,46 @@ export default {
       );
     });
 
+    // 获取选中文本（支持单选和多选）
     const selectedText = computed(() => {
+      if (props.multiple && Array.isArray(props.modelValue)) {
+        if (props.modelValue.length === 0) return '';
+        const texts = props.modelValue
+          .map((value) => getSelectedText(value))
+          .filter((text) => text);
+        return texts.join(', ');
+      }
+
       const option = allOptions.value.find(
         (opt) => opt.value === String(props.modelValue)
       );
       return option?.text || '';
     });
+
+    // 检查某个值是否被选中
+    const isSelected = (value) => {
+      if (props.multiple && Array.isArray(props.modelValue)) {
+        return props.modelValue.includes(String(value));
+      }
+      return String(props.modelValue) === String(value);
+    };
+
+    // 获取指定值对应的显示文本
+    const getSelectedText = (value) => {
+      const option = allOptions.value.find(
+        (opt) => opt.value === String(value)
+      );
+      return option?.text || String(value);
+    };
+
+    // 移除标签（多选模式下）
+    const removeTag = (value) => {
+      if (!props.multiple || !Array.isArray(props.modelValue)) return;
+
+      const newValue = props.modelValue.filter((item) => item !== value);
+      emit('update:modelValue', newValue);
+      emit('change', newValue);
+    };
 
     const toggle = () => {
       isOpen.value = !isOpen.value;
@@ -236,9 +319,24 @@ export default {
           searchQuery.value = '';
           optionRefs.value = [];
 
-          const currentIndex = filteredOptions.value.findIndex(
-            (opt) => opt.value === String(props.modelValue)
-          );
+          // 查找当前选中项的索引
+          let currentIndex = -1;
+          if (
+            props.multiple &&
+            Array.isArray(props.modelValue) &&
+            props.modelValue.length > 0
+          ) {
+            // 多选模式下，找到第一个选中项
+            currentIndex = filteredOptions.value.findIndex((opt) =>
+              props.modelValue.includes(String(opt.value))
+            );
+          } else {
+            // 单选模式
+            currentIndex = filteredOptions.value.findIndex(
+              (opt) => opt.value === String(props.modelValue)
+            );
+          }
+
           focusedIndex.value = Math.max(0, currentIndex);
 
           if (props.search && searchInput.value) {
@@ -253,10 +351,36 @@ export default {
     const select = (option) => {
       if (option.disabled) return;
 
-      emit('update:modelValue', option.value);
-      emit('change', option.value);
-      isOpen.value = false;
-      selectButton.value?.focus();
+      if (props.multiple) {
+        // 多选模式
+        const currentValue = Array.isArray(props.modelValue)
+          ? [...props.modelValue]
+          : [];
+        const optionValue = String(option.value);
+
+        const index = currentValue.indexOf(optionValue);
+        if (index > -1) {
+          // 已选中则移除
+          currentValue.splice(index, 1);
+        } else {
+          // 未选中则添加
+          currentValue.push(optionValue);
+        }
+
+        emit('update:modelValue', currentValue);
+        emit('change', currentValue);
+
+        // 多选模式下保持下拉菜单开启
+        if (!props.closeOnSelect) {
+          selectButton.value?.focus();
+        }
+      } else {
+        // 单选模式（原有逻辑）
+        emit('update:modelValue', option.value);
+        emit('change', option.value);
+        isOpen.value = false;
+        selectButton.value?.focus();
+      }
     };
 
     const selectFocused = () => {
@@ -380,6 +504,9 @@ export default {
       setOptionRef,
       toggle,
       select,
+      isSelected,
+      getSelectedText,
+      removeTag,
       onKeydown,
       onSearchKeydown,
       handleBlur,
