@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="general w-full max-w-2xl mx-auto px-6 py-8 space-y-4">
+  <div class="general space-y-8 mb-14 w-full max-w-xl">
     <!-- Logo -->
     <div class="flex justify-center">
       <img
@@ -86,11 +86,12 @@
 </template>
 
 <script>
-import { onMounted, ref, shallowReactive } from 'vue';
-import { useTranslation } from '@/composable/translations';
+import { onMounted, shallowReactive } from 'vue';
+import { useTranslations } from '@/composable/useTranslations';
 
 export default {
   setup() {
+    const { translations } = useTranslations();
     const links = [
       {
         name: 'website',
@@ -213,17 +214,7 @@ export default {
     const getIconClass = () =>
       state.updateStatusType === 'checking' ? 'animate-spin' : '';
 
-    const translations = ref({
-      about: {},
-      settings: {},
-    });
-
     onMounted(async () => {
-      await useTranslation().then((trans) => {
-        if (trans) {
-          translations.value = trans;
-        }
-      });
       setupListeners();
       const ipc = window.electron?.ipcRenderer;
       if (ipc) {

@@ -21,6 +21,10 @@ export function useDragAndDrop({ selectedItems }) {
 
   function handleNoteDragStart(event, noteId) {
     isDragging.value = true;
+    const sourceElement = document.querySelector(
+      `[data-item-id="note-${noteId}"]`
+    );
+    sourceElement?.setAttribute('data-dragging', '');
     const noteIds = getIdsForDrag('note', noteId);
 
     const selectedElements = noteIds
@@ -54,6 +58,10 @@ export function useDragAndDrop({ selectedItems }) {
 
   function handleFolderDragStart(event, folderId) {
     isDragging.value = true;
+    const sourceElement = document.querySelector(
+      `[data-item-id="folder-${folderId}"]`
+    );
+    sourceElement?.setAttribute('data-dragging', '');
     const folderIds = getIdsForDrag('folder', folderId);
 
     const selectedElements = folderIds
@@ -86,6 +94,9 @@ export function useDragAndDrop({ selectedItems }) {
   }
 
   function handleDragEnd() {
+    document
+      .querySelectorAll('[data-dragging]')
+      .forEach((el) => el.removeAttribute('data-dragging'));
     isDragging.value = false;
     dragOverFolderId.value = null;
     draggedNoteId.value = null;

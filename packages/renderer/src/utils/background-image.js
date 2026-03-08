@@ -37,10 +37,12 @@ async function readFile(file) {
  */
 async function createBackgroundFileName(filePath) {
   const dataDir = await storage.get('dataDir');
-  const { ext } = path.parse(filePath);
-  // 统一命名为bg，保留原始扩展名
+  // 使用 extname 方法代替 parse 方法获取扩展名
+  const ext = path.extname(filePath);
+  // 统一命名为 bg，保留原始扩展名
   const fileName = `bg${ext}`;
-  const assetsPath = path.join(dataDir, 'background-images');
+  // 修改：将存储路径改为 settings 目录
+  const assetsPath = path.join(dataDir, 'settings', 'background-images');
   await ipcRenderer.callMain('fs:ensureDir', assetsPath);
   const destPath = path.join(assetsPath, fileName);
   return { destPath, fileName };
@@ -61,8 +63,8 @@ export async function uploadBackgroundImage(file) {
       path: destPath,
     });
 
-    // 返回asset URL格式
-    const assetUrl = `assets://background/${fileName}`;
+    // 修改：返回 settings 协议的 URL 格式
+    const assetUrl = `settings://background-images/${fileName}`;
     return { fileName, destPath, assetUrl };
   } catch (e) {
     console.error('上传背景图片失败:', e);
@@ -84,8 +86,8 @@ export async function copyBackgroundImage(filePath) {
       dest: destPath,
     });
 
-    // 返回asset URL格式
-    const assetUrl = `assets://background/${fileName}`;
+    // 修改：返回 settings 协议的 URL 格式
+    const assetUrl = `settings://background-images/${fileName}`;
     return { destPath, fileName, assetUrl };
   } catch (error) {
     console.error('复制背景图片失败:', error);
@@ -95,12 +97,12 @@ export async function copyBackgroundImage(filePath) {
 
 /**
  * 获取背景图片列表
- * @returns {Promise<string[]>} 返回背景图片asset URL列表
+ * @returns {Promise<string[]>} 返回背景图片 asset URL 列表
  */
 export async function getBackgroundImages() {
   try {
     const dataDir = await storage.get('dataDir');
-    const assetsPath = path.join(dataDir, 'background-images');
+    const assetsPath = path.join(dataDir, 'settings', 'background-images');
 
     // 确保目录存在
     await ipcRenderer.callMain('fs:ensureDir', assetsPath);
@@ -108,14 +110,17 @@ export async function getBackgroundImages() {
     // 读取目录内容
     const files = await ipcRenderer.callMain('fs:readDir', assetsPath);
 
-    // 过滤图片文件并转换为asset URL
+    // 过滤图片文件并转换为 asset URL
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
     const imageFiles = files.filter((file) => {
       const ext = path.extname(file).toLowerCase();
       return imageExtensions.includes(ext);
     });
 
-    return imageFiles.map((fileName) => `assets://background/${fileName}`);
+    // 修改：返回 settings 协议的 URL
+    return imageFiles.map(
+      (fileName) => `settings://background-images/${fileName}`
+    );
   } catch (error) {
     console.error('获取背景图片列表失败:', error);
     return [];
@@ -124,19 +129,25 @@ export async function getBackgroundImages() {
 
 /**
  * 删除背景图片文件
- * @param {string} assetUrl - asset URL (如: assets://background/bg.jpg)
+ * @param {string} assetUrl - asset URL (如：settings://background-images/bg.jpg)
  * @returns {Promise<void>}
  */
 export async function deleteBackgroundImage(assetUrl) {
   try {
-    // 从asset URL中提取文件名
+    // 从 asset URL 中提取文件名
     const fileName = assetUrl.split('/').pop();
     if (!fileName) {
       throw new Error('Invalid asset URL format');
     }
 
     const dataDir = await storage.get('dataDir');
-    const filePath = path.join(dataDir, 'background-images', fileName);
+    // 修改：使用 settings 目录路径
+    const filePath = path.join(
+      dataDir,
+      'settings',
+      'background-images',
+      fileName
+    );
 
     // 检查文件是否存在
     const exists = await ipcRenderer.callMain('fs:pathExists', filePath);

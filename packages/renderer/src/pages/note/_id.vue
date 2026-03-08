@@ -22,7 +22,7 @@
       </span>
     </button>
 
-    <template v-if="editor && !note.isLocked">
+    <template v-if="editor && !isLocked">
       <note-menu v-bind="{ editor, id, note }" class="mb-6" />
       <transition
         enter-active-class="transition duration-200 ease-out"
@@ -43,6 +43,7 @@
     <div
       v-if="!isLocked"
       ref="titleDiv"
+      data-testid="note-title-input"
       contenteditable="true"
       class="text-5xl outline-none block font-bold bg-transparent w-full mb-6 cursor-text title-placeholder"
       :placeholder="translations.editor.untitledNote"
@@ -55,18 +56,31 @@
         name="riLockLine"
       />
       <p class="text-center pb-2 text-gray-600 dark:text-gray-200">
-        {{ translations.card.unlockToEdit }}
+        {{
+          appEncryptedLocked
+            ? translations.settings?.unlockAppEncryption ||
+              'This note is encrypted at rest. Unlock app encryption in Settings to edit it.'
+            : translations.card.unlockToEdit
+        }}
       </p>
       <div class="pb-2">
         <button
-          class="ui-button py-2 text-center h-10 relative transition focus:ring-2 ring-secondary bg-input py-2 px-3 rounded-lg w-64"
-          @click="unlockNote(note.id)"
+          class="ui-button py-2 text-center h-10 relative transition focus:ring-1 ring-secondary bg-input py-2 px-3 rounded-lg w-64"
+          @click="
+            appEncryptedLocked
+              ? openSettingsForAppUnlock()
+              : unlockNote(note.id)
+          "
         >
-          {{ translations.card.unlock }}
+          {{
+            appEncryptedLocked
+              ? translations.app?.openSettings || 'Open Settings'
+              : translations.card.unlock
+          }}
         </button>
       </div>
       <router-link
-        class="ui-button py-2 text-center h-10 relative transition focus:ring-2 ring-secondary bg-input py-2 px-3 rounded-lg w-64"
+        class="ui-button py-2 text-center h-10 relative transition focus:ring-1 ring-secondary bg-input py-2 px-3 rounded-lg w-64"
         :to="`/`"
       >
         {{ translations.index.close }}
@@ -91,8 +105,8 @@
 </template>
 
 <script>
-import { ref, shallowRef, computed, watch, onMounted } from 'vue';
-import { useTranslation } from '@/composable/translations';
+import { ref, shallowRef, computed, watch, onMounted, onUnmounted } from 'vue';
+import { useTranslations } from '@/composable/useTranslations';
 import { useRouter, onBeforeRouteLeave, useRoute } from 'vue-router';
 import { useNoteStore } from '@/store/note';
 import { usePasswordStore } from '@/store/passwd';
@@ -100,12 +114,14 @@ import { useLabelStore } from '@/store/label';
 import { useStore } from '@/store';
 import { useDialog } from '@/composable/dialog';
 import { useStorage } from '@/composable/storage';
+import { onClose } from '@/composable/onClose';
 import { debounce } from '@/utils/helper';
 import Mousetrap from '@/lib/mousetrap';
 import NoteEditor from '@/components/note/NoteEditor.vue';
 import NoteMenu from '@/components/note/NoteMenu.vue';
 import NoteSearch from '@/components/note/NoteSearch.vue';
 import { useAppStore } from '../../store/app';
+import { isAppEncryptedContent } from '@/utils/appCrypto';
 
 export default {
   components: { NoteEditor, NoteMenu, NoteSearch },
@@ -125,7 +141,13 @@ export default {
 
     const id = computed(() => route.params.id);
     const note = computed(() => noteStore.getById(id.value));
-    const isLocked = computed(() => note.value && note.value.isLocked);
+    const appEncryptedLocked = computed(
+      () => !!note.value && isAppEncryptedContent(note.value.content)
+    );
+    const isLocked = computed(
+      () => !!note.value && (note.value.isLocked || appEncryptedLocked.value)
+    );
+    const { translations } = useTranslations();
 
     watch(
       id,
@@ -202,11 +224,37 @@ export default {
       }
     }, 50);
 
-    const updateNote = debounce((data) => {
-      Object.assign(data, { updatedAt: Date.now() });
+    async function persistCurrentNote(noteId = route.params.id) {
+      if (appEncryptedLocked.value) return;
+      if (!noteId || !noteStore.getById(noteId)) return;
 
-      noteStore.update(note.value.id, data);
-    }, 250);
+      const labels = new Set();
+      const labelEls =
+        editor.value?.options.element.querySelectorAll('[data-mention]') ?? [];
+
+      Array.from(labelEls).forEach((el) => {
+        const labelId = el.dataset.id;
+        if (labelStore.data.includes(labelId)) labels.add(labelId);
+      });
+
+      const currentContent = editor.value?.getJSON();
+      const currentTitle = titleDiv.value?.innerText ?? '';
+
+      await noteStore.update(noteId, {
+        labels: [...labels],
+        ...(currentContent ? { content: currentContent } : {}),
+        ...(currentTitle !== undefined ? { title: currentTitle } : {}),
+      });
+    }
+
+    const updateNote = (data) => {
+      if (appEncryptedLocked.value) return Promise.resolve();
+      const noteId = note.value?.id || route.params.id;
+      if (!noteId || !noteStore.getById(noteId)) return Promise.resolve();
+
+      Object.assign(data, { updatedAt: Date.now() });
+      return noteStore.update(noteId, data);
+    };
 
     function closeSearch() {
       showSearch.value = false;
@@ -215,7 +263,7 @@ export default {
     watch(
       () => route.params.id,
       (noteId, oldNoteId) => {
-        if (oldNoteId) {
+        if (oldNoteId && noteStore.getById(oldNoteId)) {
           noteStore.update(oldNoteId, {
             lastCursorPosition: editor.value?.state.selection.to,
           });
@@ -235,6 +283,11 @@ export default {
       { immediate: true }
     );
 
+    const handleBeforeUnload = () => {
+      // Best-effort flush for Cmd/Ctrl+R or hard renderer reload.
+      void persistCurrentNote(route.params.id);
+    };
+
     onMounted(() => {
       Mousetrap.bind(['mod+f', 'alt+left'], (event, combo) => {
         if (combo === 'mod+f') {
@@ -245,38 +298,19 @@ export default {
           router.back();
         }
       });
+      window.addEventListener('beforeunload', handleBeforeUnload);
     });
-    onBeforeRouteLeave(() => {
-      const labels = new Set();
-      const labelEls =
-        editor.value?.options.element.querySelectorAll('[data-mention]') ?? [];
 
-      Array.from(labelEls).forEach((el) => {
-        const labelId = el.dataset.id;
-
-        if (labelStore.data.includes(labelId)) labels.add(labelId);
-      });
-
-      noteStore.update(route.params.id, {
-        labels: [...labels],
-      });
-
+    onUnmounted(() => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    });
+    onBeforeRouteLeave(async () => {
+      await persistCurrentNote(route.params.id);
       Mousetrap.unbind('mod+f');
     });
 
-    // Translations
-    const translations = ref({
-      editor: {},
-      card: {},
-      index: {},
-    });
-
-    onMounted(async () => {
-      await useTranslation().then((trans) => {
-        if (trans) {
-          translations.value = trans;
-        }
-      });
+    onClose(async () => {
+      await persistCurrentNote(route.params.id);
     });
 
     const focusEditor = () =>
@@ -300,6 +334,12 @@ export default {
     async function unlockNote(note) {
       const passwordStore = usePasswordStore();
       const noteStore = useNoteStore();
+      const showWrongPassword = () =>
+        dialog.alert({
+          title: translations.value.settings?.alertTitle || 'Alert',
+          body: translations.value.card.wrongPasswd,
+          okText: translations.value.dialog?.close || 'Close',
+        });
 
       dialog.prompt({
         title: translations.value.card.enterPasswd,
@@ -312,11 +352,10 @@ export default {
 
             if (!hassharedKey) {
               try {
-                console.log('test');
                 await noteStore.unlockNote(note, enteredPassword);
                 await passwordStore.setsharedKey(enteredPassword);
               } catch (error) {
-                alert(translations.value.card.wrongPasswd);
+                showWrongPassword();
                 return;
               }
             } else {
@@ -326,15 +365,19 @@ export default {
               if (isValidPassword) {
                 await noteStore.unlockNote(note, enteredPassword);
               } else {
-                alert(translations.value.card.wrongPasswd);
+                showWrongPassword();
               }
             }
           } catch (error) {
             console.error('Error unlocking note:', error);
-            alert(translations.value.card.wrongPasswd);
+            showWrongPassword();
           }
         },
       });
+    }
+
+    function openSettingsForAppUnlock() {
+      router.push('/settings');
     }
 
     const titleDiv = ref(null);
@@ -365,6 +408,8 @@ export default {
       translations,
       store,
       unlockNote,
+      openSettingsForAppUnlock,
+      appEncryptedLocked,
       editor,
       showSearch,
       updateNote,

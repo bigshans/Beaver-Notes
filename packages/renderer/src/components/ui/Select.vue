@@ -10,7 +10,7 @@
     </label>
 
     <div
-      class="ui-select__content flex items-center w-full block transition focus-within:ring-2 ring-secondary bg-input rounded-lg appearance-none focus:outline-none relative"
+      class="ui-select__content flex items-center w-full block transition focus-within:ring-1 ring-secondary bg-input rounded-lg appearance-none focus:outline-none relative"
     >
       <!-- Prepend icon -->
       <v-remixicon
@@ -155,7 +155,7 @@
               v-if="search && searchQuery && filteredOptions.length === 0"
               class="px-4 py-2 text-neutral-500 text-center"
             >
-              No options found
+              {{ translations.index?.notFound || 'No options found' }}
             </div>
           </div>
         </div>
@@ -166,7 +166,7 @@
 
 <script>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
-import { useTranslation } from '@/composable/translations';
+import { useTranslations } from '@/composable/useTranslations';
 
 export default {
   props: {
@@ -204,11 +204,7 @@ export default {
     const focusedIndex = ref(-1);
     const searchQuery = ref('');
     const optionRefs = ref([]);
-    const translations = ref({ index: {} });
-    onMounted(async () => {
-      const trans = await useTranslation();
-      if (trans) translations.value = trans;
-    });
+    const { translations } = useTranslations();
 
     const setOptionRef = (el, index) => {
       if (el) {

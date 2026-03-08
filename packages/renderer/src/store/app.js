@@ -16,6 +16,18 @@ export const useAppStore = defineStore('appStore', () => {
       defaultValue: true,
       parse: (v) => (typeof v === 'boolean' ? v : v === 'true'),
     }),
+    // Toolbar order/visibility — raw JSON array, logic lives in useToolbarConfig
+    toolbarConfig: useLocalStorage('toolbarConfig', {
+      defaultValue: null,
+      parse: (v) => {
+        try {
+          const parsed = typeof v === 'string' ? JSON.parse(v) : v;
+          return Array.isArray(parsed) ? parsed : null;
+        } catch {
+          return null;
+        }
+      },
+    }),
     enableTabs: useLocalStorage('enableTabs', {
       defaultValue: false,
       parse: (v) => (typeof v === 'boolean' ? v : v === 'true'),
@@ -53,6 +65,7 @@ export const useAppStore = defineStore('appStore', () => {
   };
 
   const loading = ref(false);
+
   return {
     setting,
     ui,
@@ -60,6 +73,7 @@ export const useAppStore = defineStore('appStore', () => {
       settingStorage[key]?.set(value);
       setting.value[key] = value;
     },
+    toolbarStorage: settingStorage.toolbarConfig,
     loading,
   };
 });

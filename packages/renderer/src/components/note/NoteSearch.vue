@@ -6,7 +6,7 @@
       class="relative bg-white dark:bg-neutral-800 border rounded-xl shadow-lg overflow-hidden w-full sm:w-fit sm:mx-auto"
     >
       <!-- Desktop Layout -->
-      <div class="hidden sm:flex items-center p-2 space-x-2">
+      <div class="hidden md:flex items-center p-2 space-x-2">
         <!-- Regex Toggle Button -->
         <ui-button
           v-tooltip="translations.search.useRegex"
@@ -99,7 +99,7 @@
       </div>
 
       <!-- Mobile Layout -->
-      <div class="sm:hidden">
+      <div class="md:hidden">
         <!-- Search Row -->
         <div class="flex items-center p-2 space-x-2">
           <!-- Search Term Input -->
@@ -243,8 +243,8 @@
 </template>
 
 <script>
-import { shallowReactive, onMounted, onUnmounted, ref } from 'vue';
-import { useTranslation } from '@/composable/translations';
+import { shallowReactive, onMounted, onUnmounted } from 'vue';
+import { useTranslations } from '@/composable/useTranslations';
 import Mousetrap from '@/lib/mousetrap';
 
 export default {
@@ -260,6 +260,8 @@ export default {
   },
   emits: ['close'],
   setup(props) {
+    const { translations } = useTranslations();
+
     const state = shallowReactive({
       query: '',
       replaceWith: '',
@@ -356,18 +358,6 @@ export default {
       const text = editorState.doc.textBetween(from, to, ' ');
 
       if (text) state.query = text;
-    });
-
-    const translations = ref({
-      search: {},
-    });
-
-    onMounted(async () => {
-      await useTranslation().then((trans) => {
-        if (trans) {
-          translations.value = trans;
-        }
-      });
     });
 
     onUnmounted(() => {

@@ -7,30 +7,37 @@
       <p class="text-xs text-neutral-500 mt-1">
         <!-- tiny hint showing selection type/count -->
         <span v-if="props.mode === 'note'"
-          >{{ notes.length }} note{{ notes.length !== 1 ? 's' : '' }}</span
+          >{{ notes.length }} {{ noteCountLabel }}</span
         >
-        <span v-else
-          >{{ folders.length }} folder{{
-            folders.length !== 1 ? 's' : ''
-          }}</span
-        >
+        <span v-else>{{ folders.length }} {{ folderCountLabel }}</span>
       </p>
     </template>
 
     <div>
       <!-- Root option -->
       <div
-        class="flex items-center p-2 rounded hover:bg-primary hover:bg-opacity-30 cursor-pointer transition"
-        :class="{ 'bg-primary bg-opacity-20': selectedId === null }"
+        class="group flex items-center p-2 rounded-md cursor-pointer transition-all duration-200"
+        :class="{
+          'bg-primary/10 text-primary font-medium ring-1 ring-primary/30':
+            selectedId === null,
+          'hover:bg-neutral-100 dark:hover:bg-neutral-800': selectedId !== null,
+        }"
         @click="selectedId = null"
       >
-        <v-remixicon
-          name="riHomeLine"
-          class="mr-2 text-neutral-500"
-          :class="{ 'text-primary': selectedId === null }"
-        />
-        <span>{{ translations.folderTree.root }}</span>
+        <div class="mr-2 flex items-center justify-center">
+          <v-remixicon
+            name="riFolder5Fill"
+            class="w-5 h-5"
+            :class="selectedId === null ? 'text-primary' : 'text-neutral-400'"
+          />
+        </div>
+
+        <span class="flex-1 truncate text-sm">
+          {{ translations.folderTree.root }}
+        </span>
       </div>
+
+      <hr class="my-1 border-neutral-100 dark:border-neutral-800" />
 
       <!-- Folder tree -->
       <div class="max-h-64 overflow-y-auto p-1">
@@ -78,11 +85,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useFolderStore } from '@/store/folder';
 import FolderTreeItem from './FolderTreeItem.vue';
 import { useNoteStore } from '@/store/note';
-import { useTranslation } from '@/composable/translations';
+import { useTranslations } from '@/composable/useTranslations';
 
 const props = defineProps({
   notes: { type: Array, default: () => [] },
@@ -95,11 +102,7 @@ const props = defineProps({
   },
 });
 
-const translations = ref({ folderTree: {} });
-onMounted(async () => {
-  const trans = await useTranslation();
-  if (trans) translations.value = trans;
-});
+const { translations } = useTranslations();
 
 const emit = defineEmits(['update:modelValue', 'moved']);
 
@@ -120,16 +123,11 @@ const rootFolders = computed(() => {
     .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 });
 
-/** If moving notes, compute a set (usually size 1 or more) of their current folderIds (null allowed). */
 const currentFolderIds = computed(() => {
   if (props.mode !== 'note') return new Set();
   return new Set(props.notes.map((n) => n?.folderId ?? null));
 });
 
-/** Preselect a sensible target:
- *  - notes: common folder if all in same folder, else null
- *  - folders: common parent if all share a parent, else null
- */
 const commonNoteFolderId = computed(() => {
   if (props.mode !== 'note' || props.notes.length === 0) return null;
   const s = new Set(props.notes.map((n) => n?.folderId ?? null));
@@ -195,6 +193,18 @@ const moveLabel = computed(() => {
     ? translations.value.folderTree.moveToFolder
     : translations.value.folderTree.moveItemsToFolder.replace('{count}', n);
 });
+
+const noteCountLabel = computed(() =>
+  props.notes.length === 1
+    ? translations.value.folderTree?.noteSingular || 'note'
+    : translations.value.folderTree?.notePlural || 'notes'
+);
+
+const folderCountLabel = computed(() =>
+  props.folders.length === 1
+    ? translations.value.folderTree?.folderSingular || 'folder'
+    : translations.value.folderTree?.folderPlural || 'folders'
+);
 
 async function handleMove() {
   if (isMoving.value) return;

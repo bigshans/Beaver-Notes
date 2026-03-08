@@ -27,26 +27,46 @@
       }}</ui-checkbox>
     </div>
     <div class="mt-8 flex space-x-2 rtl:space-x-0">
-      <ui-button class="w-6/12 rtl:ml-2" @click="fireCallback('onCancel')">
-        {{ state.options.cancelText }}
-      </ui-button>
       <ui-button
-        class="w-6/12"
+        v-if="state.type === 'alert'"
+        class="w-full"
         :variant="state.options.okVariant"
         @click="fireCallback('onConfirm')"
       >
-        {{ state.options.okText }}
+        {{
+          state.options.okText !== 'Confirm'
+            ? state.options.okText
+            : translations.dialog.close || 'Close'
+        }}
       </ui-button>
+      <template v-else>
+        <ui-button class="w-6/12 rtl:ml-2" @click="fireCallback('onCancel')">
+          {{
+            state.options.cancelText !== 'Cancel'
+              ? state.options.cancelText
+              : translations.dialog.cancel
+          }}
+        </ui-button>
+        <ui-button
+          class="w-6/12"
+          :variant="state.options.okVariant"
+          @click="fireCallback('onConfirm')"
+        >
+          {{
+            state.options.okText !== 'Confirm'
+              ? state.options.okText
+              : translations.dialog.confirm
+          }}
+        </ui-button>
+      </template>
     </div>
   </ui-modal>
 </template>
 
 <script>
-import { reactive, watch, ref, onMounted } from 'vue';
+import { reactive, watch, ref } from 'vue';
 import emitter from 'tiny-emitter/instance';
-import { allPermissions } from '../../constants';
-import { useTranslation } from '../../composable/translations';
-import { t } from '@/utils/translations';
+import { useTranslations } from '../../composable/useTranslations';
 
 const defaultOptions = {
   html: false,
@@ -54,7 +74,6 @@ const defaultOptions = {
   title: '',
   placeholder: '',
   label: '',
-  auth: [],
   allowedEmpty: true,
   okText: 'Confirm',
   okVariant: 'primary',
@@ -72,16 +91,8 @@ export default {
       options: defaultOptions,
     });
 
-    const auths = ref(allPermissions.map((p) => ({ label: p, value: false })));
     const isEmpty = ref(false);
-    const translations = ref({});
-    onMounted(async () => {
-      useTranslation().then((trans) => {
-        if (trans) {
-          translations.value = trans;
-        }
-      });
-    });
+    const { translations } = useTranslations();
 
     emitter.on('show-dialog', (type, options) => {
       state.type = type;
@@ -89,12 +100,6 @@ export default {
         ...defaultOptions,
         ...options,
       };
-
-      const checkedAuths = state.options.auth || [];
-      for (let i = 0, len = auths.value.length; i < len; i++) {
-        const auth = auths.value[i].label;
-        auths.value[i].value = checkedAuths.findIndex((a) => a === auth) >= 0;
-      }
 
       state.show = true;
       isEmpty.value = false;
@@ -108,7 +113,6 @@ export default {
           : state.type === 'auth'
           ? {
               name: state.input,
-              auths: auths.value.filter((a) => a.value).map((a) => a.label),
             }
           : true;
       let hide = true;
@@ -156,10 +160,8 @@ export default {
     return {
       state,
       fireCallback,
-      auths,
       isEmpty,
       translations,
-      t,
     };
   },
 };

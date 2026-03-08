@@ -14,19 +14,19 @@
   ></div>
 
   <div
-    v-show="updateBanner.show"
+    v-show="syncLockBanner.show"
     class="flex fixed bottom-0 mx-auto align-center items-center w-full z-50"
+    :class="updateBanner.show ? 'mb-16' : ''"
   >
     <ui-banner
-      :content="updateBanner.content"
-      :primary-text="updateBanner.primaryText"
-      :secondary-text="updateBanner.secondaryText"
-      @button-1="handleUpdateInstall"
-      @button-2="handleUpdateDismiss"
+      :content="syncLockBannerCopy.content"
+      :primary-text="syncLockBannerCopy.primaryText"
+      :secondary-text="syncLockBannerCopy.secondaryText"
+      @button-1="openSyncSettings"
+      @button-2="dismissSyncBanner"
     />
   </div>
 
-  <!-- Main Container with proper sidebar spacing -->
   <div
     class="flex flex-col h-screen relative"
     :class="{ 'pl-16': !store.inReaderMode }"
@@ -57,15 +57,22 @@ import { useTheme } from './composable/theme';
 import { useStore } from './store';
 import { useNoteStore } from './store/note';
 import { useLabelStore } from './store/label';
+import { useTabsStore } from './store/tabs';
+import { useTranslations } from './composable/useTranslations';
 import notes from './utils/notes';
 import AppSidebar from './components/app/AppSidebar.vue';
 import AppCommandPrompt from './components/app/AppCommandPrompt.vue';
 import TabBar from './components/app/TabBar.vue';
 import Mousetrap from '@/lib/mousetrap';
 import { useAppStore } from './store/app';
-import { useTranslation } from './composable/translations';
 import { importBEA } from './utils/share/BEA';
-import { useTabsStore } from './store/tabs';
+import {
+  tryRestoreKeyFromSafeStorage,
+  syncFolderHasEncryption,
+  isSyncKeyLoaded,
+} from './utils/syncCrypto';
+import { tryRestoreAppKeyFromSafeStorage } from './utils/appCrypto';
+import { getSyncPath } from './utils/syncPath';
 
 export default {
   components: {
@@ -74,6 +81,7 @@ export default {
     TabBar,
   },
   setup() {
+    const { translations } = useTranslations();
     const { onFileOpened } = window.electron;
     const theme = useTheme();
     const store = useStore();
@@ -91,6 +99,17 @@ export default {
       secondaryText: '',
       version: '',
     });
+    const syncLockBanner = reactive({
+      show: false,
+      dismissed: false,
+    });
+    const syncLockBannerCopy = computed(() => ({
+      content:
+        translations.value.app?.syncLockContent ||
+        'Sync is encrypted but locked on this device. Unlock it in Settings to resume sync.',
+      primaryText: translations.value.app?.openSettings || 'Open Settings',
+      secondaryText: translations.value.app?.dismiss || 'Dismiss',
+    }));
 
     const selectedFont = localStorage.getItem('selected-font') || 'Arimo';
     const selectedCodeFont =
@@ -121,18 +140,7 @@ export default {
     };
 
     const appStore = useAppStore();
-    const translations = ref({ dialog: {}, settings: {} });
-    console.log(appStore.updateToStorage);
-
-    // Check if current route is settings page
-    const isInSettings = computed(() => {
-      const route = router.currentRoute.value;
-      return (
-        route.name === 'Settings' ||
-        route.name?.startsWith('Settings-') ||
-        route.path.startsWith('/settings')
-      );
-    });
+    let removeRouteGuard = null;
 
     // Handle update banner actions
     const handleUpdateInstall = () => {
@@ -201,6 +209,27 @@ export default {
       }
     });
 
+    const openSyncSettings = () => {
+      syncLockBanner.show = false;
+      router.push('/settings');
+    };
+
+    const dismissSyncBanner = () => {
+      syncLockBanner.dismissed = true;
+      syncLockBanner.show = false;
+    };
+
+    const refreshSyncLockBanner = async () => {
+      const inSettings = router.currentRoute.value.path.startsWith('/settings');
+      if (inSettings || syncLockBanner.dismissed) {
+        syncLockBanner.show = false;
+        return;
+      }
+
+      const folderEncrypted = await syncFolderHasEncryption();
+      syncLockBanner.show = folderEncrypted && !isSyncKeyLoaded();
+    };
+
     // Listen for update banner events
     const setupUpdateListeners = () => {
       if (window.electron && window.electron.ipcRenderer) {
@@ -218,12 +247,6 @@ export default {
     };
 
     onMounted(async () => {
-      await useTranslation().then((trans) => {
-        if (trans) {
-          translations.value = trans;
-        }
-      });
-
       document.body.style.zoom = state.zoomLevel;
 
       const platform = navigator.userAgent.toLowerCase();
@@ -298,10 +321,16 @@ export default {
       } catch (error) {
         console.error('Error checking auto-update status:', error);
       }
+
+      void refreshSyncLockBanner();
+      removeRouteGuard = router.afterEach(() => {
+        void refreshSyncLockBanner();
+      });
     });
 
     onUnmounted(() => {
       appStore.updateToStorage();
+      if (removeRouteGuard) removeRouteGuard();
     });
 
     const isFirstTime = localStorage.getItem('first-time');
@@ -329,8 +358,20 @@ export default {
         retrieved.value = true;
       });
     } else {
-      // Normal startup: retrieve data and optionally open last edited note
-      store.retrieve().then(() => (retrieved.value = true));
+      // Restore encryption keys BEFORE loading notes so _decryptNoteForMemory
+      // has the app key available. Without this, notes load as { ae:1 }
+      // envelopes because the key hasn't been restored from safeStorage yet
+      // when retrieve() runs, and the editor crashes parsing them.
+      void (async () => {
+        await getSyncPath();
+        await Promise.allSettled([
+          tryRestoreKeyFromSafeStorage(),
+          tryRestoreAppKeyFromSafeStorage(),
+        ]);
+        await store.retrieve();
+        retrieved.value = true;
+        await refreshSyncLockBanner();
+      })();
 
       if (appStore.setting.openLastEdited) {
         const lastNoteEdit = localStorage.getItem('lastNoteEdit');
@@ -381,9 +422,11 @@ export default {
       updateBanner,
       handleUpdateInstall,
       handleUpdateDismiss,
+      syncLockBanner,
+      syncLockBannerCopy,
+      openSyncSettings,
+      dismissSyncBanner,
       backgroundContainerStyle,
-      tabsStore,
-      isInSettings,
     };
   },
 };

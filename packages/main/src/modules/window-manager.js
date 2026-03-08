@@ -18,6 +18,7 @@ export class WindowManager {
 
     this.mainWindow = new BrowserWindow({
       show: false,
+      paintWhenInitiallyHidden: false,
       x: mainWindowState.x,
       y: mainWindowState.y,
       width: mainWindowState.width,
@@ -25,10 +26,11 @@ export class WindowManager {
       backgroundColor: nativeTheme.shouldUseDarkColors ? '#000000' : '#FFFFFF',
       webPreferences: {
         preload: join(__dirname, '../../preload/dist/index.cjs'),
-        contextIsolation: this.env.MODE !== 'test',
+        contextIsolation: true,
         enableRemoteModule: this.env.MODE === 'test',
-        nodeIntegration: true,
+        nodeIntegration: this.env.MODE === 'test',
         spellcheck: true,
+        backgroundThrottling: false,
       },
     });
 

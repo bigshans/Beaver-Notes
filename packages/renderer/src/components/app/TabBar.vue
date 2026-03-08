@@ -108,7 +108,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useNoteStore } from '@/store/note';
 import { useAppStore } from '@/store/app';
 import { useTabsStore } from '@/store/tabs';
-import { useTranslation } from '@/composable/translations';
+import { useTranslations } from '@/composable/useTranslations';
 
 export default {
   setup() {
@@ -120,18 +120,7 @@ export default {
     const tabsContainer = ref(null);
 
     // Translations
-    const translations = ref({
-      tabs: {},
-      editor: {},
-    });
-
-    onMounted(async () => {
-      await useTranslation().then((trans) => {
-        if (trans) {
-          translations.value = trans;
-        }
-      });
-    });
+    const translations = useTranslations().translations;
 
     // Right-click menu state
     const contextMenu = ref({
